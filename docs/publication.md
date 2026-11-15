@@ -6,4 +6,19 @@ Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from th
 
 The form calls the public `settings.join_waitlist` action on the existing Moeen API. It omits cookies, validates the address, requires an explicit submission, reports failures truthfully and never creates a workspace or account. The API stores unique normalized addresses and consent metadata. The authenticated Anas-Doleh page is the only management interface. No invitation or marketing email is sent by enrollment.
 
-Hosting uses a Render static site on the free static-site tier after its dashboard confirms the plan. Publication and domain verification are recorded after rollout. `app.moeen.dev` remains the workspace application.
+Hosting uses a Render static site. `app.moeen.dev` remains the workspace application. Static hosting and both custom domains are within the current included plan; outbound bandwidth and pipeline quotas still apply.
+
+
+## Verified publication, 16 November 2026
+
+- Public address: https://moeen.dev/. https://www.moeen.dev/ redirects to the root. Both are verified in Render with issued certificates and return HTTPS 200.
+- Static service: `moeen-website`, ID `srv-dbt1q5ek1f9s73ajrang`. The initial deployment is `dep-dbt1q5mk1f9s73ajrb90`, from website commit `d10b19a698f4e1088cb580f0d4563d67c7710cad` on `production`.
+- Render source is the public Website repository. Automatic deploys and PR previews are off. Build is `node scripts/build_site.mjs`, publish directory `dist`, and `WAITLIST_API_URL` is `https://app.moeen.dev/api/public/actions`.
+- Spaceship DNS adds only `@ A 216.24.57.1` and `www CNAME moeen-website.onrender.com`, with 30-minute TTL. The existing app CNAME, Spacemail records and Resend records remain intact.
+- The four response headers in `render.yaml` were also applied through Render's Headers page because the service was created manually, rather than from a Blueprint. HTTPS, the redirect, CSP, no-sniff header and both favicon assets were checked live.
+- App PR #110 is merged at `4c75021f01718c06e42ee51a4cbdc309254f81a9`, with `main`, `staging` and `production` aligned. Its GitHub CI and full local `pnpm check` passed, including 52 API tests with zero failures or skips. Beta 0.31 is live and migration 0013 stores registrations in the existing PostgreSQL database.
+- Backend configuration deployment `dep-dbt239m1egvs73f6qukg` uses that same application source. `WAITLIST_ORIGINS` explicitly allows `https://moeen.dev`, `https://www.moeen.dev` and `https://moeen-website.onrender.com`; it does not grant private API access or credentialed CORS.
+- Arabic and English, validation, real fonts and the logo hover fill were checked on the public HTTPS page. Desktop/mobile layouts and a successful form-to-database registration were checked locally with an isolated QA database; the generated QA account and registrations were removed afterward.
+- The verified product-owner account opened the live private page at `https://app.moeen.dev/settings/anas-doleh/waitlist`. The production list was empty at review. Live negative API checks confirmed invalid-input rejection, hostile-origin rejection and private-list authentication. No synthetic address was submitted to production and no signup email is sent by this form.
+
+Future source changes use a feature branch and pull request. Documentation-only publication records do not require rebuilding the unchanged static assets.
