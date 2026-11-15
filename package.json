@@ -1,0 +1,10 @@
+{
+  "name": "moeen-website",
+  "private": true,
+  "version": "0.1.0-beta.1",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build_site.mjs",
+    "check": "node --check public/site.js && node scripts/build_site.mjs"
+  }
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#131313">
+<link rel="canonical" href="https://moeen.dev/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon_32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon_16.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مُعين · Moeen</title>
+<meta name="description" content="Moeen is a hybrid system, architected for people and agents in equal measure, with the control of application software and the scale of infrastructure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Dashboard dark tokens. */
+  :root {
+    --ground: #131313; --background: #171717; --foreground: #FAFAFA; --muted-foreground: #A3A3A3; --faint: #737373;
+    --muted: #202020; --field: #FFFFFF0A; --border: #262626; --strong-border: #404040; --ring: #737373;
+    --primary: #FFFFFF; --primary-hover: #E5E5E5; --primary-foreground: #000000; --blue: #266DF0;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1); --reveal: 1s; --guide: #383838;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow-x: clip; }
+  body {
+    min-height: 100%; display: grid; place-items: center; padding: 48px 16px 88px;
+    background: var(--ground); color: var(--foreground);
+    font: 400 13px/20px "Inter", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss03'; -webkit-font-smoothing: antialiased;
+  }
+  :lang(ar) body, html:lang(ar) { font-family: "IBM Plex Sans Arabic", "Inter", ui-sans-serif, system-ui, sans-serif; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .55;
+    background-image: radial-gradient(circle, #333 .9px, transparent 1px); background-size: 16px 16px;
+    mask-image: radial-gradient(ellipse at 50% 38%, #000 0, transparent 62%); -webkit-mask-image: radial-gradient(ellipse at 50% 38%, #000 0, transparent 62%); }
+  main { position: relative; width: 100%; max-width: 440px; text-align: center; }
+  main > :not(.stage) { position: relative; z-index: 1; }
+
+  /* The mark in its construction frame. Guides run toward the edges of the window. */
+  .stage { position: relative; margin: 0 auto 40px; width: min(260px, 64vw); direction: ltr; }
+  .stage::before, .stage::after { content: ""; position: absolute; left: 50%; width: 200vw; transform: translateX(-50%); border-top: 1px solid var(--guide); transition: border-color .6s var(--ease);
+    mask-image: linear-gradient(to right, transparent 20%, #000 40%, #000 60%, transparent 80%); -webkit-mask-image: linear-gradient(to right, transparent 20%, #000 40%, #000 60%, transparent 80%); }
+  .stage::before { top: 16.67%; } .stage::after { bottom: 16.67%; }
+  .stage .v { position: absolute; bottom: -36px; height: calc(100vh + 36px); border-left: 1px dashed var(--guide); transition: border-color .6s var(--ease);
+    mask-image: linear-gradient(to top, transparent 0, #000 120px, #000 calc(100% - 40%), transparent); -webkit-mask-image: linear-gradient(to top, transparent 0, #000 120px, #000 calc(100% - 40%), transparent); }
+  .stage .v.a { left: 13.1%; } .stage .v.b { right: 13.1%; }
+  .mark { position: relative; display: block; width: 100%; height: auto; overflow: visible; }
+  .hatch { stroke: #6B6B6B; stroke-width: 2.5; }
+  .frame { stroke: #5C5C5C; stroke-width: 2; stroke-dasharray: 6 8; transition: stroke .6s var(--ease); }
+
+  /* One wipe, right to left: the fill arrives as the outline leaves. */
+  .outline, .fill { transition: clip-path var(--reveal) var(--ease); }
+  .outline { clip-path: inset(0 0 0 0); opacity: .7; }
+  .fill { clip-path: inset(0 0 0 100%); }
+  .stage:hover .fill, body.filled .fill { clip-path: inset(0 0 0 0); }
+  .stage:hover .outline, body.filled .outline { clip-path: inset(0 100% 0 0); }
+  .stage:hover::before, .stage:hover::after, .stage:hover .v { border-color: #525252; }
+  .stage:hover .frame { stroke: #737373; }
+
+  h1 { font-size: 24px; line-height: 32px; font-weight: 510; letter-spacing: -0.01em; text-wrap: balance; }
+  :lang(ar) h1 { letter-spacing: 0; line-height: 36px; }
+  p.lead { margin: 10px auto 0; max-width: 34em; color: var(--muted-foreground); font-size: 13px; line-height: 20px; text-wrap: pretty; }
+  :lang(ar) p.lead { line-height: 22px; }
+
+  form { margin: 24px auto 0; display: flex; gap: 8px; max-width: 380px; }
+  input { flex: 1; min-width: 0; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--field); color: var(--foreground);
+    font: inherit; font-size: 13px; direction: ltr; text-align: start; outline: none; transition: border-color .15s var(--ease); }
+  :lang(ar) input:placeholder-shown { text-align: right; }
+  input::placeholder { color: var(--faint); }
+  input:focus, input:focus-visible { outline: none; border-color: var(--ring); }
+  input[aria-invalid="true"] { border-color: #F87171; }
+  button.submit { height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: var(--primary); color: var(--primary-foreground);
+    font: inherit; font-size: 13px; font-weight: 450; cursor: pointer; white-space: nowrap; box-shadow: 0 1px 2px #0000000D; transition: background .15s var(--ease); }
+  button.submit:hover { background: var(--primary-hover); } button.submit:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .status { min-height: 20px; margin-top: 10px; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+  .status.ok::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-inline-end: 6px; border-radius: 50%; background: var(--blue); vertical-align: middle; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* Language switch: one icon button, as the dashboard's ghost icon buttons. */
+  .language { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 6px;
+    background: transparent; color: var(--muted-foreground); cursor: pointer; transition: background .15s var(--ease), color .15s var(--ease); }
+  .language:hover { background: #FFFFFF0D; color: var(--foreground); }
+
+  @media (prefers-reduced-motion: reduce) { .fill, .outline, .frame, .stage::before, .stage::after, .stage .v { transition: none; } }
+  @media (hover: none) { .fill { clip-path: inset(0 0 0 0); } .outline { clip-path: inset(0 100% 0 0); } }
+</style>
+</head>
+<body>
+<main>
+  <div class="stage" role="img" aria-label="مُعين · Moeen"><span class="v a"></span><span class="v b"></span><svg class="mark" viewBox="-129.5 -129.5 928 777" fill="none" aria-hidden="true">
+  <defs><pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V12" class="hatch"/></pattern></defs>
+  <g class="margins">
+    <rect x="-129.5" y="0" width="129.5" height="518" fill="url(#hatch)"/><rect x="669" y="0" width="129.5" height="518" fill="url(#hatch)"/>
+    <rect x="0" y="-129.5" width="669" height="129.5" fill="url(#hatch)"/><rect x="0" y="518" width="669" height="129.5" fill="url(#hatch)"/>
+  </g>
+  <rect x="-128" y="-128" width="925" height="774" class="frame"/>
+  <g class="outline">
+<mask id="stroke0_368_183" maskUnits="userSpaceOnUse" x="0" y="-0.756836" width="669" height="518" fill="black">
+<rect fill="white" y="-0.756836" width="669" height="518"/>
+<path d="M654.331 268.408L665 383.533C631.324 389.505 598.019 392.432 574.155 392.432C519.961 392.432 471.12 381.723 432.314 360.306V249.204H485.839C501.896 258.574 544.717 270.621 606.939 270.621C622.753 270.621 638.567 269.85 654.331 268.408Z"/>
+<path d="M405.107 118.692L417.819 160.857C433.208 212.393 452.611 229.794 486.064 249.204V327.511L432.539 360.306C407.783 454.007 326.158 514.243 205.057 514.243C56.5251 514.243 3 423.889 3 314.794C3 273.298 11.0288 229.125 24.41 185.621L102.021 198.338C94.6617 230.464 89.3092 261.251 89.3092 288.023C89.3092 350.267 118.079 393.101 217.769 393.101C288.69 393.101 354.258 371.684 354.258 311.448C354.258 296.723 350.244 236.487 316.791 148.81L405.107 118.692ZM220.446 145.464L150.194 74.5187L220.446 4.24316L290.697 74.5187L220.446 145.464Z"/>
+</mask>
+<path d="M432.314 249.204H485.839C501.896 258.574 544.717 270.621 606.939 270.621C622.753 270.621 638.567 269.85 654.332 268.408L665 383.533C631.324 389.505 598.019 392.432 574.155 392.432C519.961 392.432 471.12 381.723 432.314 360.306V249.204ZM217.769 393.101C288.69 393.101 354.258 371.684 354.258 311.448C354.258 296.723 350.244 236.487 316.791 148.81L405.107 118.692L417.819 160.857C433.208 212.393 452.611 229.794 486.064 249.204V327.511L432.539 360.306C407.783 454.007 326.158 514.243 205.057 514.243C56.5251 514.243 3 423.889 3 314.794C3 273.298 11.0288 229.125 24.41 185.621L102.021 198.338C94.6617 230.464 89.3092 261.251 89.3092 288.023C89.3092 350.267 118.079 393.101 217.769 393.101ZM150.194 74.5187L220.446 4.24316L290.697 74.5187L220.446 145.464L150.194 74.5187Z" stroke-width="6" stroke="white" mask="url(#stroke0_368_183)"/>
+</g>
+  <g class="fill"><g transform="translate(3 4.243)">
+<path d="M651.331 264.165L662 379.29C628.324 385.262 595.019 388.189 571.155 388.189C516.961 388.189 468.12 377.48 429.314 356.063V244.961H482.839C498.896 254.331 541.717 266.378 603.939 266.378C619.753 266.378 635.567 265.607 651.331 264.165Z" fill="url(#paint0_linear_368_180)"/>
+<path d="M402.107 114.449L414.819 156.614C430.208 208.15 449.611 225.551 483.064 244.961V323.268L429.539 356.063C404.783 449.764 323.158 510 202.057 510C53.5251 510 0 419.646 0 310.551C0 269.055 8.02876 224.882 21.41 181.378L99.0214 194.094C91.6617 226.22 86.3092 257.008 86.3092 283.78C86.3092 346.024 115.079 388.858 214.769 388.858C285.69 388.858 351.258 367.441 351.258 307.205C351.258 292.48 347.244 232.244 313.791 144.567L402.107 114.449ZM217.446 141.22L147.194 70.2756L217.446 0L287.697 70.2756L217.446 141.22Z" fill="url(#paint1_linear_368_180)"/>
+<defs>
+<linearGradient id="paint0_linear_368_180" x1="382.577" y1="337.741" x2="662.329" y2="346.102" gradientUnits="userSpaceOnUse">
+<stop offset="0.406172" stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint1_linear_368_180" x1="382.577" y1="337.741" x2="662.329" y2="346.102" gradientUnits="userSpaceOnUse">
+<stop offset="0.406172" stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</g></g>
+</svg></div>
+  <h1 data-text="headline"></h1>
+  <p class="lead" data-text="lead"></p>
+  <form id="waitlist" method="post" novalidate>
+    <label class="sr" for="email" data-text="label"></label>
+    <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required>
+    <button class="submit" type="submit" data-text="button"></button>
+  </form>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+</main>
+<button type="button" class="language" id="language">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.75 5.6 3.75 9S14.5 18.4 12 21M12 3C9.5 5.6 8.25 8.6 8.25 12S9.5 18.4 12 21"/></svg>
+</button>
+<script src="/site.js" defer></script>
+</body>
+</html>
