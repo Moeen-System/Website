@@ -103,22 +103,30 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 /* ---- Controls ------------------------------------------------------------------------ */
 
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px; block-size: 34px; padding-inline: 14px; border-radius: 999px; border: 1px solid transparent;
+  --button-height: 34px;
+  --button-padding: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  block-size: var(--button-height); padding-inline: var(--button-padding) var(--button-end, var(--button-padding));
+  border-radius: 999px; border: 1px solid transparent;
   font-family: inherit; font-size: 14px; font-weight: 500; line-height: 1; text-decoration: none; white-space: nowrap; cursor: pointer;
   transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease);
 }
 .btn:active { transform: scale(.97); }
-.btn--lg { block-size: 40px; padding-inline: 18px; font-size: 14.5px; }
-.btn--sm { block-size: 30px; padding-inline: 10px; font-size: 13px; }
-.btn--solid { background: var(--ink); color: var(--bg); padding-inline-end: 6px; }
+.btn--lg { --button-height: 40px; --button-padding: 16px; font-size: 14.5px; }
+.btn--sm { --button-height: 30px; --button-padding: 10px; font-size: 13px; }
+.btn--solid { background: var(--ink); color: var(--bg); }
 .btn--solid:hover { background: color-mix(in srgb, var(--ink) 84%, var(--bg)); }
-.btn__arrow { display: inline-grid; place-items: center; inline-size: 24px; block-size: 24px; border-radius: 50%; background: var(--bg); color: var(--ink); transition: transform .25s var(--ease); }
-.btn--lg .btn__arrow { inline-size: 28px; block-size: 28px; }
-.btn:hover .btn__arrow { transform: translateX(3px); }
-[dir="rtl"] .btn:hover .btn__arrow { transform: translateX(-3px); }
+.btn:has(> .btn__arrow) { --button-end: 4px; gap: 6px; }
+.btn__arrow {
+  --arrow-size: calc(var(--button-height) - 2 * (var(--button-end) + 1px));
+  display: inline-grid; place-items: center; flex: none;
+  inline-size: var(--arrow-size); block-size: var(--arrow-size); border-radius: 50%;
+  background: var(--bg); color: var(--ink);
+}
+.btn__arrow .i { inline-size: 15px; block-size: 15px; }
 .btn--ghost { background: var(--panel); color: var(--ink); border-color: var(--line-2); }
 .btn--ghost:hover { background: var(--panel-2); }
-.btn--light { background: #f4f4f5; color: #0c0c0d; padding-inline-end: 6px; }
+.btn--light { background: #f4f4f5; color: #0c0c0d; }
 .btn--light .btn__arrow { background: #0c0c0d; color: #f4f4f5; }
 .btn--light:hover { background: #fff; }
 .btn--outline { background: transparent; color: #f4f4f5; border-color: #3a3a40; }
@@ -454,11 +462,17 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   .platform-tile__log img { inline-size: 120%; max-inline-size: none; }
 }
 
-/* Isometric drawings: colours follow the theme; on hover the blocks lift apart, back to front. */
-:root { --iso-base: #e2e2e5; --iso-top-a: #ffffff; --iso-top-b: #f7f7f8; --iso-left: #f0f0f2; --iso-right: #e7e7ea; --iso-line: #d6d6da; }
-[data-theme="dark"] { --iso-base: #1a1a1c; --iso-top-a: #2e2e31; --iso-top-b: #28282b; --iso-left: #232325; --iso-right: #1e1e20; --iso-line: #343438; }
-.iso-b { transition: transform .55s var(--ease); transition-delay: calc(var(--k) * 40ms); }
-.tile:hover .iso-b, .tile:focus-visible .iso-b { transform: translateY(calc(var(--lift) * -1px)); }
+/* Menu illustrations use one outline weight and the page's muted ink in both themes. */
+.tile__art { --iso-stroke: var(--muted); }
+.iso-b { transition: transform .3s var(--ease); }
+.tile:focus-visible .iso-b { transform: translateY(calc(-1 * var(--lift))); }
+@media (hover: hover) {
+  .tile:hover .iso-b { transform: translateY(calc(-1 * var(--lift))); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile .iso-b { transition: none; }
+  .tile:is(:hover, :focus-visible) .iso-b { transform: none; }
+}
 
 /* Principles: a blue band, a staggered heading, numbered cells of white dotted line art. */
 .section--principles { --line: rgb(255 255 255 / .16); overflow: hidden; color: #fff; padding-block: 120px 104px;
@@ -556,19 +570,17 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 .workspace-tools__list b { font-size: 14px; font-weight: 600; }
 .workspace-tools__list p { color: var(--muted); font-size: 13px; }
 .workspace-tools__scene {
-  --scene-yaw: -16deg;
-  --scene-roll: -6deg;
+  --scene-yaw: -14deg;
   --scene-fade: to right;
   display: grid;
   place-items: center;
   perspective: 1400px;
   overflow: clip;
-  padding: 7% 2%;
+  padding: 5% 2%;
   background: radial-gradient(ellipse at center, var(--brand-soft), transparent 72%);
 }
 [dir="rtl"] .workspace-tools__scene {
-  --scene-yaw: 16deg;
-  --scene-roll: 6deg;
+  --scene-yaw: 14deg;
   --scene-fade: to left;
 }
 .workspace-tools__screen {
@@ -579,10 +591,10 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   border-radius: 12px;
   background: var(--panel);
   box-shadow: var(--shadow-lg);
-  transform: rotateX(20deg) rotateY(var(--scene-yaw)) rotateZ(var(--scene-roll));
+  transform: rotateY(var(--scene-yaw)) rotateX(9deg);
   mask-image:
-    linear-gradient(var(--scene-fade), #000 67%, transparent),
-    linear-gradient(to bottom, #000 68%, transparent);
+    linear-gradient(var(--scene-fade), #000 78%, transparent),
+    linear-gradient(to bottom, #000 79%, transparent);
   mask-composite: intersect;
 }
 .workspace-tools__screen img { inline-size: 100%; }
@@ -738,10 +750,8 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 [data-density="compact"] .hero__text { gap: 16px; max-inline-size: 700px; }
 [data-density="compact"] .stage { margin-block-start: 44px; }
 [data-density="compact"] .head { gap: 10px; margin-block-end: 28px; max-inline-size: 640px; }
-[data-density="compact"] .btn { block-size: 30px; padding-inline: 12px; font-size: 13px; }
-[data-density="compact"] .btn--lg { block-size: 34px; padding-inline: 14px; font-size: 13.5px; }
-[data-density="compact"] .btn__arrow { inline-size: 20px; block-size: 20px; }
-[data-density="compact"] .btn--lg .btn__arrow { inline-size: 24px; block-size: 24px; }
+[data-density="compact"] .btn { --button-height: 30px; --button-padding: 12px; font-size: 13px; }
+[data-density="compact"] .btn--lg { --button-height: 34px; --button-padding: 14px; font-size: 13.5px; }
 [data-density="compact"] .nav__item { block-size: 28px; font-size: 13px; padding-inline: 8px; }
 [data-density="compact"] .icon-btn { inline-size: 28px; block-size: 28px; }
 [data-density="compact"] .badge, [data-density="compact"] .eyebrow { font-size: 12px; }
