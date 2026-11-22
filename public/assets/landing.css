@@ -479,12 +479,13 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   .platform-tile__log img { inline-size: 120%; max-inline-size: none; }
 }
 
-/* Menu illustrations use one outline weight and the page's muted ink in both themes. */
-.tile__art { --iso-stroke: var(--muted); }
-.iso-b { transition: transform .3s var(--ease); }
-.tile:focus-visible .iso-b { transform: translateY(calc(-1 * var(--lift))); }
+/* Isometric drawings: colours follow the theme; on hover the blocks lift apart, back to front. */
+:root { --iso-base: #e2e2e5; --iso-top-a: #ffffff; --iso-top-b: #f7f7f8; --iso-left: #f0f0f2; --iso-right: #e7e7ea; --iso-line: #d6d6da; }
+[data-theme="dark"] { --iso-base: #1a1a1c; --iso-top-a: #2e2e31; --iso-top-b: #28282b; --iso-left: #232325; --iso-right: #1e1e20; --iso-line: #343438; }
+.iso-b { transition: transform .55s var(--ease); transition-delay: calc(var(--k) * 40ms); }
+.tile:focus-visible .iso-b { transform: translateY(calc(var(--lift) * -1px)); }
 @media (hover: hover) {
-  .tile:hover .iso-b { transform: translateY(calc(-1 * var(--lift))); }
+  .tile:hover .iso-b { transform: translateY(calc(var(--lift) * -1px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .tile .iso-b { transition: none; }

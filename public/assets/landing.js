@@ -424,15 +424,18 @@ document.addEventListener('keydown', (event) => {
 });
 matchMedia('(min-width: 1024px)').addEventListener('change', (event) => { if (event.matches) setSheet(false); });
 
-// Inline menu illustrations so their outlines follow the theme and can lift on hover.
+// Inline isometric menu illustrations so the blocks can lift and follow the theme.
 async function inlineIso() {
   const cache = new Map();
-  await Promise.all([...document.querySelectorAll('img[data-light*="/assets/iso/"]')].map(async (img) => {
+  await Promise.all([...document.querySelectorAll('img[data-light*="/assets/iso/"]')].map(async (img, index) => {
     const url = img.dataset.light;
     if (!cache.has(url)) cache.set(url, fetch(url).then((r) => r.text()));
     const markup = await cache.get(url);
     const holder = document.createElement('div');
-    holder.innerHTML = markup;
+    // A drawing can appear in more than one menu. Keep each copy's clipping paths and gradient local.
+    holder.innerHTML = markup
+      .replace(/id="([^"]+)"/g, (_, id) => `id="menu-${index}-${id}"`)
+      .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`);
     const svg = holder.querySelector('svg');
     if (!svg) return;
     svg.setAttribute('class', img.className.replace('theme-img', '').trim());
