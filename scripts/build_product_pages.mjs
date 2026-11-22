@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { copy, escape, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
-import { infoPages, sitePages } from '../public/assets/site_content.js';
+import { copy, escape, hasStory, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
+import { sitePages } from '../public/assets/site_content.js';
 import { buildNavigation } from './build_navigation.mjs';
 
 function pageDocument(page, context, symbols) {
@@ -36,12 +36,12 @@ function pageDocument(page, context, symbols) {
 <svg width="0" height="0" class="sprite" aria-hidden="true">${symbols}</svg>
 ${buildNavigation(page)}
 ${page === 'docs' ? '<main id="main" class="section product-page product-page--empty" tabindex="-1" data-product-content></main>' : `
-<main id="main" class="section product-page${infoPages[page] && !infoPages[page].image ? ' product-page--story' : ''}" tabindex="-1">
+<main id="main" class="section product-page${hasStory(page) ? ' product-page--story' : ''}" tabindex="-1">
   <div class="wrap product-page__wrap">
-    <header class="product-page__head">
+    ${hasStory(page) ? '' : `<header class="product-page__head">
       <h1 data-page-heading>${escape(pageTitle(page, 'ar'))}</h1>
       <p class="lead" data-page-lead>${description}</p>
-    </header>
+    </header>`}
     <div data-product-content>${renderContent(page, 'ar', context)}</div>
     ${page === 'roadmap' ? `<noscript><p class="page-status"><a href="${escape(origin)}/roadmap.json">خريطة الطريق بصيغة JSON</a></p></noscript>` : ''}
   </div>
