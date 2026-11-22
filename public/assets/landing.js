@@ -59,6 +59,8 @@ const EN = {
   work_nav_1: "Chat and mail",
   work_nav_0: "Tasks and teams",
   skip: 'Skip to content', home: 'Moeen, home', name: 'Moeen', main_nav: 'Main', menu: 'Menu', footer_nav: 'Site links',
+  nav_pricing: 'Pricing', nav_changelog: 'Changelog', nav_roadmap: 'Roadmap',
+  nav_changelog_s: 'New features, improvements and fixes', nav_roadmap_s: 'What we’re building and what’s planned',
   nav_product: 'Product', nav_customers: "Workspaces", nav_resources: 'Resources', nav_modules: 'Modules', nav_tools: 'Workspace tools',
   nav_download: 'Download', nav_download_s: 'The desktop app for macOS and Windows', nav_faq: 'Questions', nav_faq_s: 'What works in the beta',
   nav_waitlist: 'Waitlist', nav_waitlist_s: 'Get an invitation for your team',

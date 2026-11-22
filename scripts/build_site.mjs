@@ -1,3 +1,4 @@
+import { buildProductPages } from './build_product_pages.mjs';
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -33,3 +34,4 @@ let html=await readFile(root+'public/waitlist/index.html','utf8');
 for(const [tag,key]of [['h1','headline'],['p','lead'],['label','label'],['button','button']])html=html.replace(new RegExp(`(<${tag}[^>]*data-text="${key}"[^>]*>)(</${tag}>)`),`$1${escape(copy.ar[key])}$2`);
 await writeFile(root+'dist/waitlist/index.html',html);
 console.log('Built the Moeen landing page and the waitlist page with the public enrollment action.');
+await buildProductPages(root, endpoint.origin, landing);
