@@ -13,8 +13,12 @@ const group = (title, items) => `<div class="footer-group">${label(title, 'h3')}
 export function buildFooter(page = 'home') {
   const groups = navigation.filter(item => typeof item === 'object');
   const resources = navigation.filter(item => typeof item === 'string');
-  const menuColumn = item => group(item.label, item.upcoming ? upcomingList(item) :
-    [...item.tiles.map(([id]) => id), ...(item.featured ? [item.featured] : [])].map(id => link(id, page)).join(''));
+  const menuLinks = (tiles, tail) => [...tiles.map(([id]) => id), ...(tail ? [tail] : [])].map(id => link(id, page)).join('');
+  const menuColumn = item => {
+    if (item.sections) return item.sections.map((section, index) =>
+      group(index === 0 ? item.label : section.label, menuLinks(section.tiles, section.related ?? item.bottom[0]))).join('');
+    return group(item.label, item.upcoming ? upcomingList(item) : menuLinks(item.tiles));
+  };
   const extras = [
     ['/#security', text('الأمان', 'Security')], ['/#download', text('التنزيل', 'Download')], ['/#faq', text('الأسئلة الشائعة', 'FAQ')],
     ['https://github.com/Moeen-System/Downloads/releases', text('نسخ التطبيق', 'App releases')],

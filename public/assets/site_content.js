@@ -136,8 +136,8 @@ export const infoPages = {
 
 export const blogPosts = ['conversations_post', 'approvals_post', 'meetings_post'];
 const primaryPages = {
-  changelog: { path: '/changelog/', label: pair('سجل التحديثات', 'Changelog') },
-  roadmap: { path: '/roadmap/', label: pair('خريطة الطريق', 'Roadmap') },
+  changelog: { path: '/changelog/', label: pair('سجل التحديثات', 'Changelog'), navLabel: pair('التحديثات', 'Changelog') },
+  roadmap: { path: '/roadmap/', label: pair('خريطة الطريق', 'Roadmap'), navLabel: pair('البوصلة', 'Roadmap') },
   pricing: { path: '/pricing/', label: pair('الأسعار', 'Pricing') },
 };
 
@@ -145,20 +145,27 @@ export const sitePages = { ...primaryPages, ...infoPages };
 
 export const navigation = [
   { id: 'product', label: pair('المنتج', 'Product'),
-    tiles: [['tasks', 'tasks'], ['chat', 'chat'], ['teams', 'teams'], ['data', 'notes'], ['meetings', 'meetings'], ['mail', 'mail']],
-    featured: 'architecture' },
-  { id: 'ai', label: pair('الذكاء الاصطناعي', 'AI'),
-    tiles: [['ai_moeen', 'ask'], ['mcp', 'workflow'], ['knowledge_base', 'search'], ['skills', 'skills']],
-    featured: 'integrations' },
+    sections: [
+      { label: pair('مساحة العمل', 'Workspace'),
+        tiles: [['tasks', 'tasks'], ['chat', 'chat'], ['teams', 'teams'], ['data', 'notes'], ['meetings', 'meetings'], ['mail', 'mail']],
+        related: 'architecture' },
+      { label: pair('الذكاء الاصطناعي', 'AI'),
+        tiles: [['ai_moeen', 'ask'], ['mcp', 'workflow'], ['knowledge_base', 'search'], ['skills', 'skills']] },
+    ],
+    bottom: ['integrations', 'workflow'] },
   { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
     upcoming: [
-      pair('الموارد البشرية', 'Human resources'), pair('المالية', 'Finance'),
-      pair('العمليات', 'Operations'), pair('المبيعات', 'Sales'),
-      pair('التسويق', 'Marketing'), pair('خدمة العملاء', 'Customer support'),
-      pair('تطوير المنتجات', 'Product development'), pair('المشتريات', 'Procurement'),
+      [pair('الموارد البشرية', 'Human resources'), 'people'],
+      [pair('المالية', 'Finance'), 'audit'],
+      [pair('العمليات', 'Operations'), 'workflow'],
+      [pair('المبيعات', 'Sales'), 'meetings'],
+      [pair('التسويق', 'Marketing'), 'mail'],
+      [pair('خدمة العملاء', 'Customer support'), 'chat'],
+      [pair('تطوير المنتجات', 'Product development'), 'tasks'],
+      [pair('المشتريات', 'Procurement'), 'approvals'],
     ] },
   'changelog', 'roadmap', 'blog', 'pricing',
   { id: 'company', label: pair('الشركة', 'Company'),
-    tiles: [['about'], ['affiliate'], ['support'], ['join']] },
+    tiles: [['about', 'teams'], ['affiliate', 'workflow'], ['support', 'chat'], ['join', 'people']] },
   'docs',
 ];

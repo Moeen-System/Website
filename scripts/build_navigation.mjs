@@ -7,27 +7,38 @@ const current = (id, page) => id === page ? ' aria-current="page"' : '';
 
 export function link(id, page, classes = '') {
   const entry = sitePages[id];
-  return `<a${classes ? ` class="${classes}"` : ''} href="${entry.path}"${current(id, page)}>${label(entry.label)}</a>`;
+  return `<a${classes ? ` class="${classes}"` : ''} href="${entry.path}"${current(id, page)}>${label(entry.navLabel ?? entry.label)}</a>`;
 }
 
-function tile(id, drawing, page) {
-  const entry = sitePages[id];
-  const art = drawing ? `<span class="tile__art"><img src="/assets/iso/light/${drawing}.svg" data-light="/assets/iso/light/${drawing}.svg" data-dark="/assets/iso/dark/${drawing}.svg" alt=""></span>` : '';
-  return `<a class="tile" href="${entry.path}"${current(id, page)}>${art}<span class="tile__text">${label(entry.label, 'strong')}${entry.teaser ? label(entry.teaser, 'small') : ''}</span></a>`;
+function illustration(drawing) {
+  return `<span class="tile__art"><img src="/assets/iso/light/${drawing}.svg" data-light="/assets/iso/light/${drawing}.svg" data-dark="/assets/iso/dark/${drawing}.svg" alt=""></span>`;
 }
 
-function featureTile(id, page) {
+function tile(id, drawing, page, trailing = '') {
   const entry = sitePages[id];
-  const { shot, width, height } = entry.image;
-  return `<a class="mega__feature" href="${entry.path}"${current(id, page)}>
-    <span class="mega__shot"><img width="${width}" height="${height}" data-shot="${shot}" src="/assets/shots2/${shot}_ar_light.png" alt="" loading="lazy"></span>
-    ${label(entry.label, 'strong')}${label(entry.teaser, 'small')}
+  return `<a class="tile" href="${entry.path}"${current(id, page)}>
+    ${illustration(drawing)}<span class="tile__text">${label(entry.label, 'strong')}${entry.teaser ? label(entry.teaser, 'small') : ''}</span>${trailing}
   </a>`;
 }
 
-export function upcomingList(group) {
+export function upcomingList(group, illustrated = false) {
   const soon = { ar: 'قريبًا', en: 'Coming soon' };
-  return `<ul class="upcoming-list">${group.upcoming.map(name => `<li>${label(name)}${label(soon, 'small')}</li>`).join('')}</ul>`;
+  return `<ul class="upcoming-list${illustrated ? ' upcoming-list--illustrated' : ''}">${group.upcoming.map(([name, drawing]) => `
+    <li>${illustrated ? illustration(drawing) : ''}<span class="upcoming-list__text">${label(name)}${label(soon, 'small')}</span></li>`).join('')}</ul>`;
+}
+
+function groupContents(group, page) {
+  if (group.upcoming) return upcomingList(group, true);
+  const tiles = items => items.map(([id, drawing]) => tile(id, drawing, page)).join('');
+  if (!group.sections) return `<div class="mega__list">${tiles(group.tiles)}</div>`;
+  return `<div class="product-menu">
+    ${group.sections.map(section => `<div class="product-menu__section">
+      ${label(section.label, 'h2')}
+      <div class="mega__grid">${tiles(section.tiles)}</div>
+      ${section.related ? link(section.related, page, 'product-menu__related') : ''}
+    </div>`).join('')}
+    <div class="product-menu__bottom">${tile(...group.bottom, page, icon('arrow', 'i flip'))}</div>
+  </div>`;
 }
 
 export function buildNavigation(page = 'home') {
@@ -35,18 +46,19 @@ export function buildNavigation(page = 'home') {
   const groups = navigation.filter(entry => typeof entry !== 'string');
   const navItem = entry => {
     if (typeof entry === 'string') return link(entry, page, 'nav__item');
-    const active = entry.featured === page || entry.tiles?.some(([id]) => id === page);
+    const active = entry.tiles?.some(([id]) => id === page) ||
+      entry.sections?.some(section => section.related === page || section.tiles.some(([id]) => id === page)) ||
+      entry.bottom?.[0] === page;
     return `<button type="button" class="nav__item" data-mega="${entry.id}" aria-expanded="false" aria-controls="mega"${active ? ' data-active-group' : ''}>${label(entry.label)}${icon('chev', 'i i--xs')}</button>`;
   };
-  const panel = group => `<section class="mega__view mega__view--${group.id}${group.featured ? '' : ' mega__view--narrow'}" tabindex="-1" data-view="${group.id}" ${aria(group.label)} inert>
-    <div class="mega__main"><div class="${group.featured ? 'mega__grid' : 'mega__list'}">${group.upcoming ? upcomingList(group) : group.tiles.map(([id, drawing]) => tile(id, drawing, page)).join('')}</div></div>
-    ${group.featured ? featureTile(group.featured, page) : ''}
+  const panel = group => `<section class="mega__view mega__view--${group.id}" tabindex="-1" data-view="${group.id}" ${aria(group.label)} inert>
+    ${groupContents(group, page)}
   </section>`;
   const mobileItem = entry => {
     if (typeof entry === 'string') return link(entry, page);
-    return `<details class="sheet__group"><summary>${label(entry.label)}${icon('chev')}</summary><div>
-      ${entry.upcoming ? upcomingList(entry) : entry.tiles.map(([id]) => link(id, page)).join('')}${entry.featured ? link(entry.featured, page) : ''}
-    </div></details>`;
+    return `<details class="sheet__group"><summary>${label(entry.label)}${icon('chev')}</summary>
+      <div>${groupContents(entry, page)}</div>
+    </details>`;
   };
   const login = { ar: 'تسجيل الدخول', en: 'Sign in' };
   const cta = { ar: 'انضم إلى قائمة الانتظار', en: 'Join the waitlist' };
