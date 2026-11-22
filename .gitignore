@@ -4,3 +4,12 @@
 dist/
 .DS_Store
 node_modules/
+.taste-skill/
+
+# Thmanyah fonts: licensed for local design use only. Their licence forbids serving the font
+# files on a website or hosting them in a repository, so they never leave this machine.
+public/assets/fonts/thmanyah*
+
+# The lockfile pins the installed third-party design skill.
+/.agents/skills/design-taste-frontend/
+/.claude/skills/design-taste-frontend
