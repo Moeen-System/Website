@@ -1,10 +1,12 @@
-import { copy, renderContent, validFeed } from './product_content.js';
+import { copy, pageLead, pageTitle, renderContent, validFeed } from './product_content.js';
+import { initNavigation } from './navigation.js';
 
 const root = document.documentElement;
 const page = root.dataset.productPage;
 const content = document.querySelector('[data-product-content]');
-const language = document.querySelector('[data-product-language]');
-const themeButton = document.querySelector('[data-product-theme]');
+const language = document.querySelector('[data-language]');
+const themeButton = document.querySelector('[data-theme-toggle]');
+const renderNavigation = initNavigation();
 const context = JSON.parse(document.getElementById('product-data').textContent);
 let locale = root.lang === 'en' ? 'en' : 'ar';
 let theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
@@ -16,10 +18,12 @@ function store(key, value) {
 
 function applyTheme() {
   root.dataset.theme = theme;
-  const label = copy(locale)[theme === 'dark' ? 'light' : 'dark'];
-  themeButton.setAttribute('aria-label', label);
-  themeButton.title = label;
+  renderNavigation(locale, theme);
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#131313' : '#fafafa';
+  for (const image of document.querySelectorAll('img[data-shot]')) {
+    const src = `/assets/shots2/${image.dataset.shot}_${locale}_${theme}.png`;
+    if (image.getAttribute('src') !== src) image.src = src;
+  }
   for (const image of document.querySelectorAll('img[data-light]')) {
     if (image.getAttribute('src') !== image.dataset[theme]) image.src = image.dataset[theme];
   }
@@ -49,12 +53,15 @@ function applyLanguage(rebuild = true) {
   const text = copy(locale);
   root.lang = locale;
   root.dir = locale === 'ar' ? 'rtl' : 'ltr';
-  document.title = `${text[page]} | ${text.brand}`;
-  document.querySelector('meta[name="description"]').content = text[page + 'Lead'];
+  const title = pageTitle(page, locale), description = pageLead(page, locale);
+  document.title = `${title} | ${text.brand}`;
+  document.querySelector('meta[name="description"]').content = description;
+  const heading = document.querySelector('[data-page-heading]');
+  if (heading) {
+    heading.textContent = title;
+    document.querySelector('[data-page-lead]').textContent = description;
+  }
   for (const node of document.querySelectorAll('[data-page-text]')) node.textContent = text[node.dataset.pageText];
-  for (const node of document.querySelectorAll('[data-page-label]')) node.setAttribute('aria-label', text[node.dataset.pageLabel]);
-  language.setAttribute('aria-label', text.language);
-  language.title = text.language;
   if (rebuild) updateContent();
   else applyTheme();
   root.classList.remove('i18n-pending');

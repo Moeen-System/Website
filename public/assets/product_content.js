@@ -1,7 +1,8 @@
+import { blogPosts, infoPages, sitePages } from './site_content.js';
+
 const strings = {
   ar: {
-    brand: 'مُعين', home: 'الصفحة الرئيسية', skip: 'تخطَّ إلى المحتوى', nav: 'صفحات مُعين',
-    language: 'Switch to English', languageShort: 'EN', light: 'التبديل إلى المظهر الفاتح', dark: 'التبديل إلى المظهر الداكن',
+    brand: 'مُعين',
     waitlist: 'انضم إلى قائمة الانتظار', login: 'تسجيل الدخول', copyright: '© 2026 مُعين',
     pricing: 'الأسعار', pricingLead: 'قارن الخطط واختر ما يناسب فريقك. يُحسب الاشتراك لكل مساحة عمل على حدة.',
     roadmap: 'خريطة الطريق', roadmapLead: 'تابع ما نعمل عليه وما نخطط له وما اكتمل في مُعين.',
@@ -19,8 +20,7 @@ const strings = {
     releaseError: 'تعذّر عرض سجل التحديثات الآن.', openReleases: 'افتح سجل التحديثات في مُعين',
   },
   en: {
-    brand: 'Moeen', home: 'Home', skip: 'Skip to content', nav: 'Moeen pages',
-    language: 'التبديل إلى العربية', languageShort: 'ع', light: 'Switch to light theme', dark: 'Switch to dark theme',
+    brand: 'Moeen',
     waitlist: 'Join the waitlist', login: 'Sign in', copyright: '© 2026 Moeen',
     pricing: 'Pricing', pricingLead: 'Compare plans and choose what fits your team. Each workspace has its own subscription.',
     roadmap: 'Roadmap', roadmapLead: 'See what we’re building, what’s planned, and what’s done in Moeen.',
@@ -39,8 +39,10 @@ const strings = {
   },
 };
 
-export const pages = ['pricing', 'roadmap', 'changelog'];
+export const pages = Object.keys(sitePages);
 export const copy = locale => strings[locale];
+export const pageTitle = (page, locale) => infoPages[page]?.title?.[locale] ?? sitePages[page].label[locale];
+export const pageLead = (page, locale) => infoPages[page]?.lead?.[locale] ?? copy(locale)[page + 'Lead'] ?? '';
 export const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[char]);
@@ -159,8 +161,35 @@ function changelog(locale, feed, origin) {
   return recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
 }
 
+function information(page, locale) {
+  if (page === 'docs') return '';
+  if (page === 'blog') return `<ul class="blog-index" role="list">${blogPosts.map(id => {
+    const post = infoPages[id];
+    return `<li><a href="${post.path}">
+      <div><h2>${localized(post.label, locale)}</h2><p>${localized(post.lead, locale)}</p></div>${icon('arrow', 'i i--md flip')}
+    </a></li>`;
+  }).join('')}</ul>`;
+
+  const entry = infoPages[page];
+  const image = entry.image;
+  const links = [
+    ...(entry.links ?? []),
+    ...(entry.related ?? []).map(id => ({ href: sitePages[id].path, label: sitePages[id].label })),
+  ];
+  return `
+    ${image ? `<figure class="feature-visual"><img width="${image.width}" height="${image.height}" data-shot="${image.shot}"
+      src="/assets/shots2/${image.shot}_${locale}_light.png" alt="${localized(image.alt, locale)}"></figure>` : ''}
+    ${entry.sections?.length ? `<div class="feature-points${blogPosts.includes(page) ? ' feature-points--article' : ''}">
+      ${entry.sections.map(part => `<section><h2>${localized(part.title, locale)}</h2><p>${localized(part.body, locale)}</p></section>`).join('')}
+    </div>` : ''}
+    ${links.length ? `<ul class="feature-links" role="list">${links.map(link =>
+      `<li><a class="link" href="${escape(link.href)}">${localized(link.label, locale)}${icon('arrow', 'i i--sm flip')}</a></li>`,
+    ).join('')}</ul>` : ''}`;
+}
+
 export function renderContent(page, locale, { feed, origin, status } = {}) {
   if (page === 'pricing') return pricing(locale);
   if (page === 'roadmap') return roadmap(locale, feed, status);
-  return changelog(locale, feed, origin);
+  if (page === 'changelog') return changelog(locale, feed, origin);
+  return information(page, locale);
 }

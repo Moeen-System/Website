@@ -1,3 +1,5 @@
+import { initNavigation } from './navigation.js';
+
 // Landing page. Arabic is the static HTML; English comes from this file. The switches swap
 // words, labels, artwork and the real product captures. Menus and answers animate;
 // everything rests under reduced motion.
@@ -59,6 +61,7 @@ const EN = {
   work_nav_1: "Chat and mail",
   work_nav_0: "Tasks and teams",
   skip: 'Skip to content', home: 'Moeen, home', name: 'Moeen', main_nav: 'Main', menu: 'Menu', footer_nav: 'Site links',
+  nav_blog: 'Blog', nav_docs: 'Docs',
   nav_pricing: 'Pricing', nav_changelog: 'Changelog', nav_roadmap: 'Roadmap',
   nav_changelog_s: 'New features, improvements and fixes', nav_roadmap_s: 'What we’re building and what’s planned',
   nav_product: 'Product', nav_customers: "Workspaces", nav_resources: 'Resources', nav_modules: 'Modules', nav_tools: 'Workspace tools',
@@ -159,9 +162,9 @@ const EN = {
   footer_line: "An Arabic-first workspace for your team and its AI agents.", footer_releases: 'Releases on GitHub', footer_start: 'Get started',
   legal: '© 2026 Moeen', trademarks: 'Product names and logos are trademarks of their owners.', footer_lang: 'العربية',
 };
-const EXTRA = {
-  ar: { title: 'مُعين | مساحة عمل لفريقك ووكلاء الذكاء الاصطناعي', language: 'Switch to English', dark: 'التبديل إلى المظهر الداكن', light: 'التبديل إلى المظهر الفاتح' },
-  en: { title: 'Moeen | A workspace for people and AI agents', language: 'التبديل إلى العربية', dark: 'Switch to dark theme', light: 'Switch to light theme' },
+const PAGE_TITLE = {
+  ar: 'مُعين | مساحة عمل لفريقك ووكلاء الذكاء الاصطناعي',
+  en: 'Moeen | A workspace for people and AI agents',
 };
 
 const root = document.documentElement;
@@ -179,11 +182,10 @@ const save = (key, value) => { try { localStorage.setItem(key, value); } catch {
 const pick = (key, store) => (locale === 'en' ? EN[key] ?? store[key] : store[key]);
 
 function render() {
-  const extra = EXTRA[locale];
   root.lang = locale;
   root.dir = locale === 'en' ? 'ltr' : 'rtl';
   root.dataset.theme = theme;
-  document.title = extra.title;
+  document.title = PAGE_TITLE[locale];
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0e0e0f' : '#fafafa';
   document.querySelectorAll('[data-i18n]').forEach((node) => { node.textContent = keepWhole(pick(node.dataset.i18n, AR.text)); });
   document.querySelectorAll('[data-i18n-label]').forEach((node) => { node.setAttribute('aria-label', pick(node.dataset.i18nLabel, AR.label)); });
@@ -194,13 +196,7 @@ function render() {
     const src = `/assets/shots2/${node.dataset.shot}_${node.dataset.locale ?? locale}_${theme}.png`;
     if (!node.src.endsWith(src)) node.src = src;
   });
-  const language = document.querySelector('[data-language]');
-  language.setAttribute('aria-label', extra.language);
-  language.title = extra.language;
-  const themeButton = document.querySelector('[data-theme-toggle]');
-  const label = theme === 'dark' ? extra.light : extra.dark;
-  themeButton.setAttribute('aria-label', label);
-  themeButton.title = label;
+  renderNavigation(locale, theme);
   root.classList.remove('i18n-pending');
 }
 // Arabic headlines end on Thmanyah's swash: only the last word of the lead phrase stretches
@@ -221,59 +217,7 @@ document.querySelector('[data-language]').addEventListener('click', switchLangua
 document.querySelector('[data-language-footer]').addEventListener('click', switchLanguage);
 document.querySelector('[data-theme-toggle]').addEventListener('click', () => change(() => { theme = theme === 'dark' ? 'light' : 'dark'; save('moeen.landing.theme', theme); }));
 
-// ---- The mega menu: one panel that resizes and slides between views ------------------
-const mega = document.getElementById('mega'), frame = mega.querySelector('.mega__frame');
-const triggers = [...document.querySelectorAll('[data-mega]')];
-const views = Object.fromEntries([...mega.querySelectorAll('.mega__view')].map((view) => [view.dataset.view, view]));
-const hoverable = matchMedia('(hover: hover) and (pointer: fine)');
-let current = null, closeTimer, openTimer;
-
-function place(trigger) {
-  const bar = trigger.closest('.nav__bar').getBoundingClientRect(), box = trigger.getBoundingClientRect();
-  const width = views[trigger.dataset.mega].offsetWidth;
-  const start = locale === 'en' ? box.left - bar.left - 8 : bar.right - box.right - 8;
-  mega.style.setProperty('--x', `${Math.max(0, Math.min(start, bar.width - width))}px`);
-}
-function openMega(name) {
-  clearTimeout(closeTimer);
-  const trigger = triggers.find((t) => t.dataset.mega === name), next = views[name];
-  const previous = current;
-  if (previous === name) return;
-  const order = triggers.map((t) => t.dataset.mega);
-  const direction = previous ? Math.sign(order.indexOf(name) - order.indexOf(previous)) * (locale === 'en' ? 1 : -1) : 0;
-  triggers.forEach((t) => t.setAttribute('aria-expanded', String(t === trigger)));
-  mega.hidden = false;
-  for (const [key, view] of Object.entries(views)) {
-    view.classList.toggle('is-on', key === name);
-    view.classList.toggle('from-start', key === name && direction < 0);
-    view.classList.toggle('from-end', key === name && direction > 0);
-    view.inert = key !== name;
-  }
-  frame.style.width = `${next.offsetWidth}px`;
-  frame.style.height = `${next.offsetHeight}px`;
-  place(trigger);
-  mega.classList.toggle('is-moving', Boolean(previous));
-  requestAnimationFrame(() => mega.classList.add('is-open'));
-  current = name;
-}
-function closeMega() {
-  if (!current) return;
-  mega.classList.remove('is-open', 'is-moving');
-  triggers.forEach((t) => t.setAttribute('aria-expanded', 'false'));
-  current = null;
-  closeTimer = setTimeout(() => { if (!current) mega.hidden = true; }, 220);
-}
-for (const trigger of triggers) {
-  trigger.addEventListener('click', () => (current === trigger.dataset.mega ? closeMega() : openMega(trigger.dataset.mega)));
-  trigger.addEventListener('mouseenter', () => { if (!hoverable.matches) return; clearTimeout(openTimer); openTimer = setTimeout(() => openMega(trigger.dataset.mega), current ? 0 : 110); });
-  trigger.addEventListener('mouseleave', () => { clearTimeout(openTimer); if (hoverable.matches) closeTimer = setTimeout(closeMega, 180); });
-}
-mega.addEventListener('mouseenter', () => clearTimeout(closeTimer));
-mega.addEventListener('mouseleave', () => { if (hoverable.matches) closeTimer = setTimeout(closeMega, 180); });
-mega.addEventListener('click', (event) => { const link = event.target.closest('a'); if (!link) return; closeMega(); });
-document.addEventListener('click', (event) => { if (!event.target.closest('.mega, [data-mega]')) closeMega(); });
-document.querySelector('.nav__menu').addEventListener('focusout', (event) => { if (!event.relatedTarget?.closest?.('.mega, .nav__menu')) setTimeout(() => { if (!mega.contains(document.activeElement)) closeMega(); }, 0); });
-mega.addEventListener('focusout', (event) => { if (!event.relatedTarget?.closest?.('.mega, [data-mega]')) closeMega(); });
+const renderNavigation = initNavigation();
 
 // ---- Workspace setup: keep each step in focus for five seconds ---------------------------
 const setup = document.getElementById('start');
@@ -412,39 +356,6 @@ if (track) {
   update();
 }
 
-// ---- The phone menu --------------------------------------------------------------------
-const toggle = document.querySelector('.nav__toggle'), sheet = document.getElementById('sheet');
-const setSheet = (open) => { toggle.setAttribute('aria-expanded', String(open)); sheet.hidden = !open; root.classList.toggle('sheet-open', open); };
-toggle.addEventListener('click', () => setSheet(sheet.hidden));
-sheet.addEventListener('click', (event) => { if (event.target.closest('a')) setSheet(false); });
-document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape') return;
-  if (current) { const trigger = triggers.find((t) => t.dataset.mega === current); closeMega(); trigger?.focus(); }
-  if (!sheet.hidden) { setSheet(false); toggle.focus(); }
-});
-matchMedia('(min-width: 1024px)').addEventListener('change', (event) => { if (event.matches) setSheet(false); });
-
-// Inline isometric menu illustrations so the blocks can lift and follow the theme.
-async function inlineIso() {
-  const cache = new Map();
-  await Promise.all([...document.querySelectorAll('img[data-light*="/assets/iso/"]')].map(async (img, index) => {
-    const url = img.dataset.light;
-    if (!cache.has(url)) cache.set(url, fetch(url).then((r) => r.text()));
-    const markup = await cache.get(url);
-    const holder = document.createElement('div');
-    // A drawing can appear in more than one menu. Keep each copy's clipping paths and gradient local.
-    holder.innerHTML = markup
-      .replace(/id="([^"]+)"/g, (_, id) => `id="menu-${index}-${id}"`)
-      .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`);
-    const svg = holder.querySelector('svg');
-    if (!svg) return;
-    svg.setAttribute('class', img.className.replace('theme-img', '').trim());
-    svg.setAttribute('aria-hidden', 'true');
-    svg.setAttribute('focusable', 'false');
-    img.replaceWith(svg);
-  }));
-}
-inlineIso();
 render();
 
 // Keep the chapter rail in step with the reading position. Its links also work without JS.

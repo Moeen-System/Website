@@ -1,13 +1,15 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { copy, escape, icon, pages, renderContent, validFeed } from '../public/assets/product_content.js';
+import { copy, escape, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
+import { infoPages, sitePages } from '../public/assets/site_content.js';
+import { buildNavigation } from './build_navigation.mjs';
 
 function pageDocument(page, context, symbols) {
   const text = copy('ar');
   const { origin } = context;
-  const title = `${text[page]} | ${text.brand}`;
-  const description = text[page + 'Lead'];
+  const title = `${escape(pageTitle(page, 'ar'))} | ${text.brand}`;
+  const description = escape(pageLead(page, 'ar'));
   const data = JSON.stringify(context).replaceAll('<', '\\u003c');
-  const nav = pages.map(id => `<a class="nav__item" data-page-text="${id}" href="/${id}/"${page === id ? ' aria-current="page"' : ''}>${text[id]}</a>`).join('');
+  const path = sitePages[page].path;
   return `<!doctype html>
 <html lang="ar" dir="rtl" data-theme="light" data-density="compact" data-product-page="${page}">
 <head>
@@ -16,11 +18,11 @@ function pageDocument(page, context, symbols) {
 <title>${title}</title>
 <meta name="description" content="${description}">
 <meta name="theme-color" content="#fafafa">
-<link rel="canonical" href="https://moeen.dev/${page}/">
+<link rel="canonical" href="https://moeen.dev${path}">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
-<meta property="og:url" content="https://moeen.dev/${page}/">
+<meta property="og:url" content="https://moeen.dev${path}">
 <meta property="og:image" content="https://moeen.dev/og_ar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,31 +34,18 @@ function pageDocument(page, context, symbols) {
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true">${symbols}</svg>
-<header class="nav product-nav">
-  <div class="wrap nav__bar">
-    <a class="skip-link" href="#main" data-page-text="skip">${text.skip}</a>
-    <a class="nav__logo" href="/" data-page-label="home" aria-label="${text.home}">
-      <img width="29" height="22" src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="">
-      <span data-page-text="brand">${text.brand}</span>
-    </a>
-    <nav class="product-nav__links" aria-label="${text.nav}" data-page-label="nav">${nav}</nav>
-    <div class="nav__end">
-      <button type="button" class="icon-btn" data-product-language aria-label="${text.language}"><span aria-hidden="true" data-page-text="languageShort">${text.languageShort}</span></button>
-      <button type="button" class="icon-btn" data-product-theme aria-label="${text.dark}">${icon('moon', 'i i--moon')}${icon('sun', 'i i--sun')}</button>
-      <a class="btn btn--solid nav__cta" href="/waitlist/"><span data-page-text="waitlist">${text.waitlist}</span><span class="btn__arrow" aria-hidden="true">${icon('arrow', 'i i--xs flip')}</span></a>
-    </div>
-  </div>
-</header>
-<main id="main" class="section product-page" tabindex="-1">
+${buildNavigation(page)}
+${page === 'docs' ? '<main id="main" class="section product-page product-page--empty" tabindex="-1" data-product-content></main>' : `
+<main id="main" class="section product-page${infoPages[page] && !infoPages[page].image ? ' product-page--story' : ''}" tabindex="-1">
   <div class="wrap product-page__wrap">
     <header class="product-page__head">
-      <h1 data-page-text="${page}">${text[page]}</h1>
-      <p class="lead" data-page-text="${page}Lead">${description}</p>
+      <h1 data-page-heading>${escape(pageTitle(page, 'ar'))}</h1>
+      <p class="lead" data-page-lead>${description}</p>
     </header>
     <div data-product-content>${renderContent(page, 'ar', context)}</div>
     ${page === 'roadmap' ? `<noscript><p class="page-status"><a href="${escape(origin)}/roadmap.json">خريطة الطريق بصيغة JSON</a></p></noscript>` : ''}
   </div>
-</main>
+</main>`}
 <footer class="footer product-footer">
   <div class="wrap product-footer__inner">
     <span data-page-text="copyright">${text.copyright}</span>
@@ -88,14 +77,14 @@ export async function buildProductPages(root, origin, landing) {
     getFeed('roadmap', origin + '/roadmap.json'),
     readFile(root + 'scripts/product_status_icons.svg', 'utf8'),
   ]);
-  const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
-  if (common.length !== 6) throw new Error('Missing product page icons in the landing sprite');
+  const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev|menu)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
+  if (common.length !== 7) throw new Error('Missing product page icons in the landing sprite');
   const symbols = common.join('') + productIcons;
   const feeds = { roadmap, changelog };
   await Promise.all(pages.map(async page => {
-    const folder = root + `dist/${page}/`;
+    const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });
     await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null }, symbols));
   }));
-  console.log('Built the pricing, roadmap and changelog pages.');
+  console.log(`Built ${pages.length} product, company and resource pages.`);
 }
