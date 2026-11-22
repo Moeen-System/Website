@@ -82,6 +82,17 @@ themeButton.addEventListener('click', () => {
   applyTheme();
 });
 
+if (page === 'support') {
+  content.addEventListener('input', event => {
+    if (!event.target.matches('[data-help-search]')) return;
+    const normalize = value => value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase(locale);
+    const query = normalize(event.target.value.trim());
+    const topics = [...content.querySelectorAll('.story-resources li')];
+    for (const topic of topics) topic.hidden = !normalize(topic.textContent).includes(query);
+    content.querySelector('[data-help-empty]').hidden = topics.some(topic => !topic.hidden);
+  });
+}
+
 if (page === 'pricing') {
   content.addEventListener('change', event => {
     if (!event.target.matches('input[name="cadence"]')) return;

@@ -328,17 +328,89 @@ function blog(locale) {
     </a></li>`).join('')}</ul>`;
 }
 
+function pageComposition(page, locale) {
+  const entry = infoPages[page];
+  const story = pageStories[page];
+  const parts = story.blocks;
+  const t = (ar, en) => locale === 'ar' ? ar : en;
+  const title = localized(entry.title ?? entry.label, locale);
+  const lead = localized(entry.lead, locale);
+  const label = localized(entry.topic ?? entry.label, locale);
+  const intro = `<header class="canvas-intro">${title !== label ? `<p class="story-kicker">${label}</p>` : ''}<h1>${title}</h1><p class="canvas-lead">${lead}</p></header>`;
+  const part = index => storySection(parts[index], locale);
+  const image = (asset = story.image ?? entry.image) => storyFigure(asset, locale, true);
+  const rest = start => `<div class="story-body">${storySections(parts.slice(start), locale)}</div>`;
+  const art = name => `<img class="object-art" alt="" src="/assets/iso/light/${name}.svg" data-light="/assets/iso/light/${name}.svg" data-dark="/assets/iso/dark/${name}.svg">`;
+
+  switch (page) {
+    case 'tasks': {
+      const views = [
+        [t('اللوحة', 'Board'), entry.image],
+        [t('القائمة', 'List'), infoPages.architecture.image],
+      ];
+      return `${intro}<section class="workbench" aria-label="${label}">
+        <fieldset><legend class="page-sr">${t('عرض المهام', 'Task view')}</legend>
+        ${views.map(([name], i) => `<label><input type="radio" name="task-view" value="${i}"${i === 0 ? ' checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>
+        ${views.map(([, asset], i) => `<div class="board-view board-view--${i}">${image(asset)}</div>`).join('')}</section>${rest(0)}`;
+    }
+    case 'chat':
+      return `<div class="conversation-cover">${intro}<div class="conversation-spread">${image()}${image(parts[0].image)}</div></div>
+        <div class="conversation-note"><h2>${localized(parts[0].title, locale)}</h2><p>${localized(parts[0].body, locale)}</p></div>${rest(1)}`;
+    case 'teams':
+      return `<div class="team-map">${intro}<div class="team-orbit">
+        <div class="team-center">${art('teams')}<b>${t('فريق المنتج','Product team')}</b></div>${[['people',t('الأعضاء','Members')],['chat',t('القناة','Channel')],['tasks',t('المهام','Tasks')]].map(([name, caption]) => `<span>${art(name)}<b>${caption}</b></span>`).join('')}
+        </div></div>${part(0)}<div class="story-body">${part(1)}</div>`;
+    case 'data':
+      return `<div class="file-spread"><div class="file-label">${intro}</div><div class="file-sleeve">${image()}</div></div>${rest(0)}`;
+    case 'meetings':
+      return `<div class="meeting-agenda">${intro}<div class="agenda-content">${part(0)}${image()}</div></div>${rest(1)}`;
+    case 'mail':
+      return `<div class="mail-desk"><div class="letter-pocket">${image()}</div>${intro}</div>${rest(0)}`;
+    case 'architecture':
+      return `<div class="architecture-lab">${intro}<div class="assembly"><div class="assembly-art" aria-hidden="true">
+        <i></i><i></i><i></i><i></i></div><div class="assembly-notes"><h2>${localized(parts[0].title, locale)}</h2>
+        ${parts[0].items.map((item,i) => `<details name="action-stage"${i === 0 ? ' open' : ''}><summary>${localized(item.title, locale)}${icon('plus')}</summary><p>${localized(item.body, locale)}</p></details>`).join('')}
+        </div></div></div>${rest(1)}`;
+    case 'ai_moeen':
+      return `<div class="agent-dialogue">${intro}<div class="dialogue-script">
+        <blockquote>${localized(parts[0].quote, locale)}</blockquote>${image()}<p>${localized(parts[0].note, locale)}</p></div></div>${rest(1)}`;
+    case 'mcp':
+      return `<div class="protocol-manual"><div class="protocol-intro">${art('workflow')}${intro}</div>${part(0)}</div>${rest(1)}`;
+    case 'knowledge_base':
+      return `<div class="knowledge-desk">${intro}<div class="source-stack">${image()}<div>${part(0)}</div></div></div>${rest(1)}`;
+    case 'skills':
+      return `<div class="skill-recipe">${intro}<div class="recipe-paper">${art('skills')}${part(0)}</div></div>${rest(1)}`;
+    case 'integrations':
+      return `<div class="connector-directory">${intro}${part(0)}</div><div class="connector-catalog">${image()}${part(1)}</div>`;
+    case 'about':
+      return `<div class="founding-letter"><img class="letter-mark" src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="">${intro}${part(0)}</div>${rest(1)}`;
+    case 'affiliate':
+      return `<div class="partner-brief">${intro}${part(0)}</div>${rest(1)}`;
+    case 'support':
+      return `<div class="help-desk">${intro}
+        <label class="help-search"><input type="search" data-help-search aria-label="${t('ابحث في مواضيع الدعم', 'Search help topics')}" placeholder="${t('ابحث في مواضيع الدعم', 'Search help topics')}"></label>
+        ${part(0)}<p data-help-empty hidden role="status">${t('لا توجد مواضيع مطابقة.', 'No matching topics.')}</p></div>${rest(1)}`;
+    case 'join':
+      return `<div class="careers-poster">${intro}${part(1)}</div><div class="careers-letter">${part(0)}</div>`;
+    case 'conversations_post':
+      return `<div class="field-report">${intro}${image()}</div><div class="article-columns">${part(0)}${part(1)}</div>`;
+    case 'approvals_post':
+      return `<div class="review-column">${intro}${part(0)}</div>${rest(1)}`;
+    case 'meetings_post':
+      return `<div class="meeting-notebook">${intro}${part(0)}</div>${rest(1)}`;
+    default:
+      throw new Error(`Missing page composition for ${page}`);
+  }
+}
+
 function information(page, locale) {
   if (page === 'docs') return '';
   if (page === 'blog') return blog(locale);
 
   const entry = infoPages[page];
-  const story = pageStories[page];
-  const image = story.image === undefined ? entry.image : story.image;
   const links = entry.related?.map(id => sitePages[id]) ?? [];
   return `
-    ${storyHeading(page, locale, story.hero, image)}
-    <div class="story-body">${storySections(story.blocks, locale)}</div>
+    ${pageComposition(page, locale)}
     ${links.length ? `<aside class="story-related">
       <h2>${locale === 'ar' ? 'اقرأ أيضًا' : 'Explore related pages'}</h2>
       <ul role="list">${links.map(link => `<li><a class="link" href="${link.path}">${localized(link.label, locale)}${icon('arrow', 'i flip')}</a></li>`).join('')}</ul>

@@ -19,7 +19,6 @@ const images = {
 
 export const pageStories = {
   tasks: {
-    hero: 'board',
     blocks: [
       block('grid', pair('لوحة للفريق وقائمة لمراجعة التفاصيل', 'A board for the team, a list for the details'), [
         point('اللوحة', 'Board', 'شاهد المهام موزّعة حسب حالتها. انقل المهمة عند بدء العمل أو اكتماله لتبقى اللوحة مرجعًا للفريق.', 'See work grouped by status. Move a task as work starts or finishes so the board reflects where the team stands.'),
@@ -34,7 +33,6 @@ export const pageStories = {
     ],
   },
   chat: {
-    hero: 'channel',
     blocks: [
       scene(point('من رسالة في القناة إلى مهمة', 'From a channel message to a task', 'إذا اتفق الفريق على مراجعة صفحة قبل النشر، سجّل ما اتفقتم عليه في مهمة، أو اذكر ai-moeen في القناة ووضّح ما تريد متابعته. راجع إسناد المهمة وموعدها بعد إنشائها.', 'When the team agrees to review a page before publication, record what you agreed on as a task, or mention ai-moeen in the channel with the details. Check the owner and due date once the task is created.'), images.chat),
       block('rows', pair('اختر المكان المناسب للنقاش', 'Choose where to talk'), [
@@ -45,7 +43,6 @@ export const pageStories = {
     ],
   },
   teams: {
-    hero: 'team',
     blocks: [
       block('steps', pair('جهّز الفريق لبدء العمل', 'Set up the team for its first project'), [
         point('اكتب نبذة', 'Write a brief', 'اذكر ما يتولّاه الفريق وما يحتاج الأعضاء إلى معرفته عند الانضمام.', 'Describe what the team owns and what a new member should know.'),
@@ -56,7 +53,6 @@ export const pageStories = {
     ],
   },
   data: {
-    hero: 'library',
     image: images.data,
     blocks: [
       scene(point('ملفاتك وملفات مساحة العمل', 'Private and workspace files', 'ابدأ من المجلد المناسب، وراجع صلاحياته قبل نقل ملف أو مشاركته. يمكنك معاينة الملف أو تنزيله، وتغيير الاسم أو المكان عندما تسمح صلاحياتك بذلك.', 'Start in the right folder and review its access before moving or sharing anything. Preview or download files, and rename or move them when your permissions allow it.'), shot('ai_scene_library', 1324, 900, 'ملفات في مجلد عمل داخل مُعين', 'Files in a work folder in Moeen')),
@@ -68,7 +64,6 @@ export const pageStories = {
     ],
   },
   meetings: {
-    hero: 'agenda',
     image: images.meeting,
     blocks: [
       block('timeline', pair('قبل الاجتماع وأثناءه وبعده', 'Before, during, and after the meeting'), [
@@ -83,7 +78,6 @@ export const pageStories = {
     ],
   },
   mail: {
-    hero: 'inbox',
     image: shot('mail', 1200, 800, 'رسالة مفتوحة في بريد مُعين', 'An open message in Moeen Mail'),
     blocks: [
       block('grid', pair('من البريد الوارد إلى المتابعة', 'From inbox to follow-up'), [
@@ -95,7 +89,6 @@ export const pageStories = {
     ],
   },
   architecture: {
-    hero: 'architecture',
     image: null,
     blocks: [
       block('pipeline', pair('كيف يمرّ الطلب من النية إلى التنفيذ؟', 'What happens between the request and the result?'), [
@@ -109,7 +102,6 @@ export const pageStories = {
     ],
   },
   ai_moeen: {
-    hero: 'assistant',
     blocks: [
       example(pair('ابدأ بطلب يحدّد النتيجة', 'Start with the outcome you want'), 'راجع مهام إطلاق التطبيق. ما الذي بقي؟ أنشئ مهمة لمراجعة شاشة الترحيب وأسنِدها إلى سارة.', 'Review the app launch tasks. What’s still open? Create a task to review the welcome screen and assign it to Sara.', pair('مثال لطلب يمكن كتابته في محادثة خاصة.', 'An example request for a private AI conversation.')),
       block('grid', pair('ما الذي يمكنك تفويضه؟', 'What can you delegate?'), [
@@ -124,7 +116,6 @@ export const pageStories = {
     ],
   },
   mcp: {
-    hero: 'reference',
     blocks: [
       {
         kind: 'matrix', title: pair('نطاقات اتصال MCP', 'MCP connection scopes'),
@@ -145,7 +136,6 @@ export const pageStories = {
     ],
   },
   knowledge_base: {
-    hero: 'knowledge',
     blocks: [
       example(pair('اطلب تفصيلًا من مستند تعرفه', 'Ask for a detail from a document you know'), 'ما شروط قبول التصدير في ملف متطلبات الشحن؟', 'What are the export acceptance criteria in the shipment requirements file?', pair('ذكر اسم الملف يحصر البحث في المستندات المطابقة التي يمكنك قراءتها.', 'Naming the file narrows retrieval to matching documents you can access.')),
       block('rows', pair('من الرفع إلى إجابة يمكن مشاركتها', 'From upload to an answer you can share'), [
@@ -156,7 +146,6 @@ export const pageStories = {
     ],
   },
   skills: {
-    hero: 'reference',
     blocks: [
       example(pair('مثال على مهارة لتلخيص اجتماع', 'Example skill for a meeting recap'), 'ابدأ بالقرارات. ثم اذكر بنود العمل ومسؤول كل بند وموعده إن اتفقنا عليه. اختم بالأسئلة التي بقيت مفتوحة.', 'Start with the decisions. Then list the action items, each owner, and the due date if one was agreed. End with the questions still open.', pair('احفظ تعليمات العمل المتكرر باسم يسهل تذكّره، مثل «ملخّص الاجتماع».', 'Save recurring instructions under a recognizable name, such as “Meeting recap.”')),
       scene(point('اختر التعليمات مع كل طلب', 'Choose instructions for each request', 'يمكنك بدء طلب من قائمة المهارات، أو اختيار أكثر من مهارة في محرّر ai-moeen. اكتب بعدها ما تريد إنجازه في هذه المرّة.', 'Start a request from the skills list or select multiple skills in the ai-moeen composer. Then describe what you want to get done this time.'), images.skills),
@@ -167,7 +156,6 @@ export const pageStories = {
     ],
   },
   integrations: {
-    hero: 'directory',
     blocks: [
       block('providers', pair('اختر التطبيق بحسب ما تحتاج إليه', 'Choose the app for the work you need'), [
         { logo: 'gmail', ...point('Gmail', 'Gmail', 'اقرأ المحادثات البريدية واكتب الردود من بريد مُعين بعد ربط الحساب.', 'Read threads and write replies in Moeen Mail after connecting your account.') },
@@ -183,7 +171,6 @@ export const pageStories = {
     ],
   },
   about: {
-    hero: 'manifesto',
     blocks: [
       block('prose', pair('ما الذي نحاول تغييره في يوم العمل؟', 'What are we trying to change about the workday?'), [
         point('من النقاش إلى التنفيذ', 'From discussion to follow-through', 'كثير من العمل يبدأ برسالة أو اجتماع وينتهي عند شخص يحتاج إلى معرفة ما عليه. نبني مُعين ليبقى القرار قريبًا من المهمة والملفات التي يحتاجها من سينفّذها.', 'A lot of work starts in a message or meeting and ends up with someone who needs to know what to do. We build Moeen so the decision stays close to the task and the files the owner will need.'),
@@ -193,7 +180,6 @@ export const pageStories = {
     ],
   },
   affiliate: {
-    hero: 'program',
     blocks: [
       block('rows', pair('لمن قد يناسب البرنامج؟', 'Who might the program suit?'), [
         point('من يساعد الفرق على اختيار أدواتها', 'People who help teams choose tools', 'إذا كنت تساعد فرقًا على ترتيب المحادثات والمهام والملفات، تعرّف على طريقة جمعها في مُعين قبل التوصية به.', 'If you help teams organize their chat, tasks, and files, see how Moeen brings them together before recommending it.'),
@@ -206,7 +192,6 @@ export const pageStories = {
     ],
   },
   support: {
-    hero: 'help',
     blocks: [
       {
         kind: 'resources', title: pair('بمَ نساعدك؟', 'What do you need help with?'),
@@ -224,7 +209,6 @@ export const pageStories = {
     ],
   },
   join: {
-    hero: 'careers',
     blocks: [
       block('prose', pair('ما الذي نبنيه الآن؟', 'What are we building now?'), [
         point('مساحة عمل تبدأ بالعربية', 'An Arabic-first workspace', 'نهتم بوضوح الواجهة والكتابة في المحادثات والمهام، ونعمل على أن يبقى الاستخدام طبيعيًا عند تبديل اللغة واتجاهها.', 'We care about clear interfaces and writing in chat and tasks, and about making the workspace feel natural when the language and direction change.'),
@@ -236,7 +220,6 @@ export const pageStories = {
     ],
   },
   conversations_post: {
-    hero: 'article',
     blocks: [
       block('prose', pair('قبل أن تغلق النقاش', 'Before the discussion ends'), [
         point('اتفقوا على ما يعنيه الإنجاز', 'Agree on what done means', 'إذا وصلتكم ملاحظات على صفحة الأسعار، حدّدوا ما الذي يحتاج إلى مراجعة. قد يكون المطلوب تدقيق الأرقام أو تعديل شرح الخطة أو مراجعة النسخة العربية. اذكروا المطلوب في عنوان المهمة.', 'If feedback arrives on a pricing page, agree on what needs checking. It might be the numbers, the plan description, or the Arabic copy. Put that outcome in the task title.'),
@@ -247,7 +230,6 @@ export const pageStories = {
     ],
   },
   approvals_post: {
-    hero: 'essay',
     image: null,
     blocks: [
       block('prose', pair('قرار صغير قد يغيّر ما يراه الفريق', 'A small decision can change what a team sees'), [
@@ -259,7 +241,6 @@ export const pageStories = {
     ],
   },
   meetings_post: {
-    hero: 'journal',
     blocks: [
       block('timeline', pair('نهاية الاجتماع بداية المتابعة', 'The end of the meeting starts the follow-up'), [
         point('سمِّ القرار', 'Name the decision', 'قبل المغادرة، اتفقوا على ما تقرّر فعله. في اجتماع إطلاق مثلاً، قد يقرّر الفريق اختبار التسجيل قبل دعوة المستخدمين.', 'Before leaving, agree on what you’re doing. In a launch meeting, the team might decide to test signup before inviting users.'),
