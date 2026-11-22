@@ -14,10 +14,19 @@ function illustration(drawing) {
   return `<span class="tile__art"><img src="/assets/iso/light/${drawing}.svg" data-light="/assets/iso/light/${drawing}.svg" data-dark="/assets/iso/dark/${drawing}.svg" alt=""></span>`;
 }
 
-function tile(id, drawing, page, trailing = '') {
+function tile(id, drawing, page, { description = false, trailing = '' } = {}) {
   const entry = sitePages[id];
   return `<a class="tile" href="${entry.path}"${current(id, page)}>
-    ${illustration(drawing)}<span class="tile__text">${label(entry.label, 'strong')}${entry.teaser ? label(entry.teaser, 'small') : ''}</span>${trailing}
+    ${illustration(drawing)}<span class="tile__text">${label(entry.label, 'strong')}${description && entry.teaser ? label(entry.teaser, 'small') : ''}</span>${trailing}
+  </a>`;
+}
+
+function featureTile(id, page) {
+  const entry = sitePages[id];
+  const { shot, width, height } = entry.image;
+  return `<a class="product-menu__feature" href="${entry.path}"${current(id, page)}>
+    <span class="product-menu__shot"><img width="${width}" height="${height}" data-shot="${shot}" src="/assets/shots2/${shot}_ar_light.png" alt="" loading="lazy"></span>
+    <span class="tile__text">${label(entry.label, 'strong')}${label(entry.teaser, 'small')}</span>
   </a>`;
 }
 
@@ -34,10 +43,10 @@ function groupContents(group, page) {
   return `<div class="product-menu">
     ${group.sections.map(section => `<div class="product-menu__section">
       ${label(section.label, 'h2')}
-      <div class="mega__grid">${tiles(section.tiles)}</div>
-      ${section.related ? link(section.related, page, 'product-menu__related') : ''}
+      <div class="mega__list">${tiles(section.tiles)}</div>
     </div>`).join('')}
-    <div class="product-menu__bottom">${tile(...group.bottom, page, icon('arrow', 'i flip'))}</div>
+    ${featureTile(group.featured, page)}
+    <div class="product-menu__bottom">${tile(...group.bottom, page, { description: true, trailing: icon('arrow', 'i flip') })}</div>
   </div>`;
 }
 
@@ -47,8 +56,8 @@ export function buildNavigation(page = 'home') {
   const navItem = entry => {
     if (typeof entry === 'string') return link(entry, page, 'nav__item');
     const active = entry.tiles?.some(([id]) => id === page) ||
-      entry.sections?.some(section => section.related === page || section.tiles.some(([id]) => id === page)) ||
-      entry.bottom?.[0] === page;
+      entry.sections?.some(section => section.tiles.some(([id]) => id === page)) ||
+      entry.featured === page || entry.bottom?.[0] === page;
     return `<button type="button" class="nav__item" data-mega="${entry.id}" aria-expanded="false" aria-controls="mega"${active ? ' data-active-group' : ''}>${label(entry.label)}${icon('chev', 'i i--xs')}</button>`;
   };
   const panel = group => `<section class="mega__view mega__view--${group.id}" tabindex="-1" data-view="${group.id}" ${aria(group.label)} inert>

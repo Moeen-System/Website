@@ -16,7 +16,7 @@ export function buildFooter(page = 'home') {
   const menuLinks = (tiles, tail) => [...tiles.map(([id]) => id), ...(tail ? [tail] : [])].map(id => link(id, page)).join('');
   const menuColumn = item => {
     if (item.sections) return item.sections.map((section, index) =>
-      group(index === 0 ? item.label : section.label, menuLinks(section.tiles, section.related ?? item.bottom[0]))).join('');
+      group(index === 0 ? item.label : section.label, menuLinks(section.tiles, index === 0 ? item.featured : item.bottom[0]))).join('');
     return group(item.label, item.upcoming ? upcomingList(item) : menuLinks(item.tiles));
   };
   const extras = [

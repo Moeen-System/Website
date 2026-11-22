@@ -147,12 +147,11 @@ export const navigation = [
   { id: 'product', label: pair('المنتج', 'Product'),
     sections: [
       { label: pair('مساحة العمل', 'Workspace'),
-        tiles: [['tasks', 'tasks'], ['chat', 'chat'], ['teams', 'teams'], ['data', 'notes'], ['meetings', 'meetings'], ['mail', 'mail']],
-        related: 'architecture' },
+        tiles: [['tasks', 'tasks'], ['chat', 'chat'], ['teams', 'teams'], ['data', 'notes'], ['meetings', 'meetings'], ['mail', 'mail']] },
       { label: pair('الذكاء الاصطناعي', 'AI'),
         tiles: [['ai_moeen', 'ask'], ['mcp', 'workflow'], ['knowledge_base', 'search'], ['skills', 'skills']] },
     ],
-    bottom: ['integrations', 'workflow'] },
+    featured: 'architecture', bottom: ['integrations', 'workflow'] },
   { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
     upcoming: [
       [pair('الموارد البشرية', 'Human resources'), 'people'],
