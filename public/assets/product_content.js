@@ -1,3 +1,4 @@
+import { featureChapters } from './feature_chapters.js';
 import { blogPosts, infoPages, sitePages } from './site_content.js';
 import { pageStories } from './page_story_content.js';
 
@@ -342,46 +343,48 @@ function pageComposition(page, locale) {
   const rest = start => `<div class="story-body">${storySections(parts.slice(start), locale)}</div>`;
   const art = name => `<img class="object-art" alt="" src="/assets/iso/light/${name}.svg" data-light="/assets/iso/light/${name}.svg" data-dark="/assets/iso/dark/${name}.svg">`;
 
+  const chapters = featureChapters[page]?.(t);
+
   switch (page) {
     case 'tasks': {
       const views = [
         [t('اللوحة', 'Board'), entry.image],
         [t('القائمة', 'List'), infoPages.architecture.image],
       ];
-      return `${intro}<section class="workbench" aria-label="${label}">
+      return `<div class="tasks-studio">${intro}<section class="workbench" aria-label="${label}">
         <fieldset><legend class="page-sr">${t('عرض المهام', 'Task view')}</legend>
         ${views.map(([name], i) => `<label><input type="radio" name="task-view" value="${i}"${i === 0 ? ' checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>
-        ${views.map(([, asset], i) => `<div class="board-view board-view--${i}">${image(asset)}</div>`).join('')}</section>${rest(0)}`;
+        ${views.map(([, asset], i) => `<div class="board-view board-view--${i}">${image(asset)}</div>`).join('')}</section></div><div class="edition-flow">${chapters[0]}${part(0)}${part(1)}${chapters[1]}${part(2)}</div>`;
     }
     case 'chat':
       return `<div class="conversation-cover">${intro}<div class="conversation-spread">${image()}${image(parts[0].image)}</div></div>
-        <div class="conversation-note"><h2>${localized(parts[0].title, locale)}</h2><p>${localized(parts[0].body, locale)}</p></div>${rest(1)}`;
+        <div class="conversation-note"><h2>${localized(parts[0].title, locale)}</h2><p>${localized(parts[0].body, locale)}</p></div><div class="thread-columns">${chapters[0]}${chapters[1]}</div>${rest(1)}`;
     case 'teams':
       return `<div class="team-map">${intro}<div class="team-orbit">
         <div class="team-center">${art('teams')}<b>${t('فريق المنتج','Product team')}</b></div>${[['people',t('الأعضاء','Members')],['chat',t('القناة','Channel')],['tasks',t('المهام','Tasks')]].map(([name, caption]) => `<span>${art(name)}<b>${caption}</b></span>`).join('')}
-        </div></div>${part(0)}<div class="story-body">${part(1)}</div>`;
+        </div></div><div class="edition-flow">${chapters[0]}${part(0)}${chapters[1]}${part(1)}</div>`;
     case 'data':
-      return `<div class="file-spread"><div class="file-label">${intro}</div><div class="file-sleeve">${image()}</div></div>${rest(0)}`;
+      return `<div class="storage-explorer">${intro}${chapters[0]}<div class="storage-preview">${image()}</div></div><div class="edition-flow">${part(0)}${chapters[1]}${part(1)}</div>`;
     case 'meetings':
-      return `<div class="meeting-agenda">${intro}<div class="agenda-content">${part(0)}${image()}</div></div>${rest(1)}`;
+      return `<div class="schedule-cover">${intro}${chapters[0]}</div><div class="edition-flow"><div class="agenda-content">${part(0)}${image()}</div>${chapters[1]}${part(1)}${part(2)}</div>`;
     case 'mail':
-      return `<div class="mail-desk"><div class="letter-pocket">${image()}</div>${intro}</div>${rest(0)}`;
+      return `<div class="mail-desk"><div class="letter-pocket">${image()}</div>${intro}</div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(0)}</div>`;
     case 'architecture':
       return `<div class="architecture-lab">${intro}<div class="assembly"><div class="assembly-art" aria-hidden="true">
         <i></i><i></i><i></i><i></i></div><div class="assembly-notes"><h2>${localized(parts[0].title, locale)}</h2>
         ${parts[0].items.map((item,i) => `<details name="action-stage"${i === 0 ? ' open' : ''}><summary>${localized(item.title, locale)}${icon('plus')}</summary><p>${localized(item.body, locale)}</p></details>`).join('')}
-        </div></div></div>${rest(1)}`;
+        </div></div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
     case 'ai_moeen':
       return `<div class="agent-dialogue">${intro}<div class="dialogue-script">
-        <blockquote>${localized(parts[0].quote, locale)}</blockquote>${image()}<p>${localized(parts[0].note, locale)}</p></div></div>${rest(1)}`;
+        <blockquote>${localized(parts[0].quote, locale)}</blockquote>${image()}<p>${localized(parts[0].note, locale)}</p></div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
     case 'mcp':
-      return `<div class="protocol-manual"><div class="protocol-intro">${art('workflow')}${intro}</div>${part(0)}</div>${rest(1)}`;
+      return `<div class="protocol-book"><aside class="protocol-intro">${art('workflow')}${intro}</aside><div class="edition-flow">${chapters[0]}${part(0)}${part(1)}${chapters[1]}${part(2)}</div></div>`;
     case 'knowledge_base':
-      return `<div class="knowledge-desk">${intro}<div class="source-stack">${image()}<div>${part(0)}</div></div></div>${rest(1)}`;
+      return `<div class="reading-room">${intro}${chapters[0]}</div><div class="edition-flow"><div class="source-stack">${image()}<div>${part(0)}</div></div>${part(1)}${chapters[1]}</div>`;
     case 'skills':
-      return `<div class="skill-recipe">${intro}<div class="recipe-paper">${art('skills')}${part(0)}</div></div>${rest(1)}`;
+      return `<div class="skill-recipe">${intro}<div class="recipe-paper">${art('skills')}${part(0)}</div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
     case 'integrations':
-      return `<div class="connector-directory">${intro}${part(0)}</div><div class="connector-catalog">${image()}${part(1)}</div>`;
+      return `<div class="connection-atlas">${intro}${chapters[0]}</div><div class="edition-flow"><div class="connector-directory">${part(0)}</div><div class="connector-catalog">${image()}${part(1)}</div>${chapters[1]}</div>`;
     case 'about':
       return `<div class="founding-letter"><img class="letter-mark" src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="">${intro}${part(0)}</div>${rest(1)}`;
     case 'affiliate':

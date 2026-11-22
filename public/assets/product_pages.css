@@ -419,3 +419,125 @@
 .team-orbit b { display: block; text-align: center; font-size: 12px; font-weight: 500; color: var(--ink-2); }
 .team-center b { font-size: 14px; }
 .team-orbit span .object-art { max-block-size: 43px; }
+
+/* The examples follow the rhythm of the work they describe. */
+.edition-flow { display: grid; gap: clamp(48px, 7vw, 88px); margin-block-start: clamp(48px, 7vw, 88px); }
+.edition, .edition-flow > * { min-inline-size: 0; }
+.edition h2 { color: var(--ink); font-size: clamp(23px, 3vw, 34px); font-weight: 500; line-height: 1.35; text-wrap: balance; }
+.edition h3 { margin: 0; color: var(--ink); font-size: 18px; font-weight: 500; }
+.edition p, .edition dd { color: var(--muted); line-height: 1.7; }
+.edition p { max-inline-size: 62ch; margin-block-start: 9px; }
+.edition dl, .edition dd, .edition blockquote, .edition figure { margin: 0; }
+.edition ol, .edition ul { padding: 0; margin: 0; list-style: none; }
+.edition summary { cursor: pointer; font-weight: 500; }
+.edition details { padding-block: 15px; }
+.edition details p { margin-inline-start: 1.1em; }
+.tasks-studio, .task-spec, .review-desk, .team-charter, .schedule-cover, .connection-atlas { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: center; gap: clamp(26px, 5vw, 66px); }
+[data-product-page=tasks] .tasks-studio .canvas-intro { display: block; }
+.tasks-studio .workbench { margin: 0; padding-inline: clamp(10px, 2vw, 24px); }
+.task-spec article { border-block: 1px solid var(--line-2); }
+.task-spec article h3 { padding-block: 16px; }
+.task-spec dl, .team-charter dl, .action-ledger dl, .client-runbook dl { display: grid; grid-template-columns: minmax(7em, 1fr) minmax(0, 3fr); }
+.task-spec :is(dt, dd), .team-charter :is(dt, dd), .action-ledger :is(dt, dd), .client-runbook :is(dt, dd) { padding-block: 14px; border-block-start: 1px solid var(--line); }
+.task-spec dt, .team-charter dt { padding-inline-end: 14px; }
+.review-desk { align-items: start; }
+.review-desk fieldset { min-inline-size: 0; margin: 0; padding: 12px 20px; border: 1px solid var(--line); border-radius: 12px; }
+.review-desk legend { padding-inline: 6px; color: var(--muted); font-size: 13px; }
+.review-desk label { display: flex; align-items: baseline; gap: 10px; padding-block: 11px; cursor: pointer; }
+.review-desk label + label { border-block-start: 1px solid var(--line); }
+.review-desk input { flex: none; accent-color: var(--brand); }
+
+.thread-columns { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 3fr); align-items: start; gap: 8%; margin-block-start: clamp(44px, 7vw, 88px); }
+.thread-reading ol, .agenda-sheet ol { margin-block-start: 22px; }
+.thread-reading li, .agenda-sheet li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; padding-block: 15px; }
+.thread-reading time, .agenda-sheet time { font: 500 13px/1.7 var(--mono); color: var(--brand); }
+.thread-reading li div { border-inline-start: 1px solid var(--line-2); padding-inline-start: 15px; }
+.thread-reading li p { margin-block-start: 3px; }
+.pinned-note { padding: 24px; background: var(--brand-soft); border-block-start: 2px solid var(--brand); }
+.pinned-note h2 { font-size: 21px; }
+.pinned-note blockquote { margin-block: 18px; font-size: 20px; }
+.team-charter { border-block: 1px solid var(--line-2); padding-block: 26px; }
+.team-charter dl > :nth-child(-n+2) { border-block-start: 0; }
+.membership-fork > div, .letter-pair, .recipe-bench > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 4vw, 48px); margin-block-start: 28px; }
+.membership-fork > div > div { padding-inline-start: 20px; border-inline-start: 2px solid var(--brand); }
+.storage-explorer { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: clamp(24px, 4vw, 44px); align-items: center; }
+.storage-explorer > header { grid-column: 1 / -1; }
+.folder-guide h2, .routing-map h2, .agenda-sheet h2 { font-size: clamp(20px, 2.3vw, 26px); }
+.directory-tree { border-inline-start: 1px solid var(--line-2); padding-inline-start: 20px; margin-block-start: 20px; }
+.directory-tree details { position: relative; }
+.directory-tree details::before { content: ''; position: absolute; inline-size: 13px; inset-inline-start: -20px; inset-block-start: 27px; border-block-start: 1px solid var(--line-2); }
+.storage-preview { background: var(--sunken); border-block: 1px solid var(--line); padding: clamp(18px, 3vw, 40px) 4%; }
+.file-handoff, .mail-boundary, .source-health, .recipe-margin, .revoke-note, .connection-check { max-inline-size: 68ch; padding-inline-start: clamp(16px, 3vw, 32px); border-inline-start: 3px solid var(--line-2); }
+.schedule-cover { align-items: start; }
+.agenda-sheet { padding: clamp(18px, 3vw, 38px); background: var(--sunken); border-block-start: 3px solid var(--brand); }
+.agenda-sheet li { border-block-start: 1px solid var(--line-2); }
+.agenda-sheet li:last-child { padding-block-end: 0; }
+.agenda-sheet li p { margin-block-start: 4px; }
+.edition-flow .agenda-content, .edition-flow .connector-catalog, .edition-flow .connector-directory .story-providers { margin-block-start: 0; }
+.minutes { padding-block: 26px; border-block: 3px double var(--line-2); max-inline-size: 70ch; margin-inline: auto; }
+.letter-pair { align-items: start; gap: 20px; }
+.letter-pair article { padding: clamp(20px, 3vw, 36px); background: var(--sunken); border-block-start: 1px solid var(--line-2); }
+.letter-pair article + article { margin-block-start: 36px; background: var(--brand-soft); }
+.letter-pair blockquote { margin-block: 18px; font-size: clamp(18px, 2vw, 23px); line-height: 1.6; }
+.action-ledger dl, .client-runbook dl { margin-block-start: 24px; }
+.action-ledger dt, .client-runbook dt { padding-inline-end: 16px; font-size: 14px; }
+.action-ledger dt code, .client-runbook dt { font-family: var(--mono); overflow-wrap: anywhere; }
+.decision-gate { background: var(--sunken); padding: clamp(22px, 4vw, 42px); border-inline-start: 4px solid var(--brand); }
+.prompt-lab { max-inline-size: 74ch; margin-inline: auto; }
+.prompt-lab header { margin-block-end: 20px; }
+.prompt-lab details { border-block-start: 1px solid var(--line); }
+.prompt-lab details[open] summary, .source-reader summary { color: var(--brand); }
+.agent-private { border-block-start: 1px solid var(--line-2); padding-block-start: 22px; }
+.agent-private h3 { font-size: 24px; }
+[data-product-page=mcp] .product-page__wrap { max-inline-size: 1100px; }
+.protocol-book { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); align-items: start; gap: clamp(24px, 4vw, 48px); }
+.protocol-book .protocol-intro { position: sticky; inset-block-start: calc(var(--nav) + 16px); }
+.protocol-book .protocol-intro h1 { font-size: clamp(30px, 3vw, 48px); }
+.protocol-book .edition-flow { margin: 0; }
+.protocol-book .story-steps ol { grid-template-columns: 1fr; }
+.protocol-book th, .protocol-book td { overflow-wrap: anywhere; }
+.client-runbook dl { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.source-reader { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: 0 clamp(25px, 5vw, 62px); align-items: start; }
+.source-reader header { grid-row: span 2; }
+.source-reader figure { padding: 22px; background: var(--sunken); border-block-start: 1px solid var(--line-2); }
+.source-reader figcaption { color: var(--muted); font: 12px var(--mono); }
+.source-reader blockquote { margin-block-start: 18px; font-size: 19px; line-height: 1.6; }
+.source-reader details { padding-inline: 16px; border: 1px solid var(--line); }
+.recipe-bench > div { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-block: 1px solid var(--line); }
+.recipe-bench > div > div { padding: 24px 18px; }
+.recipe-bench > div > div + div { border-inline-start: 1px solid var(--line); }
+.recipe-bench > div > div:first-child { background: var(--brand-soft); }
+.connection-atlas { align-items: start; }
+.routing-map ul { margin-block-start: 20px; }
+.routing-map li { border-block-start: 1px solid var(--line-2); }
+.routing-map a { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0 8px; padding-block: 14px; }
+.routing-map a:is(:hover, :focus-visible) strong { color: var(--brand); text-decoration: underline; }
+.routing-map bdi { font-size: 12px; color: var(--muted); }
+.routing-map p { grid-column: 1 / -1; margin-block-start: 4px; }
+@media (max-width: 760px) {
+  .tasks-studio, .task-spec, .review-desk, .thread-columns, .team-charter, .storage-explorer, .schedule-cover, .protocol-book, .source-reader, .connection-atlas { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .storage-explorer > header { grid-column: auto; }
+  .protocol-book .protocol-intro { position: static; }
+  .source-reader { gap: 0; }
+  .source-reader header { grid-row: auto; margin-block-end: 20px; }
+  .letter-pair, .membership-fork > div, .recipe-bench > div { grid-template-columns: minmax(0, 1fr); }
+  .letter-pair article + article { margin-block-start: 0; }
+  .recipe-bench > div > div + div { border-inline-start: 0; border-block-start: 1px solid var(--line); }
+  .routing-map a { grid-template-columns: minmax(0, 1fr); }
+  .task-spec dl, .team-charter dl, .action-ledger dl { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+}
+.reading-room .canvas-intro { max-inline-size: 74ch; margin-inline: auto; text-align: center; }
+.reading-room .canvas-intro :is(h1, .canvas-lead) { margin-inline: auto; }
+.reading-room .source-reader { margin-block-start: clamp(30px, 5vw, 60px); padding-block-start: 26px; border-block-start: 3px double var(--line-2); }
+.team-charter { display: block; }
+.team-charter header { max-inline-size: 67ch; }
+.team-charter dl { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto; grid-auto-flow: column; gap: 0 clamp(16px, 4vw, 56px); margin-block-start: 28px; }
+.team-charter dl dt { padding-block: 10px 0; border-block-start: 2px solid var(--line-2); font-size: 18px; font-weight: 500; }
+.team-charter dl dd { border: 0; padding-block: 8px; }
+.routing-map a { grid-template-columns: auto minmax(0, 1fr); gap: 0 14px; text-decoration: none; }
+.routing-map a img { grid-row: span 3; align-self: start; margin-block-start: 4px; }
+.routing-map a :is(bdi, p) { grid-column: 2; }
+@media (max-width: 600px) {
+  .team-charter dl { display: block; }
+  .team-charter dl dt { margin-block-start: 16px; }
+}
