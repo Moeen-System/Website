@@ -23,9 +23,8 @@ function tile(id, drawing, page, { description = false, trailing = '' } = {}) {
 
 function featureTile(id, page) {
   const entry = sitePages[id];
-  const { shot, width, height } = entry.image;
   return `<a class="product-menu__feature" href="${entry.path}"${current(id, page)}>
-    <span class="product-menu__shot"><img width="${width}" height="${height}" data-shot="${shot}" src="/assets/shots2/${shot}_ar_light.png" alt="" loading="lazy"></span>
+    <span class="product-menu__art" dir="ltr" aria-hidden="true">AI</span>
     <span class="tile__text">${label(entry.label, 'strong')}${label(entry.teaser, 'small')}</span>
   </a>`;
 }

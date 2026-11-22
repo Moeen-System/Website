@@ -208,10 +208,30 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 .product-menu__section { min-inline-size: 0; }
 .product-menu__section + .product-menu__section { border-inline-start: 1px solid var(--line); padding-inline-start: 6px; }
 .nav .product-menu .product-menu__section h2 { margin: 4px 5px 5px; color: var(--muted); font-size: 11.5px; font-weight: 500; }
-.product-menu__feature { display: flex; flex-direction: column; gap: 7px; padding: 7px; text-decoration: none; background: var(--panel-2); border-radius: 7px; }
-.product-menu__feature:hover { background: color-mix(in srgb, var(--panel-2) 70%, var(--line)); }
-.product-menu__shot { display: block; flex: 1; min-block-size: 88px; position: relative; overflow: hidden; border: 1px solid var(--line-2); border-radius: 5px; background: var(--panel); }
-.product-menu__shot img { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; object-position: center top; }
+.product-menu__feature {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px;
+  text-decoration: none;
+  border-radius: 7px;
+  background:
+    radial-gradient(ellipse at 25% 0%, color-mix(in srgb, var(--brand) 82%, transparent), transparent 66%),
+    linear-gradient(146deg, #2045a8, #232e72 60%, #171c43);
+}
+.product-menu__feature:hover .tile__text strong { text-decoration: underline; text-underline-offset: 3px; }
+.product-menu__feature .tile__text { color: #fff; }
+.product-menu__feature .tile__text small { color: #d9e4ff; }
+.product-menu__art {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-block-size: 88px;
+  color: #e6eeff;
+  font: 600 68px/1 var(--font);
+  letter-spacing: -.055em;
+  text-shadow: 0 4px 18px rgb(7 19 63 / .36);
+}
 .product-menu__bottom { grid-column: 1 / -1; border-block-start: 1px solid var(--line); padding-block-start: 4px; }
 .product-menu__bottom .tile { min-block-size: 42px; }
 .product-menu__bottom .tile > .i { margin-inline: auto 7px; color: var(--muted); }
@@ -1056,7 +1076,7 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 @media (max-width: 620px) {
   .product-menu { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .sheet__group a.product-menu__feature { grid-column: 1 / -1; flex-direction: row; align-items: center; }
-  .product-menu__shot { flex: 0 0 36%; min-block-size: 64px; }
+  .product-menu__art { flex: 0 0 36%; min-block-size: 58px; font-size: 48px; }
 }
 @media (max-width: 430px) {
   .sheet__group .upcoming-list { grid-template-columns: minmax(0,1fr); }
