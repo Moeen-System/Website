@@ -2,11 +2,18 @@
 
 Claude's standalone landing page is published separately from Moeen-System/App. The original design, inline vector logo, hover animation, reduced-motion behavior and Arabic/English switch are retained. The existing black product favicon is included.
 
-Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from the environment, fills Arabic copy for the first static render and emits `dist/`. No dependencies, credentials, user records or app source are included. `WEB_PORT` is only for local preview.
+Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from the environment, fills Arabic copy for the first static render and emits `dist/`. No runtime dependencies, credentials, user records or app source are included. Render builds omit the fictional logo and testimonial sections and the local-only Thmanyah font files. `WEB_PORT` is only for local preview.
 
 The form calls the public `settings.join_waitlist` action on the existing Moeen API. It omits cookies, validates the address, requires an explicit submission, reports failures truthfully and never creates a workspace or account. The API stores unique normalized addresses and consent metadata. The authenticated Anas-Doleh page is the only management interface. No invitation or marketing email is sent by enrollment.
 
 Hosting uses a Render static site. `app.moeen.dev` remains the workspace application. Static hosting and both custom domains are within the current included plan; outbound bandwidth and pipeline quotas still apply.
+
+
+## Website copy
+
+Use Moeen’s Arabic natural writing skill from the App repository at `.agents/skills/arabic_natural_writing/SKILL.md` for Arabic on every website page. Draft from meaning, keep product terms consistent with the glossary, and make sure the English version makes the same claims. Check both reading directions after editing.
+
+Use the rounded glyphs registered in the App repository’s `packages/ui/src/components/icon.tsx` for website controls and feature icons. The static pages embed those shapes as SVG.
 
 
 ## Verified publication, 16 November 2026
