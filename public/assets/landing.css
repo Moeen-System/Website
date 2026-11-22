@@ -141,6 +141,11 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   background: var(--bg); color: var(--ink);
 }
 .btn__arrow .i { inline-size: 15px; block-size: 15px; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .btn__arrow .i { transition: translate 120ms var(--ease); }
+  .btn:hover .btn__arrow .i { translate: 2px; transition-duration: 150ms; }
+  .btn:dir(rtl):hover .btn__arrow .i { translate: -2px; }
+}
 .btn--ghost { background: var(--panel); color: var(--ink); border-color: var(--line-2); }
 .btn--ghost:hover { background: var(--panel-2); }
 .btn--light { background: #f4f4f5; color: #0c0c0d; }
