@@ -67,14 +67,16 @@ function applyLanguage(rebuild = true) {
   root.classList.remove('i18n-pending');
 }
 
-language.addEventListener('click', () => {
+function toggleLanguage() {
   locale = locale === 'ar' ? 'en' : 'ar';
   store('moeen.landing.locale', locale);
   const url = new URL(location.href);
   url.searchParams.set('lang', locale);
   history.replaceState(null, '', url);
   applyLanguage();
-});
+}
+language.addEventListener('click', toggleLanguage);
+document.querySelector('[data-language-footer]').addEventListener('click', toggleLanguage);
 
 themeButton.addEventListener('click', () => {
   theme = theme === 'dark' ? 'light' : 'dark';

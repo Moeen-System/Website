@@ -1,3 +1,4 @@
+import { buildFooter } from './build_footer.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { copy, escape, hasStory, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
 import { sitePages } from '../public/assets/site_content.js';
@@ -46,12 +47,7 @@ ${page === 'docs' ? '<main id="main" class="section product-page product-page--e
     ${page === 'roadmap' ? `<noscript><p class="page-status"><a href="${escape(origin)}/roadmap.json">خريطة الطريق بصيغة JSON</a></p></noscript>` : ''}
   </div>
 </main>`}
-<footer class="footer product-footer">
-  <div class="wrap product-footer__inner">
-    <span data-page-text="copyright">${text.copyright}</span>
-    <a href="${escape(origin)}/" data-page-text="login">${text.login}</a>
-  </div>
-</footer>
+${buildFooter(page)}
 <script type="application/json" id="product-data">${data}</script>
 </body>
 </html>

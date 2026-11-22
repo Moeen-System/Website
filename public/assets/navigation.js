@@ -6,8 +6,9 @@ const ui = {
 export function initNavigation() {
   const root = document.documentElement;
   const nav = document.querySelector('.nav');
-  const labels = [...nav.querySelectorAll('[data-nav-en]')].map(node => [node, node.textContent]);
-  const ariaLabels = [...nav.querySelectorAll('[data-nav-en-label]')].map(node => [node, node.getAttribute('aria-label')]);
+  const labels = [...document.querySelectorAll('[data-nav-en]')].map(node => [node, node.textContent]);
+  const ariaLabels = [...document.querySelectorAll('[data-nav-en-label]')].map(node => [node, node.getAttribute('aria-label')]);
+  const localizedLinks = [...document.querySelectorAll('[data-href-en]')].map(node => [node, node.href]);
   const language = nav.querySelector('[data-language]');
   const themeButton = nav.querySelector('[data-theme-toggle]');
   const mega = nav.querySelector('.mega');
@@ -46,7 +47,7 @@ export function initNavigation() {
       sizeMenu(trigger);
       requestAnimationFrame(() => { if (current) mega.classList.add('is-open'); });
     }
-    if (focus) view.querySelector('a')?.focus();
+    if (focus) (view.querySelector('a') ?? view).focus();
   }
 
   function closeMenu(returnFocus = false) {
@@ -135,6 +136,7 @@ export function initNavigation() {
   return (locale, theme) => {
     for (const [node, ar] of labels) node.textContent = locale === 'en' ? node.dataset.navEn : ar;
     for (const [node, ar] of ariaLabels) node.setAttribute('aria-label', locale === 'en' ? node.dataset.navEnLabel : ar);
+    for (const [node, ar] of localizedLinks) node.href = locale === 'en' ? node.dataset.hrefEn : ar;
     language.title = ui[locale].language;
     language.setAttribute('aria-label', language.title);
     themeButton.title = ui[locale][theme === 'dark' ? 'light' : 'dark'];

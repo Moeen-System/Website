@@ -1,11 +1,11 @@
 import { navigation, sitePages } from '../public/assets/site_content.js';
 import { escape, icon } from '../public/assets/product_content.js';
 
-const label = (text, tag = 'span') => `<${tag} data-nav-en="${escape(text.en)}">${escape(text.ar)}</${tag}>`;
-const aria = text => `aria-label="${escape(text.ar)}" data-nav-en-label="${escape(text.en)}"`;
+export const label = (text, tag = 'span') => `<${tag} data-nav-en="${escape(text.en)}">${escape(text.ar)}</${tag}>`;
+export const aria = text => `aria-label="${escape(text.ar)}" data-nav-en-label="${escape(text.en)}"`;
 const current = (id, page) => id === page ? ' aria-current="page"' : '';
 
-function link(id, page, classes = '') {
+export function link(id, page, classes = '') {
   const entry = sitePages[id];
   return `<a${classes ? ` class="${classes}"` : ''} href="${entry.path}"${current(id, page)}>${label(entry.label)}</a>`;
 }
@@ -25,22 +25,27 @@ function featureTile(id, page) {
   </a>`;
 }
 
+export function upcomingList(group) {
+  const soon = { ar: 'قريبًا', en: 'Coming soon' };
+  return `<ul class="upcoming-list">${group.upcoming.map(name => `<li>${label(name)}${label(soon, 'small')}</li>`).join('')}</ul>`;
+}
+
 export function buildNavigation(page = 'home') {
   const controls = { ar: 'القائمة الرئيسية', en: 'Main navigation' };
   const groups = navigation.filter(entry => typeof entry !== 'string');
   const navItem = entry => {
     if (typeof entry === 'string') return link(entry, page, 'nav__item');
-    const active = entry.featured === page || entry.tiles.some(([id]) => id === page);
+    const active = entry.featured === page || entry.tiles?.some(([id]) => id === page);
     return `<button type="button" class="nav__item" data-mega="${entry.id}" aria-expanded="false" aria-controls="mega"${active ? ' data-active-group' : ''}>${label(entry.label)}${icon('chev', 'i i--xs')}</button>`;
   };
-  const panel = group => `<section class="mega__view mega__view--${group.id}${group.featured ? '' : ' mega__view--narrow'}" data-view="${group.id}" ${aria(group.label)} inert>
-    <div class="mega__main"><div class="${group.featured ? 'mega__grid' : 'mega__list'}">${group.tiles.map(([id, drawing]) => tile(id, drawing, page)).join('')}</div></div>
+  const panel = group => `<section class="mega__view mega__view--${group.id}${group.featured ? '' : ' mega__view--narrow'}" tabindex="-1" data-view="${group.id}" ${aria(group.label)} inert>
+    <div class="mega__main"><div class="${group.featured ? 'mega__grid' : 'mega__list'}">${group.upcoming ? upcomingList(group) : group.tiles.map(([id, drawing]) => tile(id, drawing, page)).join('')}</div></div>
     ${group.featured ? featureTile(group.featured, page) : ''}
   </section>`;
   const mobileItem = entry => {
     if (typeof entry === 'string') return link(entry, page);
     return `<details class="sheet__group"><summary>${label(entry.label)}${icon('chev')}</summary><div>
-      ${entry.tiles.map(([id]) => link(id, page)).join('')}${entry.featured ? link(entry.featured, page) : ''}
+      ${entry.upcoming ? upcomingList(entry) : entry.tiles.map(([id]) => link(id, page)).join('')}${entry.featured ? link(entry.featured, page) : ''}
     </div></details>`;
   };
   const login = { ar: 'تسجيل الدخول', en: 'Sign in' };

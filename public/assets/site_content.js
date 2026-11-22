@@ -150,6 +150,13 @@ export const navigation = [
   { id: 'ai', label: pair('الذكاء الاصطناعي', 'AI'),
     tiles: [['ai_moeen', 'ask'], ['mcp', 'workflow'], ['knowledge_base', 'search'], ['skills', 'skills']],
     featured: 'integrations' },
+  { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
+    upcoming: [
+      pair('الموارد البشرية', 'Human resources'), pair('المالية', 'Finance'),
+      pair('العمليات', 'Operations'), pair('المبيعات', 'Sales'),
+      pair('التسويق', 'Marketing'), pair('خدمة العملاء', 'Customer support'),
+      pair('تطوير المنتجات', 'Product development'), pair('المشتريات', 'Procurement'),
+    ] },
   'changelog', 'roadmap', 'blog', 'pricing',
   { id: 'company', label: pair('الشركة', 'Company'),
     tiles: [['about'], ['affiliate'], ['support'], ['join']] },

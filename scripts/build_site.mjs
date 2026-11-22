@@ -1,3 +1,4 @@
+import { buildFooter } from './build_footer.mjs';
 import { buildNavigation } from './build_navigation.mjs';
 import { buildProductPages } from './build_product_pages.mjs';
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
@@ -21,7 +22,7 @@ await cp(root+'public',root+'dist',{
   recursive:true,
   filter:source=>!production || !source.startsWith(root+'public/assets/fonts/thmanyah'),
 });
-await writeFile(root+'dist/index.html',publishable.replace('<!-- SITE_NAVIGATION -->',buildNavigation()));
+await writeFile(root+'dist/index.html',publishable.replace('<!-- SITE_NAVIGATION -->',buildNavigation()).replace('<!-- SITE_FOOTER -->',buildFooter()));
 if(production){
   const styles=await readFile(root+'dist/assets/landing.css','utf8');
   const previewFontFiles=/,\n    url\(\/assets\/fonts\/thmanyahsans-[A-Za-z]+\.woff2\) format\("woff2"\)/g;
