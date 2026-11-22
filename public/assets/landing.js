@@ -422,7 +422,7 @@ document.addEventListener('keydown', (event) => {
 });
 matchMedia('(min-width: 1024px)').addEventListener('change', (event) => { if (event.matches) setSheet(false); });
 
-// The isometric drawings go inline so their blocks can move on hover and follow the theme.
+// Inline menu illustrations so their outlines follow the theme and can lift on hover.
 async function inlineIso() {
   const cache = new Map();
   await Promise.all([...document.querySelectorAll('img[data-light*="/assets/iso/"]')].map(async (img) => {

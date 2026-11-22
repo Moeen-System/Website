@@ -21,7 +21,8 @@ await cp(root+'public',root+'dist',{
 await writeFile(root+'dist/index.html',publishable);
 if(production){
   const styles=await readFile(root+'dist/assets/landing.css','utf8');
-  await writeFile(root+'dist/assets/landing.css',styles.replace(/^@font-face \{ font-family: "Thmanyah Sans";[^}]+\}\n/gm,''));
+  const previewFontFiles=/,\n    url\(\/assets\/fonts\/thmanyahsans-[A-Za-z]+\.woff2\) format\("woff2"\)/g;
+  await writeFile(root+'dist/assets/landing.css',styles.replace(previewFontFiles,''));
 }
 const script=await readFile(root+'public/site.js','utf8');
 if(!script.includes("'__WAITLIST_ENDPOINT__'"))throw Error('Missing endpoint marker.');
