@@ -33,11 +33,28 @@
 @media (max-width: 1023px) { :root { --gut: 16px; --pad: 24px; } }
 @media (max-width: 639px) { :root { --nav: 56px; --gut: 0px; --pad: 16px; } }
 
-/* Thmanyah Sans: local preview only. Its licence forbids serving the files on a website, so
-   they are git-ignored and the live site falls back to IBM Plex Sans Arabic. */
-@font-face { font-family: "Thmanyah Sans"; src: url(/assets/fonts/thmanyahsans-Regular.woff2) format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Thmanyah Sans"; src: url(/assets/fonts/thmanyahsans-Medium.woff2) format("woff2"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Thmanyah Sans"; src: url(/assets/fonts/thmanyahsans-Bold.woff2) format("woff2"); font-weight: 600 700; font-display: swap; }
+/* Use an installed Thmanyah Sans face. The bundled fallback is for local preview only. */
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: local("thmanyah sans Regular"), local("thmanyahsans-Regular"),
+    url(/assets/fonts/thmanyahsans-Regular.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: local("thmanyah sans Medium"), local("thmanyahsans-Medium"),
+    url(/assets/fonts/thmanyahsans-Medium.woff2) format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: local("thmanyah sans Bold"), local("thmanyahsans-Bold"),
+    url(/assets/fonts/thmanyahsans-Bold.woff2) format("woff2");
+  font-weight: 600 700;
+  font-display: swap;
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
