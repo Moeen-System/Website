@@ -27,10 +27,12 @@ function pageDocument(page, context, symbols) {
 <meta property="og:image" content="https://moeen.dev/og_ar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;family=Noto+Naskh+Arabic:wght@400;500&amp;family=Newsreader:opsz,wght@6..72,400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
 <script src="/assets/prefs.js"></script>
 <link rel="stylesheet" href="/assets/landing.css">
 <link rel="stylesheet" href="/assets/product_pages.css">
+<link rel="stylesheet" href="/assets/feature_pages.css">
+<link rel="stylesheet" href="/assets/company_pages.css">
 <script type="module" src="/assets/product_pages.js"></script>
 </head>
 <body>
@@ -39,10 +41,6 @@ ${buildNavigation(page)}
 ${page === 'docs' ? '<main id="main" class="section product-page product-page--empty" tabindex="-1" data-product-content></main>' : `
 <main id="main" class="section product-page${hasStory(page) ? ' product-page--story' : ''}" tabindex="-1">
   <div class="wrap product-page__wrap">
-    ${hasStory(page) ? '' : `<header class="product-page__head">
-      <h1 data-page-heading>${escape(pageTitle(page, 'ar'))}</h1>
-      <p class="lead" data-page-lead>${description}</p>
-    </header>`}
     <div data-product-content>${renderContent(page, 'ar', context)}</div>
     ${page === 'roadmap' ? `<noscript><p class="page-status"><a href="${escape(origin)}/roadmap.json">خريطة الطريق بصيغة JSON</a></p></noscript>` : ''}
   </div>
@@ -76,7 +74,10 @@ export async function buildProductPages(root, origin, landing) {
   const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev|menu)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
   if (common.length !== 7) throw new Error('Missing product page icons in the landing sprite');
   const symbols = common.join('') + productIcons;
-  const feeds = { roadmap, changelog };
+  // The About page draws the app's real history; Join us lists what the roadmap says is next.
+  const releases = changelog && { count: changelog.releases.length, latest: changelog.releases[0].version };
+  const commits = JSON.parse(await readFile(root + 'scripts/commit_log.json', 'utf8'));
+  const feeds = { roadmap, changelog, join: roadmap, about: { releases, commits } };
   await Promise.all(pages.map(async page => {
     const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });

@@ -1,5 +1,8 @@
 import { copy, pageLead, pageTitle, renderContent, validFeed } from './product_content.js';
 import { initNavigation } from './navigation.js';
+import { initFeaturePage, mountFeaturePage } from './feature_pages.js';
+import { initCompanyPage } from './company_pages.js';
+import { initArchitecturePage } from './architecture_page.js';
 
 const root = document.documentElement;
 const page = root.dataset.productPage;
@@ -21,7 +24,7 @@ function applyTheme() {
   renderNavigation(locale, theme);
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#131313' : '#fafafa';
   for (const image of document.querySelectorAll('img[data-shot]')) {
-    const src = `/assets/shots2/${image.dataset.shot}_${locale}_${theme}.png`;
+    const src = `/assets/shots2/${image.dataset.shot}_${image.dataset.locale ?? locale}_${theme}.png`;
     if (image.getAttribute('src') !== src) image.src = src;
   }
   for (const image of document.querySelectorAll('img[data-light]')) {
@@ -44,6 +47,7 @@ function openLinkedRelease() {
 
 function updateContent() {
   content.innerHTML = renderContent(page, locale, context);
+  mountFeaturePage(content);
   if (page === 'pricing') applyCadence();
   applyTheme();
   if (page === 'changelog') openLinkedRelease();
@@ -56,11 +60,6 @@ function applyLanguage(rebuild = true) {
   const title = pageTitle(page, locale), description = pageLead(page, locale);
   document.title = `${title} | ${text.brand}`;
   document.querySelector('meta[name="description"]').content = description;
-  const heading = document.querySelector('[data-page-heading]');
-  if (heading) {
-    heading.textContent = title;
-    document.querySelector('[data-page-lead]').textContent = description;
-  }
   for (const node of document.querySelectorAll('[data-page-text]')) node.textContent = text[node.dataset.pageText];
   if (rebuild) updateContent();
   else applyTheme();
@@ -83,17 +82,6 @@ themeButton.addEventListener('click', () => {
   store('moeen.landing.theme', theme);
   applyTheme();
 });
-
-if (page === 'support') {
-  content.addEventListener('input', event => {
-    if (!event.target.matches('[data-help-search]')) return;
-    const normalize = value => value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase(locale);
-    const query = normalize(event.target.value.trim());
-    const topics = [...content.querySelectorAll('.story-resources li')];
-    for (const topic of topics) topic.hidden = !normalize(topic.textContent).includes(query);
-    content.querySelector('[data-help-empty]').hidden = topics.some(topic => !topic.hidden);
-  });
-}
 
 if (page === 'pricing') {
   content.addEventListener('change', event => {
@@ -137,4 +125,8 @@ if (page === 'roadmap') {
   document.addEventListener('visibilitychange', refreshRoadmap);
 }
 
+initFeaturePage(content);
+initCompanyPage(content);
+initArchitecturePage(content);
+mountFeaturePage(content);
 applyLanguage(locale === 'en');

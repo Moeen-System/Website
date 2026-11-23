@@ -2,11 +2,13 @@ import { navigation } from '../public/assets/site_content.js';
 import { aria, label, link, upcomingList } from './build_navigation.mjs';
 
 const text = (ar, en) => ({ ar, en });
-const ask = prompt => 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
-const destinations = {
-  askAr: ask('ما مُعين، وكيف يمكن أن يستخدمه فريقي؟ استند إلى الموقع الرسمي https://moeen.dev/ وميّز بين ما هو متاح الآن وما سيأتي قريبًا.'),
-  askEn: ask('What is Moeen and how could my team use it? Use the official site https://moeen.dev/ and distinguish available features from upcoming ones.'),
+// Each assistant opens with the question ready. Gemini's link can't carry one, so it is copied.
+const question = {
+  ar: 'ما مُعين، وكيف يمكن أن يستخدمه فريقي؟ استند إلى الموقع الرسمي https://moeen.dev/ وميّز بين ما هو متاح الآن وما سيأتي قريباً.',
+  en: 'What is Moeen and how could my team use it? Use the official site https://moeen.dev/ and distinguish available features from upcoming ones.',
 };
+const assistants = [['chatgpt', 'ChatGPT', 'https://chatgpt.com/?q='], ['claude', 'Claude', 'https://claude.ai/new?q='], ['grok', 'Grok', 'https://grok.com/?q='], ['gemini', 'Gemini', '']];
+const assistant = ([id, name, base]) => `<a class="ask-ai__link" href="${base ? base + encodeURIComponent(question.ar) : 'https://gemini.google.com/app'}"${base ? ` data-href-en="${base + encodeURIComponent(question.en)}"` : ` data-ask-copy="${question.ar}" data-ask-copy-en="${question.en}"`} target="_blank" rel="noopener noreferrer" ${aria(text(base ? `اسأل ${name} عن مُعين` : `انسخ السؤال وافتح ${name}`, base ? `Ask ${name} about Moeen` : `Copy the question and open ${name}`))} title="${name}"><img src="/assets/logos/${id}.svg" alt="" width="17" height="17" data-mono="${id}"></a>`;
 const more = (href, title) => `<a href="${href}">${label(title)}</a>`;
 const group = (title, items) => `<div class="footer-group">${label(title, 'h3')}${items}</div>`;
 
@@ -32,7 +34,7 @@ export function buildFooter(page = 'home') {
   return `<footer class="footer site-footer"><div class="wrap">
     <div class="site-footer__top">
       <a class="site-footer__brand" href="/" ${aria(text('مُعين، الصفحة الرئيسية', 'Moeen home'))}><img alt="" src="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" data-light="/assets/brand/mark_black.svg" width="34" height="26">${label(text('مُعين', 'Moeen'))}</a>
-      <div class="site-footer__actions"><a class="btn btn--ghost" href="${destinations.askAr}" data-href-en="${destinations.askEn}" target="_blank" rel="noopener noreferrer">${label(text('اسأل ChatGPT عن مُعين', 'Ask ChatGPT about Moeen'))}<span aria-hidden="true">↗</span></a>
+      <div class="site-footer__actions"><div class="ask-ai">${label(text('اسأل الذكاء الاصطناعي عنّا:', 'Ask AI about us:'))}${assistants.map(assistant).join('')}</div>
       <button class="btn btn--ghost" type="button" data-language-footer>${label(text('English', 'العربية'))}</button></div>
     </div>
     <nav class="site-footer__columns" ${aria(text('روابط الموقع', 'Site links'))}>
@@ -43,8 +45,5 @@ export function buildFooter(page = 'home') {
     <div class="site-footer__base"><div>${label(text('© 2026 مُعين', '© 2026 Moeen'))} ${more('/waitlist/', text('قائمة الانتظار', 'Waitlist'))} ${more('https://app.moeen.dev/', text('تسجيل الدخول', 'Sign in'))}</div>
     <div class="footer-socials">${socials.map(([name, mark]) => `<button type="button" disabled aria-label="${name}" title="${name}">${mark}</button>`).join('')}</div></div>
     <p class="footer-legal">${label(text('أسماء المنتجات وشعاراتها علامات تجارية لمالكيها.', 'Product names and logos are trademarks of their owners.'))}</p>
-    <svg class="footer-wordmark" viewBox="0 -45 1000 243" aria-hidden="true" focusable="false">
-      <defs><linearGradient id="footer-ink" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="var(--brand)"/><stop offset=".88" stop-color="var(--brand)" stop-opacity=".12"/></linearGradient></defs>
-      <text x="500" y="220" direction="rtl" lang="ar" text-anchor="middle" textLength="890" lengthAdjust="spacingAndGlyphs" fill="none" stroke="url(#footer-ink)" stroke-width="1.4">مُعين</text>
-    </svg></div></footer>`;
+    <p class="footer-word" aria-hidden="true" lang="ar" dir="rtl"><span>مُعين</span></p></div></footer>`;
 }

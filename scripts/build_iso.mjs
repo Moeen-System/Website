@@ -13,6 +13,18 @@ const THEMES = {
   dark: { base: '#1a1a1c', topA: '#2e2e31', topB: '#28282b', left: '#232325', right: '#1e1e20', line: '#343438' },
 };
 
+// The plan cards are the one place the blocks take a colour: blue for Plus, violet for Pro.
+const TINTS = {
+  plan_plus: {
+    light: { base: '#8db4f6', topA: '#eaf1fe', topB: '#d3e2fd', left: '#b4cdfa', right: '#93b7f7', line: '#79a4f2' },
+    dark: { base: '#142a52', topA: '#3d74d8', topB: '#3163bf', left: '#24509f', right: '#1b3f80', line: '#4c82e6' },
+  },
+  plan_pro: {
+    light: { base: '#b795fb', topA: '#f4efff', topB: '#e6dafe', left: '#cfb9fd', right: '#b898fb', line: '#a27ef6' },
+    dark: { base: '#2f1a5c', topA: '#8a5bf0', topB: '#7747dd', left: '#5e34b9', right: '#4a2895', line: '#9a6ff5' },
+  },
+};
+
 const point = (x, y, z) => [(x - y) * COS * S, (x + y) * SIN * S - z * S];
 const f = (n) => n.toFixed(2);
 
@@ -82,10 +94,16 @@ const SCENES = {
   notes: [plate(0, 0, 0, 2.2, 1.6, 0.2), plate(0.25, -0.2, 0.36, 2.2, 1.6, 0.2), plate(0.5, -0.4, 0.72, 2.2, 1.6, 0.2, true)],
   people: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 0, 1, true)],
 };
+// Pricing plans: one block, a few, a building. Drawn after the menu so its ids never move.
+const PLANS = {
+  plan_free: [cube(1, 1, 0)],
+  plan_plus: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(0, 0, 1)],
+  plan_pro: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(2, 1, 0), cube(0, 0, 1), cube(1, 0, 1), cube(0, 1, 1), cube(0, 0, 2)],
+};
 
-for (const [theme, t] of Object.entries(THEMES)) {
+for (const scenes of [SCENES, PLANS]) for (const [theme, t] of Object.entries(THEMES)) {
   const folder = `${root}public/assets/iso/${theme}/`;
   await mkdir(folder, { recursive: true });
-  for (const [name, blocks] of Object.entries(SCENES)) await writeFile(`${folder}${name}.svg`, svg(blocks.map((b) => b.slice(0, 6)), t, theme));
+  for (const [name, blocks] of Object.entries(scenes)) await writeFile(`${folder}${name}.svg`, svg(blocks.map((b) => b.slice(0, 6)), TINTS[name]?.[theme] ?? t, theme));
 }
-console.log(`iso: wrote ${Object.keys(SCENES).length * 2} illustrations`);
+console.log(`iso: wrote ${(Object.keys(SCENES).length + Object.keys(PLANS).length) * 2} illustrations`);

@@ -116,6 +116,12 @@ export function initNavigation() {
     if (current) sizeMenu(triggers.find(button => button.dataset.mega === current));
   });
 
+  for (const link of document.querySelectorAll('[data-ask-copy]')) {
+    link.addEventListener('click', () => {
+      void navigator.clipboard?.writeText(root.lang === 'en' ? link.dataset.askCopyEn : link.dataset.askCopy).catch(() => {});
+    });
+  }
+
   const assets = new Map();
   for (const [index, img] of [...mega.querySelectorAll('img[data-light]')].entries()) {
     const url = img.dataset.light;

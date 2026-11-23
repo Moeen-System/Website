@@ -1,4 +1,5 @@
 import { initNavigation } from './navigation.js';
+import { swash } from './swash.js';
 
 // Landing page. Arabic is the static HTML; English comes from this file. The switches swap
 // words, labels, artwork and the real product captures. Menus and answers animate;
@@ -16,9 +17,9 @@ const EN = {
   feedback_copy: "“We ask ai-moeen to turn our discussions into tasks, then review the work from the same place before anything goes out.”",
   feedback_client: "Reem Al-Harbi",
   feedback_role: "Operations lead · Sample client",
-  desktop_alt: "The Moeen workspace showing a task list and ai-moeen",
-  desktop_title: "Open Moeen on your device.",
-  desktop_intro: "Choose the installer for your device, or open your workspace in the browser.",
+  desktop_title: "Download Moeen.",
+  desktop_intro: "Available for macOS and Windows, and in the browser.",
+  dl_label: "Desktop and web",
   work_rail: "Workspace chapters",
   work_detail_alt_3_1: "The Moeen audit log",
   work_detail_copy_3_1: "Check the log to see what ran and who ran it.",
@@ -150,8 +151,8 @@ const EN = {
   s2: 'Tell ai-moeen about your business.', s2s: 'On Pro, add company details, team responsibilities, and ways of working that ai-moeen can refer to.',
   s3: 'Create teams and projects.', s3s: 'Give each project its own team with its members, channel, and tasks in one place.',
   start_pause: 'Pause step rotation', start_play: 'Resume step rotation',
-  dl_mac: "Apple silicon Macs", dl_mac_cta: "Download for macOS", dl_win: "64-bit Windows", dl_win_cta: "Download for Windows",
-  dl_web: "Web", dl_web_s: "Any current browser", dl_web_cta: "Open Moeen in your browser",
+  dl_mac: "macOS for Apple silicon", dl_mac_cta: "Download for macOS", dl_win: "Windows, 64-bit", dl_win_cta: "Download for Windows",
+  dl_web_cta: "Open Moeen in your browser",
   faq_a: 'Questions about the beta.', faq_b: 'What works today, and what comes later.',
   fq1: 'When can I use Moeen?', fa1: 'We send invitations from the waitlist, to the email address you joined with.',
   fq2: "What works in the beta?", fa2: "Tasks, teams, conversations, and files are saved in the workspace. Mail and calendar work with supported connected accounts. ai-moeen features require workspace setup.",
@@ -189,7 +190,7 @@ function render() {
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0e0e0f' : '#fafafa';
   document.querySelectorAll('[data-i18n]').forEach((node) => { node.textContent = keepWhole(pick(node.dataset.i18n, AR.text)); });
   document.querySelectorAll('[data-i18n-label]').forEach((node) => { node.setAttribute('aria-label', pick(node.dataset.i18nLabel, AR.label)); });
-  if (locale === 'ar') document.querySelectorAll(SWASH).forEach(swash);
+  if (locale === 'ar') document.querySelectorAll(SWASH).forEach((node) => { node.innerHTML = swash(node.innerHTML); });
   document.querySelectorAll('[data-i18n-alt]').forEach((node) => { node.alt = pick(node.dataset.i18nAlt, AR.alt); });
   document.querySelectorAll('img[data-light]').forEach((node) => { const src = node.dataset[theme]; if (!node.src.endsWith(src)) node.src = src; });
   document.querySelectorAll('img[data-shot]').forEach((node) => {
@@ -199,17 +200,8 @@ function render() {
   renderNavigation(locale, theme);
   root.classList.remove('i18n-pending');
 }
-// Arabic headlines end on Thmanyah's swash: only the last word of the lead phrase stretches
-// its final letter, so the line closes on one long connected stroke.
-const SWASH = 'h1 > span:first-child, h2 > span:first-child:not(.dim)';
-function swash(node) {
-  const match = node.textContent.match(/^(.*?)(\S+?)([.،؛؟!»]*)$/s);
-  if (!match || !match[2]) return;
-  const word = document.createElement('span');
-  word.className = 'swash';
-  word.textContent = match[2];
-  node.replaceChildren(match[1], word, match[3]);
-}
+// The headers that close on Thmanyah's swash in Arabic (swash.js).
+const SWASH = 'main h1, main h2, .work-chapter__main h3';
 // Language and theme changes crossfade where the browser supports view transitions.
 const change = (update) => { if (document.startViewTransition && !still.matches) document.startViewTransition(() => { update(); render(); }); else { update(); render(); } };
 const switchLanguage = () => change(() => { locale = locale === 'ar' ? 'en' : 'ar'; save('moeen.landing.locale', locale); });
@@ -319,6 +311,20 @@ if (!still.matches && 'IntersectionObserver' in window) {
     for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('is-in'); seen.unobserve(entry.target); }
   }, { rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.reveal').forEach((node) => seen.observe(node));
+}
+
+// ---- Download: offer the visitor's own system first; the dock wakes as it scrolls in -----
+{
+  const agent = navigator.userAgent;
+  const system = /Android|iPhone|iPad|iPod/.test(agent) || (/Macintosh/.test(agent) && navigator.maxTouchPoints > 1) ? 'web' : /Windows/.test(agent) ? 'win' : /Macintosh/.test(agent) ? 'mac' : 'web';
+  for (const button of document.querySelectorAll('[data-dl]')) button.hidden = button.dataset.dl !== system;
+  for (const link of document.querySelectorAll('[data-dl-also]')) link.hidden = link.dataset.dlAlso === system;
+  const dock = document.querySelector('[data-dock]');
+  if (!still.matches && 'IntersectionObserver' in window) {
+    dock.classList.add('can-wake');
+    const wake = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { dock.classList.add('is-awake'); wake.disconnect(); } }, { threshold: 0.6 });
+    wake.observe(dock);
+  }
 }
 
 // ---- Integrations: now and then a logo glides to an empty tile ---------------------------

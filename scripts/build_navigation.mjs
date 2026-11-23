@@ -17,7 +17,7 @@ function illustration(drawing) {
 function tile(id, drawing, page, { description = false, trailing = '' } = {}) {
   const entry = sitePages[id];
   return `<a class="tile" href="${entry.path}"${current(id, page)}>
-    ${illustration(drawing)}<span class="tile__text">${label(entry.label, 'strong')}${description && entry.teaser ? label(entry.teaser, 'small') : ''}</span>${trailing}
+    ${illustration(drawing)}<span class="tile__text">${label(entry.label, 'strong')}${description && entry.teaser ? label(entry.teaser, 'small') : ''}</span>${id === 'ai_moeen' ? '<span class="tile__tag" dir="ltr">AI</span>' : ''}${trailing}
   </a>`;
 }
 
@@ -83,7 +83,7 @@ export function buildNavigation(page = 'home') {
         <button type="button" class="icon-btn" data-theme-toggle aria-label="التبديل إلى المظهر الداكن">${icon('moon', 'i i--moon')}${icon('sun', 'i i--sun')}</button>
         <a class="btn btn--ghost nav__login" href="https://app.moeen.dev/">${label(login)}</a>
         <a class="btn btn--solid nav__cta" href="/waitlist/">${label(cta)}<span class="btn__arrow" aria-hidden="true">${icon('arrow', 'i i--xs flip')}</span></a>
-        <button type="button" class="icon-btn nav__toggle" aria-expanded="false" aria-controls="sheet" ${aria({ ar: 'القائمة', en: 'Menu' })}>${icon('menu', 'i flip')}</button>
+        <button type="button" class="icon-btn nav__toggle" aria-expanded="false" aria-controls="sheet" ${aria({ ar: 'القائمة', en: 'Menu' })}><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
       </div>
     </div>
     <div class="mega" id="mega" hidden><div class="mega__frame">${groups.map(panel).join('')}</div></div>

@@ -1,6 +1,10 @@
-import { featureChapters } from './feature_chapters.js';
+import { seam } from './frame.js';
+import { swashHeaders } from './swash.js';
 import { blogPosts, infoPages, sitePages } from './site_content.js';
 import { pageStories } from './page_story_content.js';
+import { featurePage, featurePageIds } from './feature_pages.js';
+import { architecturePage } from './architecture_page.js';
+import { companyPage, companyPageIds, pricingPage } from './company_pages.js';
 
 const strings = {
   ar: {
@@ -16,7 +20,7 @@ const strings = {
     priceTerms: 'الأسعار بالدولار الأمريكي قبل الضريبة.', payment: 'الاشتراكات المدفوعة لم تُفعّل بعد. التسجيل في قائمة الانتظار لا يتطلّب دفعًا.',
     feature: 'جديد', improvement: 'تحسينات', fix: 'إصلاحات', archive: 'الإصدارات السابقة',
     release: (version) => `الإصدار ${version}`,
-    in_progress: 'نعمل عليها', planned: 'على القائمة', later: 'في المستقبل', done: 'اكتملت',
+    in_progress: 'نعمل عليها الآن', planned: 'التالي', later: 'ما بعد ذلك', done: 'اكتملت',
     snapshot: 'تُعرض نسخة محفوظة من خريطة الطريق.', emptyRoadmap: 'سننشر الخطط هنا حين تصبح جاهزة للمشاركة.',
     loading: 'جارٍ تحميل خريطة الطريق…', roadmapError: 'تعذّر تحميل خريطة الطريق.', retry: 'إعادة المحاولة',
     releaseError: 'تعذّر عرض سجل التحديثات الآن.', openReleases: 'افتح سجل التحديثات في مُعين',
@@ -43,7 +47,7 @@ const strings = {
 
 export const pages = Object.keys(sitePages);
 export const copy = locale => strings[locale];
-export const pageTitle = (page, locale) => infoPages[page]?.title?.[locale] ?? sitePages[page].label[locale];
+export const pageTitle = (page, locale) => sitePages[page].title?.[locale] ?? sitePages[page].label[locale];
 export const pageLead = (page, locale) => infoPages[page]?.lead?.[locale] ?? copy(locale)[page + 'Lead'] ?? '';
 export const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -102,58 +106,16 @@ const pricingQuestions = {
   ],
 };
 
-function pricingComparison(locale) {
-  const text = copy(locale);
-  const included = `${icon('check')}<span class="page-sr">${locale === 'ar' ? 'مشمول' : 'Included'}</span>`;
-  const unavailable = locale === 'ar' ? 'غير مشمول' : 'Not included';
-  const rows = [
-    [locale === 'ar' ? 'المقاعد' : 'Seats', plans.map(plan => plan.seats ? text.freeSeats(plan.seats) : text.paidSeats)],
-    [text.workspace, plans.map(() => included)],
-    [text.tools, plans.map(() => included)],
-    ['ai-moeen', plans.map(plan => plan.id === 'pro' ? included : unavailable)],
-    [text.knowledge, plans.map(plan => plan.id === 'pro' ? included : unavailable)],
-  ];
-  return `<section class="price-comparison story-section">
-    <table><caption>${locale === 'ar' ? 'قارن ما تشمله الخطط' : 'Compare what’s included'}</caption>
-      <thead><tr><th scope="col">${locale === 'ar' ? 'الميزة' : 'Feature'}</th>
-        ${plans.map(plan => `<th scope="col">${localized(plan.title, locale)}</th>`).join('')}</tr></thead>
-      <tbody>${rows.map(([name, cells]) => `<tr><th scope="row">${name}</th>
-        ${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
-    </table></section>`;
-}
-
 function pricing(locale) {
   const text = copy(locale);
-  const money = cents => `<bdi dir="ltr">$${cents / 100}</bdi>`;
-  return `
-    <div class="plan-tools">
-      <fieldset class="plan-cadence" data-plan-cadence>
-        <legend class="page-sr">${text.cadence}</legend>
-        ${['annual', 'monthly'].map(id => `<label><input type="radio" name="cadence" value="${id}"${id === 'annual' ? ' checked' : ''}><span>${text[id]}</span></label>`).join('')}
-      </fieldset>
-    </div>
-    <div class="plan-grid">
-      ${plans.map(plan => {
-        const paid = plan.id !== 'free';
-        const included = [paid ? text.paidSeats : text.freeSeats(plan.seats), text.workspace, text.tools];
-        if (plan.id === 'pro') included.push('ai-moeen', text.knowledge);
-        return `<article class="plan plan--${plan.id}">
-          <h2>${localized(plan.title, locale)}</h2>
-          <div class="plan-cost">
-            ${['annual', 'monthly'].map(id => `<div data-rate="${id}"${id === 'monthly' ? ' hidden' : ''}>
-              <p><strong>${money(plan[id])}</strong>${paid ? ` <span>${text.perSeat}</span>` : ''}</p>
-              <p class="plan-note">${paid ? id === 'annual' ? text.annualNote(money(plan.annual * 12)) : text.monthlyNote : text.freeNote}</p>
-            </div>`).join('')}
-          </div>
-          <ul role="list">${included.map(item => `<li>${icon('check')}<span>${item}</span></li>`).join('')}</ul>
-        </article>`;
-      }).join('')}
-    </div>
-    <div class="plan-access">
-      <p>${text.priceTerms} ${text.payment}</p>
-      <a class="btn btn--solid btn--lg" href="/waitlist/"><span>${text.waitlist}</span><span class="btn__arrow" aria-hidden="true">${icon('arrow', 'i i--xs flip')}</span></a>
-    </div>
-    <div class="story-body">${pricingComparison(locale)}${storySection(pricingQuestions, locale)}</div>`;
+  return pricingPage(locale, { plans, questions: pricingQuestions, text, title: pageTitle('pricing', locale), lead: text.pricingLead, label: text.pricing });
+}
+
+// Changelog and roadmap open with the home page's two-tone headline.
+function pageHead(page, locale, extra = '') {
+  const label = (sitePages[page].navLabel ?? sitePages[page].label)[locale];
+  return `<header class="fp-hero fp-hero--center page-head"><span class="eyebrow">${escape(label)}</span>
+    <h1><span>${escape(pageTitle(page, locale))}.</span> <span class="dim">${escape(pageLead(page, locale))}</span></h1>${extra}</header>`;
 }
 
 const roadmapDefinitions = {
@@ -168,21 +130,21 @@ function roadmap(locale, feed, status) {
   const groups = Object.entries(statuses).map(([id, marker]) => ({
     id, marker, items: feed?.items.filter(item => item.status === id) ?? [],
   }));
-  const statusLabel = ({ id, marker }) => `<span class="page-marker" data-tone="${id}">${icon(marker)}${text[id]}</span>`;
-  const guide = `<ul class="roadmap-guide" role="list">${groups.map(group => `<li>
-    ${group.items.length ? `<a href="#roadmap-${group.id}">${statusLabel(group)}<bdi>${group.items.length}</bdi></a>` : statusLabel(group)}
-    <p>${localized(roadmapDefinitions[group.id], locale)}</p>
-  </li>`).join('')}</ul>`;
-  if (!feed) return guide + `<p role="status" class="page-status">${status === 'error' ? text.roadmapError : text.loading}</p>
+  const key = `<ul class="road-key" role="list">${groups.map(({ id, marker, items }) => {
+    const label = `${icon(marker)}<span>${text[id]}</span>`;
+    return `<li data-tone="${id}">${items.length ? `<a href="#roadmap-${id}">${label}<bdi>${items.length}</bdi></a>` : `<span>${label}</span>`}</li>`;
+  }).join('')}</ul>`;
+  const head = pageHead('roadmap', locale, key);
+  if (!feed) return head + `<p role="status" class="page-status">${status === 'error' ? text.roadmapError : text.loading}</p>
     ${status === 'error' ? `<button type="button" class="btn btn--ghost" data-retry>${text.retry}</button>` : ''}`;
-  const rows = groups.filter(group => group.items.length).map(group => `
-    <section class="roadmap-group page-rows" aria-labelledby="roadmap-${group.id}">
-      <h2 id="roadmap-${group.id}">${statusLabel(group)}</h2>
-      <ul role="list">${group.items.map(item => `<li><h3>${localized(item.title, locale)}</h3><p>${localized(item.summary, locale)}</p></li>`).join('')}</ul>
+  const patterns = ['hatch', 'dots', 'cross', 'dash'];
+  const rows = groups.filter(group => group.items.length).map(({ id, marker, items }, index) => `${seam(patterns[index])}
+    <section class="road" data-tone="${id}" aria-labelledby="roadmap-${id}">
+      <header><h2 id="roadmap-${id}">${icon(marker)}<span>${text[id]}</span></h2><p>${localized(roadmapDefinitions[id], locale)}</p></header>
+      <ul role="list">${items.map(item => `<li><h3>${localized(item.title, locale)}</h3><p>${localized(item.summary, locale)}</p></li>`).join('')}</ul>
     </section>`).join('');
-  return guide + (rows || `<p class="page-status">${text.emptyRoadmap}</p>`)
-    + (feed.source === 'snapshot' || status === 'error' ? `<p class="page-status page-status--note">${text.snapshot}</p>` : '')
-    + `<p class="roadmap-releases"><a class="link" href="/changelog/">${text.changelog}${icon('arrow', 'i flip')}</a></p>`;
+  return head + (rows || `<p class="page-status">${text.emptyRoadmap}</p>`) + seam('hatch')
+    + `<div class="road-end"><a class="link" href="/changelog/">${text.changelog}${icon('arrow', 'i flip')}</a>${feed.source === 'snapshot' || status === 'error' ? `<span>${text.snapshot}</span>` : ''}</div>`;
 }
 
 function releaseMarkup(release, locale, origin) {
@@ -231,34 +193,10 @@ function changelog(locale, feed, origin) {
   </div>`;
   const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale, origin)).join('');
   const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale, origin)).join('');
-  return index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
+  return pageHead('changelog', locale) + seam('hatch') + index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
 }
 
 export const hasStory = page => Object.hasOwn(pageStories, page) || page === 'blog';
-
-function storyFigure(image, locale, eager = false) {
-  return `<figure class="feature-visual"><img width="${image.width}" height="${image.height}"
-    data-shot="${image.shot}" src="/assets/shots2/${image.shot}_${locale}_light.png"
-    alt="${localized(image.alt, locale)}" decoding="async"${eager ? '' : ' loading="lazy"'}></figure>`;
-}
-
-function storyHeading(page, locale, layout, image) {
-  const entry = infoPages[page];
-  const title = pageTitle(page, locale);
-  const label = entry.topic?.[locale] ?? entry.label[locale];
-  return `<header class="story-hero story-hero--${layout}">
-    <div class="story-hero__copy">
-      ${label === title ? '' : `<p class="story-kicker">${escape(label)}</p>`}
-      <h1>${escape(title)}</h1>
-      <p class="story-hero__lead">${escape(pageLead(page, locale))}</p>
-    </div>
-    ${image ? storyFigure(image, locale, true) : ''}
-  </header>`;
-}
-
-function storySections(blocks, locale) {
-  return blocks.map(part => storySection(part, locale)).join('');
-}
 
 function storySection(part, locale) {
   const title = localized(part.title, locale);
@@ -266,7 +204,7 @@ function storySection(part, locale) {
   const titleOf = item => localized(item.title, locale);
   const body = item => `<p>${localized(item.body, locale)}</p>`;
   if (part.kind === 'scene') {
-    return `<section class="story-section story-scene"><div class="story-scene__copy">${heading}${body(part)}</div>${storyFigure(part.image, locale)}</section>`;
+    return `<section class="story-section story-scene">${heading}${body(part)}</section>`;
   }
   if (part.kind === 'example') {
     return `<section class="story-section story-example">${heading}<blockquote>${localized(part.quote, locale)}</blockquote>
@@ -310,119 +248,44 @@ function storySection(part, locale) {
 }
 
 function blog(locale) {
-  const [featured, ...otherPosts] = blogPosts.map(id => infoPages[id]);
-  const read = locale === 'ar' ? 'اقرأ المقال' : 'Read article';
-  return `${storyHeading('blog', locale, 'blog')}
-    <a class="blog-feature" href="${featured.path}">
-      <div><p class="story-kicker">${localized(featured.topic, locale)}</p>
-        <h2>${localized(featured.label, locale)}</h2><p>${localized(featured.lead, locale)}</p>
-        <span class="blog-read">${read}${icon('arrow', 'i flip')}</span>
-      </div>
-      ${storyFigure(featured.image, locale, true)}
-    </a>
-    <ul class="blog-index" role="list">${otherPosts.map(post => `<li><a href="${post.path}">
-      ${storyFigure(post.image, locale)}
-      <div><p class="story-kicker">${localized(post.topic, locale)}</p>
-        <h2>${localized(post.label, locale)}</h2><p>${localized(post.lead, locale)}</p>
-        <span class="blog-read">${read}${icon('arrow', 'i flip')}</span>
-      </div>
+  return `${pageHead('blog', locale)}${seam('hatch')}
+    <ul class="posts" role="list">${blogPosts.map(id => infoPages[id]).map(entry => `<li><a href="${entry.path}">
+      <small>${localized(entry.topic, locale)}</small><div><h2>${localized(entry.label, locale)}</h2><p>${localized(entry.lead, locale)}</p></div>${icon('arrow', 'i i--sm flip')}
     </a></li>`).join('')}</ul>`;
 }
 
-function pageComposition(page, locale) {
+// Articles read as one quiet column: topic, title, then the text.
+function post(page, locale) {
   const entry = infoPages[page];
-  const story = pageStories[page];
-  const parts = story.blocks;
-  const t = (ar, en) => locale === 'ar' ? ar : en;
-  const title = localized(entry.title ?? entry.label, locale);
-  const lead = localized(entry.lead, locale);
-  const label = localized(entry.topic ?? entry.label, locale);
-  const intro = `<header class="canvas-intro">${title !== label ? `<p class="story-kicker">${label}</p>` : ''}<h1>${title}</h1><p class="canvas-lead">${lead}</p></header>`;
-  const part = index => storySection(parts[index], locale);
-  const image = (asset = story.image ?? entry.image) => storyFigure(asset, locale, true);
-  const rest = start => `<div class="story-body">${storySections(parts.slice(start), locale)}</div>`;
-  const art = name => `<img class="object-art" alt="" src="/assets/iso/light/${name}.svg" data-light="/assets/iso/light/${name}.svg" data-dark="/assets/iso/dark/${name}.svg">`;
-
-  const chapters = featureChapters[page]?.(t);
-
-  switch (page) {
-    case 'tasks': {
-      const views = [
-        [t('اللوحة', 'Board'), entry.image],
-        [t('القائمة', 'List'), infoPages.architecture.image],
-      ];
-      return `<div class="tasks-studio">${intro}<section class="workbench" aria-label="${label}">
-        <fieldset><legend class="page-sr">${t('عرض المهام', 'Task view')}</legend>
-        ${views.map(([name], i) => `<label><input type="radio" name="task-view" value="${i}"${i === 0 ? ' checked' : ''}><span>${name}</span></label>`).join('')}</fieldset>
-        ${views.map(([, asset], i) => `<div class="board-view board-view--${i}">${image(asset)}</div>`).join('')}</section></div><div class="edition-flow">${chapters[0]}${part(0)}${part(1)}${chapters[1]}${part(2)}</div>`;
-    }
-    case 'chat':
-      return `<div class="conversation-cover">${intro}<div class="conversation-spread">${image()}${image(parts[0].image)}</div></div>
-        <div class="conversation-note"><h2>${localized(parts[0].title, locale)}</h2><p>${localized(parts[0].body, locale)}</p></div><div class="thread-columns">${chapters[0]}${chapters[1]}</div>${rest(1)}`;
-    case 'teams':
-      return `<div class="team-map">${intro}<div class="team-orbit">
-        <div class="team-center">${art('teams')}<b>${t('فريق المنتج','Product team')}</b></div>${[['people',t('الأعضاء','Members')],['chat',t('القناة','Channel')],['tasks',t('المهام','Tasks')]].map(([name, caption]) => `<span>${art(name)}<b>${caption}</b></span>`).join('')}
-        </div></div><div class="edition-flow">${chapters[0]}${part(0)}${chapters[1]}${part(1)}</div>`;
-    case 'data':
-      return `<div class="storage-explorer">${intro}${chapters[0]}<div class="storage-preview">${image()}</div></div><div class="edition-flow">${part(0)}${chapters[1]}${part(1)}</div>`;
-    case 'meetings':
-      return `<div class="schedule-cover">${intro}${chapters[0]}</div><div class="edition-flow"><div class="agenda-content">${part(0)}${image()}</div>${chapters[1]}${part(1)}${part(2)}</div>`;
-    case 'mail':
-      return `<div class="mail-desk"><div class="letter-pocket">${image()}</div>${intro}</div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(0)}</div>`;
-    case 'architecture':
-      return `<div class="architecture-lab">${intro}<div class="assembly"><div class="assembly-art" aria-hidden="true">
-        <i></i><i></i><i></i><i></i></div><div class="assembly-notes"><h2>${localized(parts[0].title, locale)}</h2>
-        ${parts[0].items.map((item,i) => `<details name="action-stage"${i === 0 ? ' open' : ''}><summary>${localized(item.title, locale)}${icon('plus')}</summary><p>${localized(item.body, locale)}</p></details>`).join('')}
-        </div></div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
-    case 'ai_moeen':
-      return `<div class="agent-dialogue">${intro}<div class="dialogue-script">
-        <blockquote>${localized(parts[0].quote, locale)}</blockquote>${image()}<p>${localized(parts[0].note, locale)}</p></div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
-    case 'mcp':
-      return `<div class="protocol-book"><aside class="protocol-intro">${art('workflow')}${intro}</aside><div class="edition-flow">${chapters[0]}${part(0)}${part(1)}${chapters[1]}${part(2)}</div></div>`;
-    case 'knowledge_base':
-      return `<div class="reading-room">${intro}${chapters[0]}</div><div class="edition-flow"><div class="source-stack">${image()}<div>${part(0)}</div></div>${part(1)}${chapters[1]}</div>`;
-    case 'skills':
-      return `<div class="skill-recipe">${intro}<div class="recipe-paper">${art('skills')}${part(0)}</div></div><div class="edition-flow">${chapters[0]}${part(1)}${chapters[1]}${part(2)}</div>`;
-    case 'integrations':
-      return `<div class="connection-atlas">${intro}${chapters[0]}</div><div class="edition-flow"><div class="connector-directory">${part(0)}</div><div class="connector-catalog">${image()}${part(1)}</div>${chapters[1]}</div>`;
-    case 'about':
-      return `<div class="founding-letter"><img class="letter-mark" src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="">${intro}${part(0)}</div>${rest(1)}`;
-    case 'affiliate':
-      return `<div class="partner-brief">${intro}${part(0)}</div>${rest(1)}`;
-    case 'support':
-      return `<div class="help-desk">${intro}
-        <label class="help-search"><input type="search" data-help-search aria-label="${t('ابحث في مواضيع الدعم', 'Search help topics')}" placeholder="${t('ابحث في مواضيع الدعم', 'Search help topics')}"></label>
-        ${part(0)}<p data-help-empty hidden role="status">${t('لا توجد مواضيع مطابقة.', 'No matching topics.')}</p></div>${rest(1)}`;
-    case 'join':
-      return `<div class="careers-poster">${intro}${part(1)}</div><div class="careers-letter">${part(0)}</div>`;
-    case 'conversations_post':
-      return `<div class="field-report">${intro}${image()}</div><div class="article-columns">${part(0)}${part(1)}</div>`;
-    case 'approvals_post':
-      return `<div class="review-column">${intro}${part(0)}</div>${rest(1)}`;
-    case 'meetings_post':
-      return `<div class="meeting-notebook">${intro}${part(0)}</div>${rest(1)}`;
-    default:
-      throw new Error(`Missing page composition for ${page}`);
-  }
+  return `<article class="post"><header><span class="eyebrow">${localized(entry.topic, locale)}</span><h1>${localized(entry.label, locale)}</h1><p>${localized(entry.lead, locale)}</p></header>
+    ${pageStories[page].blocks.map(part => storySection(part, locale)).join('')}</article>`;
 }
 
-function information(page, locale) {
+function pageComposition(page, locale, feed) {
+  if (featurePageIds.includes(page)) return featurePage(page, locale);
+  if (companyPageIds.includes(page)) return companyPage(page, locale, { questions: pricingQuestions.items, feed });
+  if (page === 'architecture') return architecturePage(locale);
+  return post(page, locale);
+}
+
+function information(page, locale, feed) {
   if (page === 'docs') return '';
   if (page === 'blog') return blog(locale);
 
   const entry = infoPages[page];
   const links = entry.related?.map(id => sitePages[id]) ?? [];
   return `
-    ${pageComposition(page, locale)}
-    ${links.length ? `<aside class="story-related">
-      <h2>${locale === 'ar' ? 'اقرأ أيضًا' : 'Explore related pages'}</h2>
-      <ul role="list">${links.map(link => `<li><a class="link" href="${link.path}">${localized(link.label, locale)}${icon('arrow', 'i flip')}</a></li>`).join('')}</ul>
+    ${pageComposition(page, locale, feed)}
+    ${links.length ? `${seam('hatch')}<aside class="related" style="--n:${links.length}">
+      <h2>${locale === 'ar' ? 'اقرأ كذلك' : 'Explore related pages'}</h2>
+      ${links.map(link => `<a href="${link.path}"><strong>${localized(link.label, locale)}</strong>${link.teaser ? `<small>${localized(link.teaser, locale)}</small>` : ''}${icon('arrow', 'i i--sm flip')}</a>`).join('')}
     </aside>` : ''}`;
 }
 
 export function renderContent(page, locale, { feed, origin, status } = {}) {
-  if (page === 'pricing') return pricing(locale);
-  if (page === 'roadmap') return roadmap(locale, feed, status);
-  if (page === 'changelog') return changelog(locale, feed, origin);
-  return information(page, locale);
+  const html = page === 'pricing' ? pricing(locale)
+    : page === 'roadmap' ? roadmap(locale, feed, status)
+    : page === 'changelog' ? changelog(locale, feed, origin)
+    : information(page, locale, feed);
+  return locale === 'ar' ? swashHeaders(html) : html;
 }
