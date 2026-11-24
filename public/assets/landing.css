@@ -10,6 +10,7 @@
   --ink: #0a0a0a; --ink-2: #404040; --muted: #737373; --dim: #a3a3a3;
   --line: #e5e5e5; --line-2: #d4d4d4; --plus: #a3a3a3;
   --brand: #266df0; --brand-soft: #eaf1fe;
+  --media-edge-dark: oklch(1 0 0 / .10);
   --media-edge: oklch(0 0 0 / .10);
   --shadow: 0 1px 2px rgb(0 0 0 / .04), 0 4px 12px rgb(0 0 0 / .04);
   --shadow-lg: 0 1px 2px rgb(0 0 0 / .05), 0 16px 40px rgb(0 0 0 / .10);
@@ -28,7 +29,7 @@
   --ink: #fafafa; --ink-2: #d4d4d4; --muted: #a3a3a3; --dim: #737373;
   --line: #262626; --line-2: #404040; --plus: #525252;
   --brand-soft: #16233b;
-  --media-edge: oklch(1 0 0 / .10);
+  --media-edge: var(--media-edge-dark);
   --shadow: 0 1px 2px rgb(0 0 0 / .4); --shadow-lg: 0 1px 2px rgb(0 0 0 / .5), 0 20px 48px rgb(0 0 0 / .5);
   color-scheme: dark;
 }
@@ -66,12 +67,15 @@ body { background: var(--bg); color: var(--ink); font: 400 15px/1.6 var(--font);
 :root.thmanyah-loaded { --font-ar: "Moeen Thmanyah Sans", "IBM Plex Sans Arabic", "Inter", ui-sans-serif, system-ui, sans-serif; }
 html.i18n-pending main, html.i18n-pending .nav, html.i18n-pending .footer { visibility: hidden; }
 img { display: block; max-width: 100%; height: auto; }
-/* Transparent compositions carry the edge on their own cards. */
-:where(.stage__window, .start-step__art img, .ai-scene__library, .ai-scene__message,
-  .platform-tile__board, .platform-tile__log, .workspace-tools__screen, .tile__art,
-  .work-chapter__visual--capture img, .work-detail img[data-shot="audit"], .download__visual img,
-  .fp-shot:not([data-shot^="mod_"]), .ch-window, .day__chat img, .day__crop,
-  .share__art img, .build__art img, .audit-scene__shot, .feature-visual, .release-image) {
+/* Captures have one edge, either on the image or on its cropping surface.
+   Composited artwork and the prompt carry the edge in the capture itself. */
+:where(img[data-shot]:not([data-shot^="mod_"], [data-shot="ask"],
+    .stage__window img, .ai-scene__library img, .ai-scene__message img,
+    .platform-tile__log img, .workspace-tools__screen img, .day__crop img, .day__wide img,
+    .feature-visual img),
+  .stage__window, .ai-scene__library, .ai-scene__message, .platform-tile__log,
+  .workspace-tools__screen, .tile__art, .day__crop, .day__wide, .download__visual img,
+  .ch-window, .feature-visual, .release-image) {
   outline: 1px solid var(--media-edge);
   outline-offset: -1px;
 }
