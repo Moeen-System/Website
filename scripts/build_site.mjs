@@ -1,3 +1,6 @@
+import { buildFooter } from './build_footer.mjs';
+import { buildNavigation } from './build_navigation.mjs';
+import { buildProductPages } from './build_product_pages.mjs';
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -11,6 +14,7 @@ const landing=await readFile(root+'public/index.html','utf8');
 const publishable=production
   ? landing.replace(/^[ \t]*<(section|a)\b[^>]* data-placeholder="proof"[^>]*>[\s\S]*?<\/\1>\n?/gm,'')
   : landing;
+if(!landing.includes('<!-- SITE_NAVIGATION -->'))throw Error('Missing site navigation marker.');
 if(production && /data-placeholder="proof"/.test(publishable))throw Error('Placeholder proof remains in the production landing page.');
 await rm(root+'dist',{recursive:true,force:true});
 await mkdir(root+'dist');
@@ -18,7 +22,7 @@ await cp(root+'public',root+'dist',{
   recursive:true,
   filter:source=>!production || !source.startsWith(root+'public/assets/fonts/thmanyah'),
 });
-await writeFile(root+'dist/index.html',publishable);
+await writeFile(root+'dist/index.html',publishable.replace('<!-- SITE_NAVIGATION -->',buildNavigation()).replace('<!-- SITE_FOOTER -->',buildFooter()));
 if(production){
   const styles=await readFile(root+'dist/assets/landing.css','utf8');
   const previewFontFiles=/,\n    url\(\/assets\/fonts\/thmanyahsans-[A-Za-z]+\.woff2\) format\("woff2"\)/g;
@@ -33,3 +37,4 @@ let html=await readFile(root+'public/waitlist/index.html','utf8');
 for(const [tag,key]of [['h1','headline'],['p','lead'],['label','label'],['button','button']])html=html.replace(new RegExp(`(<${tag}[^>]*data-text="${key}"[^>]*>)(</${tag}>)`),`$1${escape(copy.ar[key])}$2`);
 await writeFile(root+'dist/waitlist/index.html',html);
 console.log('Built the Moeen landing page and the waitlist page with the public enrollment action.');
+await buildProductPages(root, endpoint.origin, landing);

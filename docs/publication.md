@@ -9,6 +9,18 @@ The form calls the public `settings.join_waitlist` action on the existing Moeen 
 Hosting uses a Render static site. `app.moeen.dev` remains the workspace application. Static hosting and both custom domains are within the current included plan; outbound bandwidth and pipeline quotas still apply.
 
 
+## Public product pages
+
+The landing page and public product pages use the same navigation. Edit the route list, menu order, and bilingual feature and company copy in `public/assets/site_content.js`. The build emits the Product, AI, Company, Blog, Docs, Pricing, Roadmap and Changelog routes. Public pages use the site's saved language and theme and support direct links with `?lang=ar` or `?lang=en`. Docs has a route and a shared header and footer with an empty main area.
+
+Feature, company and article copy lives in `public/assets/page_story_content.js`. Their compositions are rendered in `public/assets/product_content.js` and styled in `public/assets/product_pages.css`. Match the section order to how people work with the feature. Use demo workspace captures with Arabic and English light and dark variants when a screenshot illustrates the workflow. Use the App repository's capability docs to verify product claims before publishing.
+
+- **Pricing** mirrors the public Free, Plus and Pro plan definitions in the App repository's `packages/core/src/billing.ts`. When prices or entitlements change, update `public/assets/product_content.js` with the app's approved values. The page links to enrollment during the beta.
+- **Roadmap** uses `/roadmap.json` on the app origin. It renders an initial copy at build time and fetches the feed on load, every minute while visible, and when the page becomes visible again. The feed identifies saved data when GitHub sync is unavailable.
+- **Changelog** reads `/changelog/releases.json` on the app origin at build time and links to published lead-feature artwork. The app's current cross-origin policy restricts browser JSON reads, so rebuild the site to import a new release. App release notes remain the editable source.
+
+The app origin comes from `WAITLIST_API_URL`. The existing manually configured Render Content Security Policy needs `https://app.moeen.dev` in `img-src` for release artwork. The checked-in `render.yaml` includes that source.
+
 ## Website copy
 
 Use Moeen’s Arabic natural writing skill from the App repository at `.agents/skills/arabic_natural_writing/SKILL.md` for Arabic on every website page. Draft from meaning, keep product terms consistent with the glossary, and make sure the English version makes the same claims. Check both reading directions after editing.
