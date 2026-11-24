@@ -913,7 +913,33 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
 .work-chapter__main header p { max-inline-size: 50ch; color: var(--muted); font-size: 14px; }
 .work-chapter__visual { min-inline-size: 0; }
 .work-chapter__visual img { inline-size: 100%; }
-.work-chapter__visual--capture img { border: 1px solid var(--line-2); border-radius: 9px; box-shadow: var(--shadow); }
+.work-chapter__visual--capture {
+  --capture-yaw: -12deg;
+  --capture-roll: -3deg;
+  --capture-fade: to right;
+  --capture-edge: oklch(0 0 0 / .10);
+  display: grid;
+  place-items: center;
+  padding-block: clamp(16px, 3vw, 32px);
+  perspective: 1600px;
+}
+.work-chapter__visual--capture:dir(rtl) {
+  --capture-yaw: 12deg;
+  --capture-roll: 3deg;
+  --capture-fade: to left;
+}
+[data-theme="dark"] .work-chapter__visual--capture { --capture-edge: oklch(1 0 0 / .10); }
+.work-chapter__visual--capture img {
+  inline-size: 96%;
+  border-radius: 8px;
+  outline: 1px solid var(--capture-edge);
+  outline-offset: -1px;
+  transform: rotateX(12deg) rotateY(var(--capture-yaw)) rotateZ(var(--capture-roll));
+  mask-image:
+    linear-gradient(var(--capture-fade), #000 87%, transparent),
+    linear-gradient(to bottom, #000 85%, transparent);
+  mask-composite: intersect;
+}
 .work-chapter__details {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -979,6 +1005,19 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   .work-chapter { scroll-margin-block-start: calc(2 * var(--chapter-nav-height) + 1px); }
 }
 @media (max-width: 479px) {
+  .work-chapter__visual--capture {
+    --capture-yaw: -7deg;
+    --capture-roll: -1.5deg;
+  }
+  .work-chapter__visual--capture:dir(rtl) {
+    --capture-yaw: 7deg;
+    --capture-roll: 1.5deg;
+  }
+  .work-chapter__visual--capture img {
+    inline-size: 100%;
+    transform: rotateX(7deg) rotateY(var(--capture-yaw)) rotateZ(var(--capture-roll));
+    mask-image: linear-gradient(to bottom, #000 91%, transparent);
+  }
   .work-chapter__details { grid-template-columns: minmax(0, 1fr); }
   .work-detail + .work-detail { border-inline-start: 0; border-block-start: 1px solid var(--line); }
 }
