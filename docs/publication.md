@@ -2,7 +2,9 @@
 
 Claude's standalone landing page is published separately from Moeen-System/App. The original design, inline vector logo, hover animation, reduced-motion behavior and Arabic/English switch are retained. The existing black product favicon is included.
 
-Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from the environment, fills Arabic copy for the first static render and emits `dist/`. No runtime dependencies, credentials, user records or app source are included. Render builds omit the fictional logo and testimonial sections and the local-only Thmanyah font files. On the landing page, browsers can use an installed copy of Thmanyah Sans. Other visitors use IBM Plex Sans Arabic. See the [Thmanyah font license](https://font.thmanyah.com/licenses). `WEB_PORT` is only for local preview.
+Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from the environment, fills Arabic copy for the first static render and emits `dist/`. Render builds omit the fictional logo and testimonial sections and the standalone Thmanyah files used by the local preview. `WEB_PORT` is only for local preview.
+
+Production reads the project owner's Thmanyah Sans webfont bundle from the Render secret file `thmanyah_webfonts.json`. Its three keys are `400`, `500` and `600 700`, each containing a base64-encoded WOFF2 face. The build packages the faces in a same-origin script for the homepage, product pages and waitlist. Browsers use IBM Plex Sans Arabic if the supplied faces are unavailable. Keep the bundle out of Git. See the [Thmanyah font license](https://font.thmanyah.com/licenses).
 
 The form calls the public `settings.join_waitlist` action on the existing Moeen API. It omits cookies, validates the address, requires an explicit submission, reports failures truthfully and never creates a workspace or account. The API stores unique normalized addresses and consent metadata. The authenticated Anas-Doleh page is the only management interface. No invitation or marketing email is sent by enrollment.
 
