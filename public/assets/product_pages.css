@@ -47,7 +47,7 @@
 .story-hero__lead { max-inline-size: 54ch; margin-block-start: 16px; color: var(--muted); font-size: 16px; }
 .story-kicker { margin-block-end: 10px; color: var(--muted); font-size: 13px; font-weight: 500; }
 
-.feature-visual { inline-size: fit-content; min-inline-size: 0; max-inline-size: 100%; margin-inline: auto; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.feature-visual { inline-size: fit-content; min-inline-size: 0; max-inline-size: 100%; margin-inline: auto; overflow: hidden; border-radius: 8px; background: var(--panel); }
 .feature-visual img { display: block; inline-size: auto; block-size: auto; max-inline-size: 100%; max-block-size: 570px; object-fit: contain; }
 
 .story-body { display: grid; gap: clamp(44px, 7vw, 84px); margin-block-start: clamp(40px, 7vw, 86px); }
@@ -244,7 +244,7 @@
 [data-product-page="tasks"] .canvas-intro .story-kicker { grid-column: 1 / -1; }
 .conversation-cover { background: var(--brand-soft); padding: clamp(20px, 4vw, 44px); overflow: hidden; }
 .conversation-spread { display: grid; grid-template-columns: 2fr 1fr; align-items: end; margin-block-start: 30px; }
-.conversation-spread figure + figure { margin-inline-start: -12%; margin-block-end: -12px; box-shadow: var(--shadow-lg); position: relative; }
+.conversation-spread figure + figure { margin-inline-start: -12%; margin-block-end: -12px; position: relative; }
 .conversation-note { margin: 34px auto 0; max-inline-size: 66ch; }
 .conversation-note p { margin-block-start: 10px; color: var(--muted); }
 .team-map, .mail-desk, .agent-dialogue, .skill-recipe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, 5vw, 64px); }
@@ -268,7 +268,7 @@
 .agenda-content .story-timeline { padding-inline-start: 12px; }
 .mail-desk { background: var(--sunken); padding: clamp(20px, 4vw, 44px); grid-template-columns: 1.15fr 1fr; }
 .letter-pocket { position: relative; padding: 0 5% 13%; isolation: isolate; }
-.letter-pocket figure { transform: rotate(-3deg); box-shadow: var(--shadow-lg); }
+.letter-pocket figure { transform: rotate(-3deg); }
 .letter-pocket::after { content: ''; position: absolute; inset: 45% 0 0; background: linear-gradient(24deg,#becdee,#e1e9fa 60%,#c5d6f1); clip-path: polygon(0 0,50% 45%,100% 0,100% 100%,0 100%); border-radius: 0 0 8px 8px; }
 [data-theme=dark] .letter-pocket::after { background: linear-gradient(24deg,#28354f,#425271 60%,#2c3c58); }
 .architecture-lab { color: #f4f4f5; background: #111519; padding: clamp(24px, 5vw, 64px); }
