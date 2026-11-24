@@ -61,6 +61,7 @@ html, body { margin: 0; }
 html { overflow-x: clip; -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--nav) + 16px); }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.6 var(--font); font-feature-settings: 'cv11', 'ss03'; -webkit-font-smoothing: antialiased; overflow-x: clip; }
 :lang(ar) body { font-family: var(--font-ar); }
+:root.thmanyah-loaded { --font-ar: "Moeen Thmanyah Sans", "IBM Plex Sans Arabic", "Inter", ui-sans-serif, system-ui, sans-serif; }
 html.i18n-pending main, html.i18n-pending .nav, html.i18n-pending .footer { visibility: hidden; }
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }

@@ -4,7 +4,7 @@ import { copy, escape, hasStory, pageLead, pages, pageTitle, renderContent, vali
 import { sitePages } from '../public/assets/site_content.js';
 import { buildNavigation } from './build_navigation.mjs';
 
-function pageDocument(page, context, symbols) {
+function pageDocument(page, context, symbols, fontScript) {
   const text = copy('ar');
   const { origin } = context;
   const title = `${escape(pageTitle(page, 'ar'))} | ${text.brand}`;
@@ -34,6 +34,7 @@ function pageDocument(page, context, symbols) {
 <link rel="stylesheet" href="/assets/feature_pages.css">
 <link rel="stylesheet" href="/assets/company_pages.css">
 <script type="module" src="/assets/product_pages.js"></script>
+${fontScript}
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true">${symbols}</svg>
@@ -65,7 +66,7 @@ async function getFeed(page, url) {
   }
 }
 
-export async function buildProductPages(root, origin, landing) {
+export async function buildProductPages(root, origin, landing, fontScript) {
   const [changelog, roadmap, productIcons] = await Promise.all([
     getFeed('changelog', origin + '/changelog/releases.json'),
     getFeed('roadmap', origin + '/roadmap.json'),
@@ -81,7 +82,7 @@ export async function buildProductPages(root, origin, landing) {
   await Promise.all(pages.map(async page => {
     const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });
-    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null }, symbols));
+    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null }, symbols, fontScript));
   }));
   console.log(`Built ${pages.length} product, company and resource pages.`);
 }
