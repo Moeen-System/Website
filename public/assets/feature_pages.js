@@ -632,9 +632,9 @@ export function initFeaturePage(content) {
 
 }
 
-/** Runs after every render: the pens, or the About grid, draw once they scroll into view. */
+/** Starts the pen animation when the illustration scrolls into view. */
 export function mountFeaturePage(content) {
-  const markup = content.querySelector('[data-markup], [data-commits]');
+  const markup = content.querySelector('[data-markup]');
   if (!markup || !('IntersectionObserver' in window)) return;
   markup.classList.add('can-run');
   const watch = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { markup.classList.add('is-run'); watch.disconnect(); } }, { threshold: 0.3 });

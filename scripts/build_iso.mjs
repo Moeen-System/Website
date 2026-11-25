@@ -1,7 +1,5 @@
-// Draws the website's isometric illustrations: soft, rounded blocks in one neutral colour,
-// in light and dark. Each block is a rounded silhouette on a slightly darker base, with its
-// three faces laid on it as rounded panels, so edges read as soft bevels. No accent colour.
-// Writes public/assets/iso/<theme>/<name>.svg. Run with `node scripts/build_iso.mjs`.
+// Draws the shaded isometric cubes for the website's pricing plans.
+// For compact navigation illustrations, run pnpm brand --navigation-dir=<website>/public/assets/iso in the app repo.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -43,14 +41,15 @@ function rounded(pts, r) {
   return `${d}Z`;
 }
 
-let uid = 0;
-/** One block: [x, y, z, width, depth, height]. */
-function block([x, y, z, w, d, h], t, theme, k) {
-  const P = (a, b, c) => point(a, b, c);
-  const A = P(x, y, z + h), B = P(x + w, y, z + h), C = P(x + w, y + d, z + h), D = P(x, y + d, z + h);
-  const B0 = P(x + w, y, z), C0 = P(x + w, y + d, z), D0 = P(x, y + d, z);
-  const outline = rounded([A, B, B0, C0, D0, D], R_OUT);
-  const id = `${theme}${uid += 1}`;
+/** Project a block defined as [x, y, z, width, depth, height]. */
+function projectBlock([x, y, z, w, d, h]) {
+  const A = point(x, y, z + h), B = point(x + w, y, z + h);
+  const C = point(x + w, y + d, z + h), D = point(x, y + d, z + h);
+  const B0 = point(x + w, y, z), C0 = point(x + w, y + d, z), D0 = point(x, y + d, z);
+  return { A, B, C, D, B0, C0, D0, outline: rounded([A, B, B0, C0, D0, D], R_OUT), z };
+}
+
+function shadedBlock({ A, B, C, D, B0, C0, D0, outline, z, id }, t, theme, k) {
   const inset = 0.9; // a hairline of base shows between faces: the soft edge
   const shrink = (pts) => { const cx = pts.reduce((s, q) => s + q[0], 0) / pts.length, cy = pts.reduce((s, q) => s + q[1], 0) / pts.length; return pts.map(([px, py]) => { const dx = cx - px, dy = cy - py, l = Math.hypot(dx, dy) || 1; return [px + dx / l * inset, py + dy / l * inset]; }); };
   // Colours are CSS variables with this theme's values as fallbacks, so an inline copy follows
@@ -65,45 +64,34 @@ function block([x, y, z, w, d, h], t, theme, k) {
     + `</g><path d="${outline}" style="stroke:var(--iso-line,${t.line})" stroke-width=".8"/></g>`;
 }
 
+// Preserve the fragment IDs of the existing pricing exports.
+let uid = 82;
 function svg(blocks, t, theme) {
   // Far blocks first: by the sum of each block's nearest corner, then by height.
   const order = [...blocks].sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]) || a[2] - b[2]);
   const pts = blocks.flatMap(([x, y, z, w, d, h]) => [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z], [x, y, z + h], [x + w, y, z + h], [x, y + d, z + h], [x + w, y + d, z + h]].map(([a, b, c]) => point(a, b, c)));
   const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]), pad = 2;
   const minX = Math.min(...xs) - pad, minY = Math.min(...ys) - pad - 14, w = Math.max(...xs) - minX + pad, h = Math.max(...ys) - minY + pad;
+  const projected = order.map(block => ({ ...projectBlock(block), id: `${theme}${uid += 1}` }));
+  const viewBox = [minX, minY, w, h].map(f).join(' ');
+  const svgStart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none">`;
   const gradient = `<defs><linearGradient id="top${theme}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--iso-top-a,${t.topA})"/><stop offset="1" style="stop-color:var(--iso-top-b,${t.topB})"/></linearGradient></defs>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f(minX)} ${f(minY)} ${f(w)} ${f(h)}" fill="none">${gradient}${order.map((b, k) => block(b, t, theme, k)).join('')}</svg>\n`;
+  return `${svgStart}${gradient}${projected.map((b, k) => shadedBlock(b, t, theme, k)).join('')}</svg>\n`;
 }
 
 const G = 0.12; // the gap between neighbouring blocks
 const cube = (x, y, z, accent) => [x * (1 + G), y * (1 + G), z * (1 + G), 1, 1, 1, accent];
-const plate = (x, y, z, w = 2.2, d = 1.6, h = 0.24, accent) => [x, y, z, w, d, h, accent];
-
-const SCENES = {
-  // Menu entries.
-  tasks: [plate(0, 0, 0), plate(0.35, 0.35, 0.45), plate(0.7, 0.7, 0.9, 2.2, 1.6, 0.24, true)],
-  chat: [[0, 0, 0, 2.2, 1.2, 0.4], [0.7, 0.5, 0.75, 2.2, 1.2, 0.4, true]],
-  teams: [[0, 0, 0, 1, 1, 1.4], [1.16, 0, 0, 1, 1, 2.1, true], [2.32, 0, 0, 1, 1, 1]],
-  meetings: [cube(1, 0, 0), cube(0, 1, 0), cube(2, 1, 0), cube(1, 2, 0), [1.16, 1.16, 0, 1, 1, 1.7, true]],
-  mail: [[0, 0, 0, 2.6, 1.8, 0.3], [0.35, 0.3, 0.42, 1.9, 1.2, 0.16, true]],
-  ask: [[0, 0, 0, 2.6, 1.6, 0.32], [0.9, 0.3, 0.44, 1, 1, 1, true]],
-  workflow: [cube(0, 0, 0), [1.16, 0, 0, 1, 1, 1.6], [2.32, 0, 0, 1, 1, 2.2, true]],
-  skills: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(2, 1, 0, true)],
-  search: [0, 1, 2].flatMap((x) => [0, 1, 2].map((y) => (x === 1 && y === 1 ? [1.08, 1.08, 0, 1, 1, 1.5, true] : [x * 1.08, y * 1.08, 0, 1, 1, 0.25]))),
-  download: [[0, 0, 0, 2.6, 2, 0.3], [0.8, 0.5, 0.42, 1, 1, 1, true]],
-  notes: [plate(0, 0, 0, 2.2, 1.6, 0.2), plate(0.25, -0.2, 0.36, 2.2, 1.6, 0.2), plate(0.5, -0.4, 0.72, 2.2, 1.6, 0.2, true)],
-  people: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 0, 1, true)],
-};
-// Pricing plans: one block, a few, a building. Drawn after the menu so its ids never move.
 const PLANS = {
   plan_free: [cube(1, 1, 0)],
   plan_plus: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(0, 0, 1)],
   plan_pro: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(2, 1, 0), cube(0, 0, 1), cube(1, 0, 1), cube(0, 1, 1), cube(0, 0, 2)],
 };
 
-for (const scenes of [SCENES, PLANS]) for (const [theme, t] of Object.entries(THEMES)) {
+for (const [theme, colors] of Object.entries(THEMES)) {
   const folder = `${root}public/assets/iso/${theme}/`;
   await mkdir(folder, { recursive: true });
-  for (const [name, blocks] of Object.entries(scenes)) await writeFile(`${folder}${name}.svg`, svg(blocks.map((b) => b.slice(0, 6)), TINTS[name]?.[theme] ?? t, theme));
+  for (const [name, blocks] of Object.entries(PLANS)) {
+    await writeFile(`${folder}${name}.svg`, svg(blocks, TINTS[name]?.[theme] ?? colors, theme));
+  }
 }
-console.log(`iso: wrote ${(Object.keys(SCENES).length + Object.keys(PLANS).length) * 2} illustrations`);
+console.log(`iso: wrote ${Object.keys(PLANS).length * 2} pricing illustrations`);

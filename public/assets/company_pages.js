@@ -163,7 +163,7 @@ function commitRecord({ commits, releases }, locale, t, h2) {
   for (const [date, levels] of commits.days) {
     const column = Math.floor(n / ROWS), name = on(date);
     if (column - lastColumn >= (axis.length === 1 ? 5 : 2)) { axis.push(`<span style="--c:${column + 1}">${axis.length ? Number(date.slice(8)) : name}</span>`); lastColumn = column; }
-    for (const level of levels) { cells.push(`<i data-l="${level}" data-day="${date}" style="--c:${Math.floor(n / ROWS)}"></i>`); n += 1; }
+    for (const level of levels) { cells.push(`<i data-l="${level}" data-day="${date}"></i>`); n += 1; }
   }
   const tips = Object.fromEntries(commits.days.map(([date, levels]) => [date, `${on(date)}: ${changeCount(levels.length, locale)}`]));
   const summary = t(`${changeCount(commits.count, locale)} على شيفرة مُعين من ${on(commits.days[0][0])} إلى ${on(commits.days.at(-1)[0])}`, `${changeCount(commits.count, locale)} to Moeen’s code from ${on(commits.days[0][0])} to ${on(commits.days.at(-1)[0])}`);
@@ -178,16 +178,40 @@ function commitRecord({ commits, releases }, locale, t, h2) {
       <dl class="co-cells co-cells--${facts.length} ship__facts">${facts.map(([value, name]) => `<div><dd>${value}</dd><dt>${name}</dt></div>`).join('')}</dl></section>`;
 }
 
-/** Points at a day: its squares stay lit and a label says how many changes it holds. */
+const commitCharts = new WeakMap();
+
 function showDay(commits, cell) {
-  const tip = commits.querySelector('[data-commits-tip]');
   const day = cell?.dataset.day;
-  commits.classList.toggle('is-pointing', Boolean(day));
-  for (const square of commits.querySelectorAll('[data-day]')) square.classList.toggle('is-on', square.dataset.day === day);
+  let chart = commitCharts.get(commits);
+  if (!chart && day) {
+    const cellsByDay = new Map();
+    for (const square of commits.querySelectorAll('[data-day]')) {
+      const date = square.dataset.day;
+      if (!cellsByDay.has(date)) cellsByDay.set(date, []);
+      cellsByDay.get(date).push(square);
+    }
+    chart = {
+      cellsByDay,
+      labels: JSON.parse(commits.dataset.tips),
+      tip: commits.querySelector('[data-commits-tip]'),
+      day: undefined,
+    };
+    commitCharts.set(commits, chart);
+  }
+  if (!chart || chart.day === day) return;
+
+  const { cellsByDay, labels, tip } = chart;
+  for (const square of cellsByDay.get(chart.day) ?? []) square.classList.remove('is-on');
+  chart.day = day;
   tip.hidden = !day;
   if (!day) return;
-  tip.textContent = JSON.parse(commits.dataset.tips)[day];
-  const box = commits.getBoundingClientRect(), at = cell.getBoundingClientRect(), half = tip.offsetWidth / 2;
+
+  // A date can span several columns. Keep its label anchored until the date changes.
+  for (const square of cellsByDay.get(day)) square.classList.add('is-on');
+  tip.textContent = labels[day];
+  const box = commits.getBoundingClientRect();
+  const at = cell.getBoundingClientRect();
+  const half = tip.offsetWidth / 2;
   tip.style.left = `${Math.min(Math.max(at.left + at.width / 2 - box.left, half), box.width - half)}px`;
   tip.style.top = `${at.top - box.top}px`;
 }
@@ -329,10 +353,15 @@ function showTopic(help, id) {
 /** Delegated on the content element, so they survive the re-render after a language change. */
 export function initCompanyPage(content) {
   content.addEventListener('pointerover', (event) => {
-    const commits = content.querySelector('[data-commits]');
-    if (commits) showDay(commits, event.target.closest('[data-day]'));
+    if (event.pointerType === 'touch') return;
+    const grid = event.target.closest('.commits__grid');
+    if (grid) showDay(grid.closest('[data-commits]'), event.target.closest('[data-day]'));
   });
-  content.addEventListener('pointerleave', () => { const commits = content.querySelector('[data-commits]'); if (commits) showDay(commits, null); });
+  content.addEventListener('pointerout', (event) => {
+    if (event.pointerType === 'touch') return;
+    const grid = event.target.closest('.commits__grid');
+    if (grid && !grid.contains(event.relatedTarget)) showDay(grid.closest('[data-commits]'), null);
+  });
   content.addEventListener('click', (event) => {
     const { target } = event;
     const pick = target.closest('[data-share-pick]');
