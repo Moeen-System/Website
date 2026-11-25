@@ -1,13 +1,11 @@
-// Draws rounded isometric illustrations for the website in light and dark.
-// Navigation artwork uses transparent faces. Pricing plans use shaded faces.
-// Writes public/assets/iso/<theme>/<name>.svg. Run with `node scripts/build_iso.mjs`.
+// Draws the shaded isometric cubes for the website's pricing plans.
+// For compact navigation illustrations, run pnpm brand --navigation-dir=<website>/public/assets/iso in the app repo.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const COS = Math.cos(Math.PI / 6), SIN = 0.5, S = 22;
 const R_OUT = 4.2, R_FACE = 3; // corner radii in drawing units (one block edge is 22)
-const OUTLINE_STROKES = { light: '#96969d', dark: '#92929a' };
 const THEMES = {
   light: { base: '#e2e2e5', topA: '#ffffff', topB: '#f7f7f8', left: '#f0f0f2', right: '#e7e7ea', line: '#d6d6da' },
   dark: { base: '#1a1a1c', topA: '#2e2e31', topB: '#28282b', left: '#232325', right: '#1e1e20', line: '#343438' },
@@ -27,7 +25,6 @@ const TINTS = {
 
 const point = (x, y, z) => [(x - y) * COS * S, (x + y) * SIN * S - z * S];
 const f = (n) => n.toFixed(2);
-const xy = (p) => p.map(f).join(',');
 
 /** A closed path through the points, every corner rounded by up to r. */
 function rounded(pts, r) {
@@ -67,30 +64,9 @@ function shadedBlock({ A, B, C, D, B0, C0, D0, outline, z, id }, t, theme, k) {
     + `</g><path d="${outline}" style="stroke:var(--iso-line,${t.line})" stroke-width=".8"/></g>`;
 }
 
-function outlineArt(blocks, theme, bounds) {
-  const shapes = blocks.map(({ B, C, D, C0, outline, z, id }, k) => {
-    const motion = `class="iso-b" style="--k:${k};--lift:${(3 + z * 7 + (k % 2) * 3).toFixed(1)}"`;
-    const edges = `M${xy(D)}L${xy(C)}L${xy(B)}M${xy(C)}L${xy(C0)}`;
-    return { id, silhouette: `<path id="shape${id}" d="${outline}" ${motion}/>`, detail: `<path d="${edges}" ${motion}/>` };
-  });
-  const strokes = shapes.map(({ id, detail }, k) => {
-    const shape = `#shape${id}`;
-    const clip = `<clipPath id="clip${id}"><use href="${shape}" fill="#fff"/></clipPath>`;
-    // Mask the edges behind overlapping blocks with the same paths that move on hover.
-    const occluders = shapes.slice(k + 1).map(next => `<use href="#shape${next.id}" fill="#000"/>`);
-    const mask = occluders.length ? `<mask id="mask${id}" maskUnits="userSpaceOnUse" ${bounds}><rect ${bounds} fill="#fff"/>${occluders.join('')}</mask>` : '';
-    const maskAttr = mask ? ` mask="url(#mask${id})"` : '';
-    return {
-      defs: clip + mask,
-      paths: `<g${maskAttr}><use href="${shape}"/><g clip-path="url(#clip${id})">${detail}</g></g>`,
-    };
-  });
-  return `<defs>\n${shapes.map(block => block.silhouette).join('\n')}\n${strokes.map(block => block.defs).join('\n')}\n</defs>\n`
-    + `<g style="stroke:var(--iso-line,${OUTLINE_STROKES[theme]})" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">\n${strokes.map(block => block.paths).join('\n')}\n</g>`;
-}
-
-let uid = 0;
-function svg(blocks, t, theme, outlined) {
+// Preserve the fragment IDs of the existing pricing exports.
+let uid = 82;
+function svg(blocks, t, theme) {
   // Far blocks first: by the sum of each block's nearest corner, then by height.
   const order = [...blocks].sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]) || a[2] - b[2]);
   const pts = blocks.flatMap(([x, y, z, w, d, h]) => [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z], [x, y, z + h], [x + w, y, z + h], [x, y + d, z + h], [x + w, y + d, z + h]].map(([a, b, c]) => point(a, b, c)));
@@ -99,52 +75,23 @@ function svg(blocks, t, theme, outlined) {
   const projected = order.map(block => ({ ...projectBlock(block), id: `${theme}${uid += 1}` }));
   const viewBox = [minX, minY, w, h].map(f).join(' ');
   const svgStart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none">`;
-  if (outlined) {
-    const bounds = `x="${f(minX)}" y="${f(minY)}" width="${f(w)}" height="${f(h)}"`;
-    return `${svgStart}\n${outlineArt(projected, theme, bounds)}\n</svg>\n`;
-  }
   const gradient = `<defs><linearGradient id="top${theme}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--iso-top-a,${t.topA})"/><stop offset="1" style="stop-color:var(--iso-top-b,${t.topB})"/></linearGradient></defs>`;
   return `${svgStart}${gradient}${projected.map((b, k) => shadedBlock(b, t, theme, k)).join('')}</svg>\n`;
 }
 
 const G = 0.12; // the gap between neighbouring blocks
 const cube = (x, y, z, accent) => [x * (1 + G), y * (1 + G), z * (1 + G), 1, 1, 1, accent];
-const plate = (x, y, z, w = 2.2, d = 1.6, h = 0.24, accent) => [x, y, z, w, d, h, accent];
-
-const SCENES = {
-  // Menu entries.
-  tasks: [plate(0, 0, 0), plate(0.35, 0.35, 0.45), plate(0.7, 0.7, 0.9, 2.2, 1.6, 0.24, true)],
-  chat: [[0, 0, 0, 2.2, 1.2, 0.4], [0.7, 0.5, 0.75, 2.2, 1.2, 0.4, true]],
-  teams: [[0, 0, 0, 1, 1, 1.4], [1.16, 0, 0, 1, 1, 2.1, true], [2.32, 0, 0, 1, 1, 1]],
-  meetings: [cube(1, 0, 0), cube(0, 1, 0), cube(2, 1, 0), cube(1, 2, 0), [1.16, 1.16, 0, 1, 1, 1.7, true]],
-  mail: [[0, 0, 0, 2.6, 1.8, 0.3], [0.35, 0.3, 0.42, 1.9, 1.2, 0.16, true]],
-  ask: [[0, 0, 0, 2.6, 1.6, 0.32], [0.9, 0.3, 0.44, 1, 1, 1, true]],
-  workflow: [cube(0, 0, 0), [1.16, 0, 0, 1, 1, 1.6], [2.32, 0, 0, 1, 1, 2.2, true]],
-  skills: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(2, 1, 0, true)],
-  search: [0, 1, 2].flatMap((x) => [0, 1, 2].map((y) => (x === 1 && y === 1 ? [1.08, 1.08, 0, 1, 1, 1.5, true] : [x * 1.08, y * 1.08, 0, 1, 1, 0.25]))),
-  download: [[0, 0, 0, 2.6, 2, 0.3], [0.8, 0.5, 0.42, 1, 1, 1, true]],
-  notes: [plate(0, 0, 0, 2.2, 1.6, 0.2), plate(0.25, -0.2, 0.36, 2.2, 1.6, 0.2), plate(0.5, -0.4, 0.72, 2.2, 1.6, 0.2, true)],
-  people: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 0, 1, true)],
-};
-// Pricing plans: one block, a few, a building. Drawn after the menu so its ids never move.
 const PLANS = {
   plan_free: [cube(1, 1, 0)],
   plan_plus: [cube(0, 0, 0), cube(1, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(0, 0, 1)],
   plan_pro: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(2, 1, 0), cube(0, 0, 1), cube(1, 0, 1), cube(0, 1, 1), cube(0, 0, 2)],
 };
 
-// The two additional illustrations used by the use-case menu.
-const USE_CASES = {
-  audit: Array.from({ length: 5 }, (_, i) => plate(0, 0, i * .4, 2, 1.5)),
-  approvals: [cube(0, 0, 0), [1.45, 0, .15, .18, 1.3, 1.45], cube(1.55, 0, 0)],
-};
-
-for (const scenes of [SCENES, PLANS, USE_CASES]) for (const [theme, t] of Object.entries(THEMES)) {
+for (const [theme, colors] of Object.entries(THEMES)) {
   const folder = `${root}public/assets/iso/${theme}/`;
   await mkdir(folder, { recursive: true });
-  for (const [name, blocks] of Object.entries(scenes)) {
-    const art = svg(blocks.map((b) => b.slice(0, 6)), TINTS[name]?.[theme] ?? t, theme, scenes !== PLANS);
-    await writeFile(`${folder}${name}.svg`, art);
+  for (const [name, blocks] of Object.entries(PLANS)) {
+    await writeFile(`${folder}${name}.svg`, svg(blocks, TINTS[name]?.[theme] ?? colors, theme));
   }
 }
-console.log(`iso: wrote ${(Object.keys(SCENES).length + Object.keys(PLANS).length + Object.keys(USE_CASES).length) * 2} illustrations`);
+console.log(`iso: wrote ${Object.keys(PLANS).length * 2} pricing illustrations`);
