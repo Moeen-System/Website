@@ -253,10 +253,21 @@
 }
 
 /* ---- About: a letter in the meadow ------------------------------------------------------------- */
-.letter { position: relative; isolation: isolate; margin-block: calc(-1 * var(--page-top)) var(--flush); padding-block: var(--page-top) 72px; }
+.letter { --meadow-height: 620px; position: relative; isolation: isolate; margin-block: calc(-1 * var(--page-top)) var(--flush); padding-block: var(--page-top) 72px; }
 .letter__bg, .letter__fade { position: absolute; z-index: -1; inset-block-end: 0; inset-inline-start: calc(50% - 50vw); inline-size: 100vw; max-inline-size: none; }
-.letter__bg { block-size: 620px; object-fit: cover; object-position: center bottom; }
-.letter__fade { block-size: 622px; background: linear-gradient(to bottom, var(--bg) 4%, color-mix(in srgb, var(--bg) 0%, transparent) 78%); }
+.letter__bg { block-size: var(--meadow-height); object-fit: cover; object-position: center bottom; }
+.letter__fade { block-size: calc(var(--meadow-height) + 2px); background: linear-gradient(to bottom, var(--bg) 4%, color-mix(in srgb, var(--bg) 0%, transparent) 78%); }
+/* The full-width meadow covers the page rails. Draw their continuation above the photo. */
+.letter::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-end: 0;
+  inset-inline: calc(-1 * var(--pad));
+  block-size: calc(var(--meadow-height) + 2px);
+  border-inline: 1px solid var(--line);
+  pointer-events: none;
+}
 [data-theme="dark"] .letter__bg { filter: brightness(.5) saturate(1.1); }
 .letter > header { display: grid; justify-items: center; gap: 14px; text-align: center; } .letter > header .eyebrow { justify-self: center; }
 .letter > header h1 { max-inline-size: 620px; }
