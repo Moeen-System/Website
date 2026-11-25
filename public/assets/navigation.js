@@ -130,7 +130,8 @@ export function initNavigation() {
       const holder = document.createElement('div');
       holder.innerHTML = markup
         .replace(/id="([^"]+)"/g, (_, id) => `id="menu-${index}-${id}"`)
-        .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`);
+        .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`)
+        .replace(/href="#([^"]+)"/g, (_, id) => `href="#menu-${index}-${id}"`);
       const svg = holder.querySelector('svg');
       if (!svg) return;
       svg.setAttribute('aria-hidden', 'true');

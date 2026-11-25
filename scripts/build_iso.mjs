@@ -1,6 +1,5 @@
-// Draws the website's isometric illustrations: soft, rounded blocks in one neutral colour,
-// in light and dark. Each block is a rounded silhouette on a slightly darker base, with its
-// three faces laid on it as rounded panels, so edges read as soft bevels. No accent colour.
+// Draws rounded isometric illustrations for the website in light and dark.
+// Navigation artwork uses transparent faces. Pricing plans use shaded faces.
 // Writes public/assets/iso/<theme>/<name>.svg. Run with `node scripts/build_iso.mjs`.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const COS = Math.cos(Math.PI / 6), SIN = 0.5, S = 22;
 const R_OUT = 4.2, R_FACE = 3; // corner radii in drawing units (one block edge is 22)
+const OUTLINE_STROKES = { light: '#96969d', dark: '#92929a' };
 const THEMES = {
   light: { base: '#e2e2e5', topA: '#ffffff', topB: '#f7f7f8', left: '#f0f0f2', right: '#e7e7ea', line: '#d6d6da' },
   dark: { base: '#1a1a1c', topA: '#2e2e31', topB: '#28282b', left: '#232325', right: '#1e1e20', line: '#343438' },
@@ -27,6 +27,7 @@ const TINTS = {
 
 const point = (x, y, z) => [(x - y) * COS * S, (x + y) * SIN * S - z * S];
 const f = (n) => n.toFixed(2);
+const xy = (p) => p.map(f).join(',');
 
 /** A closed path through the points, every corner rounded by up to r. */
 function rounded(pts, r) {
@@ -43,14 +44,15 @@ function rounded(pts, r) {
   return `${d}Z`;
 }
 
-let uid = 0;
-/** One block: [x, y, z, width, depth, height]. */
-function block([x, y, z, w, d, h], t, theme, k) {
-  const P = (a, b, c) => point(a, b, c);
-  const A = P(x, y, z + h), B = P(x + w, y, z + h), C = P(x + w, y + d, z + h), D = P(x, y + d, z + h);
-  const B0 = P(x + w, y, z), C0 = P(x + w, y + d, z), D0 = P(x, y + d, z);
-  const outline = rounded([A, B, B0, C0, D0, D], R_OUT);
-  const id = `${theme}${uid += 1}`;
+/** Project a block defined as [x, y, z, width, depth, height]. */
+function projectBlock([x, y, z, w, d, h]) {
+  const A = point(x, y, z + h), B = point(x + w, y, z + h);
+  const C = point(x + w, y + d, z + h), D = point(x, y + d, z + h);
+  const B0 = point(x + w, y, z), C0 = point(x + w, y + d, z), D0 = point(x, y + d, z);
+  return { A, B, C, D, B0, C0, D0, outline: rounded([A, B, B0, C0, D0, D], R_OUT), z };
+}
+
+function shadedBlock({ A, B, C, D, B0, C0, D0, outline, z, id }, t, theme, k) {
   const inset = 0.9; // a hairline of base shows between faces: the soft edge
   const shrink = (pts) => { const cx = pts.reduce((s, q) => s + q[0], 0) / pts.length, cy = pts.reduce((s, q) => s + q[1], 0) / pts.length; return pts.map(([px, py]) => { const dx = cx - px, dy = cy - py, l = Math.hypot(dx, dy) || 1; return [px + dx / l * inset, py + dy / l * inset]; }); };
   // Colours are CSS variables with this theme's values as fallbacks, so an inline copy follows
@@ -65,14 +67,44 @@ function block([x, y, z, w, d, h], t, theme, k) {
     + `</g><path d="${outline}" style="stroke:var(--iso-line,${t.line})" stroke-width=".8"/></g>`;
 }
 
-function svg(blocks, t, theme) {
+function outlineArt(blocks, theme, bounds) {
+  const shapes = blocks.map(({ B, C, D, C0, outline, z, id }, k) => {
+    const motion = `class="iso-b" style="--k:${k};--lift:${(3 + z * 7 + (k % 2) * 3).toFixed(1)}"`;
+    const edges = `M${xy(D)}L${xy(C)}L${xy(B)}M${xy(C)}L${xy(C0)}`;
+    return { id, silhouette: `<path id="shape${id}" d="${outline}" ${motion}/>`, detail: `<path d="${edges}" ${motion}/>` };
+  });
+  const strokes = shapes.map(({ id, detail }, k) => {
+    const shape = `#shape${id}`;
+    const clip = `<clipPath id="clip${id}"><use href="${shape}" fill="#fff"/></clipPath>`;
+    // Mask the edges behind overlapping blocks with the same paths that move on hover.
+    const occluders = shapes.slice(k + 1).map(next => `<use href="#shape${next.id}" fill="#000"/>`);
+    const mask = occluders.length ? `<mask id="mask${id}" maskUnits="userSpaceOnUse" ${bounds}><rect ${bounds} fill="#fff"/>${occluders.join('')}</mask>` : '';
+    const maskAttr = mask ? ` mask="url(#mask${id})"` : '';
+    return {
+      defs: clip + mask,
+      paths: `<g${maskAttr}><use href="${shape}"/><g clip-path="url(#clip${id})">${detail}</g></g>`,
+    };
+  });
+  return `<defs>\n${shapes.map(block => block.silhouette).join('\n')}\n${strokes.map(block => block.defs).join('\n')}\n</defs>\n`
+    + `<g style="stroke:var(--iso-line,${OUTLINE_STROKES[theme]})" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">\n${strokes.map(block => block.paths).join('\n')}\n</g>`;
+}
+
+let uid = 0;
+function svg(blocks, t, theme, outlined) {
   // Far blocks first: by the sum of each block's nearest corner, then by height.
   const order = [...blocks].sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]) || a[2] - b[2]);
   const pts = blocks.flatMap(([x, y, z, w, d, h]) => [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z], [x, y, z + h], [x + w, y, z + h], [x, y + d, z + h], [x + w, y + d, z + h]].map(([a, b, c]) => point(a, b, c)));
   const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]), pad = 2;
   const minX = Math.min(...xs) - pad, minY = Math.min(...ys) - pad - 14, w = Math.max(...xs) - minX + pad, h = Math.max(...ys) - minY + pad;
+  const projected = order.map(block => ({ ...projectBlock(block), id: `${theme}${uid += 1}` }));
+  const viewBox = [minX, minY, w, h].map(f).join(' ');
+  const svgStart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none">`;
+  if (outlined) {
+    const bounds = `x="${f(minX)}" y="${f(minY)}" width="${f(w)}" height="${f(h)}"`;
+    return `${svgStart}\n${outlineArt(projected, theme, bounds)}\n</svg>\n`;
+  }
   const gradient = `<defs><linearGradient id="top${theme}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--iso-top-a,${t.topA})"/><stop offset="1" style="stop-color:var(--iso-top-b,${t.topB})"/></linearGradient></defs>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f(minX)} ${f(minY)} ${f(w)} ${f(h)}" fill="none">${gradient}${order.map((b, k) => block(b, t, theme, k)).join('')}</svg>\n`;
+  return `${svgStart}${gradient}${projected.map((b, k) => shadedBlock(b, t, theme, k)).join('')}</svg>\n`;
 }
 
 const G = 0.12; // the gap between neighbouring blocks
@@ -101,9 +133,18 @@ const PLANS = {
   plan_pro: [cube(0, 0, 0), cube(1, 0, 0), cube(2, 0, 0), cube(0, 1, 0), cube(1, 1, 0), cube(2, 1, 0), cube(0, 0, 1), cube(1, 0, 1), cube(0, 1, 1), cube(0, 0, 2)],
 };
 
-for (const scenes of [SCENES, PLANS]) for (const [theme, t] of Object.entries(THEMES)) {
+// The two additional illustrations used by the use-case menu.
+const USE_CASES = {
+  audit: Array.from({ length: 5 }, (_, i) => plate(0, 0, i * .4, 2, 1.5)),
+  approvals: [cube(0, 0, 0), [1.45, 0, .15, .18, 1.3, 1.45], cube(1.55, 0, 0)],
+};
+
+for (const scenes of [SCENES, PLANS, USE_CASES]) for (const [theme, t] of Object.entries(THEMES)) {
   const folder = `${root}public/assets/iso/${theme}/`;
   await mkdir(folder, { recursive: true });
-  for (const [name, blocks] of Object.entries(scenes)) await writeFile(`${folder}${name}.svg`, svg(blocks.map((b) => b.slice(0, 6)), TINTS[name]?.[theme] ?? t, theme));
+  for (const [name, blocks] of Object.entries(scenes)) {
+    const art = svg(blocks.map((b) => b.slice(0, 6)), TINTS[name]?.[theme] ?? t, theme, scenes !== PLANS);
+    await writeFile(`${folder}${name}.svg`, art);
+  }
 }
-console.log(`iso: wrote ${(Object.keys(SCENES).length + Object.keys(PLANS).length) * 2} illustrations`);
+console.log(`iso: wrote ${(Object.keys(SCENES).length + Object.keys(PLANS).length + Object.keys(USE_CASES).length) * 2} illustrations`);
