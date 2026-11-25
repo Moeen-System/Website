@@ -264,7 +264,7 @@
 .letter__paper section + section { margin-block-start: 30px; }
 .fp .letter__paper h2, :lang(ar) .fp .letter__paper h2 { display: flex; gap: 10px; color: var(--muted); font-size: 13px; line-height: 1.5; } .letter__paper h2 span { color: var(--dim); font: 12px/1.6 var(--mono); }
 .letter__paper p { margin-block-start: 8px; color: var(--ink); font: 400 16px/1.75 var(--serif); }
-:lang(ar) .letter__paper p { font: 400 16.5px/2.05 var(--serif-ar); }
+:lang(ar) .letter__paper p { font: 400 16.5px/2.05 var(--font-ar); }
 .letter__paper footer { display: grid; justify-items: start; gap: 1px; margin-block-start: 36px; padding-block-start: 18px; border-block-start: 1px solid var(--line); font-size: 13px; }
 .letter__sign { position: relative; padding-block: 2px 6px; margin-block-end: 8px; color: var(--brand); font: 400 40px/1.5 var(--font-ar); font-feature-settings: "swsh" 1; transform: rotate(-4deg); }
 .letter__paper footer b { font-weight: 500; } .letter__paper footer small { color: var(--muted); font-size: 12px; }
