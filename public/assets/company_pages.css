@@ -272,19 +272,17 @@
 .commits { --gap: 3px; position: relative; display: grid; gap: 10px; }
 .commits__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 20px; } .commits__head p { font-size: 13px; }
 .commits__key { display: flex; align-items: center; gap: 4px; color: var(--dim) !important; font-size: 12px !important; } .commits__key i { inline-size: 11px; block-size: 11px; } .commits__key i:first-of-type { margin-inline-start: 4px; } .commits__key i:last-of-type { margin-inline-end: 4px; }
-.commits i { border-radius: 4px; background: color-mix(in srgb, var(--brand) var(--mix), var(--bg)); }
+.commits__key i, .commits__grid i::before { border-radius: 4px; background: color-mix(in srgb, var(--brand) var(--mix), var(--bg)); }
 .commits i[data-l="1"] { --mix: 20%; } .commits i[data-l="2"] { --mix: 42%; } .commits i[data-l="3"] { --mix: 70%; } .commits i[data-l="4"] { --mix: 100%; }
 [data-theme="dark"] .commits i[data-l="1"] { --mix: 26%; } [data-theme="dark"] .commits i[data-l="2"] { --mix: 48%; }
 .commits__grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto); grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); }
-.commits__grid i { aspect-ratio: 1; margin: calc(var(--gap) / 2); transition: opacity .18s; } .is-pointing .commits__grid i:not(.is-on) { opacity: .38; }
+.commits__grid i { position: relative; aspect-ratio: 1; }
+.commits__grid i::before { content: ""; position: absolute; inset: calc(var(--gap) / 2); pointer-events: none; }
+.commits__grid .is-on::before { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 24%, var(--brand)); }
 .commits__axis { display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); block-size: 16px; color: var(--muted); font-size: 11.5px; line-height: 16px; font-variant-numeric: tabular-nums; } .commits__axis span { grid-column: var(--c); grid-row: 1; padding-inline-start: 2px; white-space: nowrap; }
-.commits__tip { position: absolute; z-index: 2; inset-inline: auto; padding: 4px 10px; border-radius: 7px; background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.6; white-space: nowrap; pointer-events: none; transform: translate(-50%, calc(-100% - 6px)); } .commits__tip[hidden] { display: none; }
-@media (prefers-reduced-motion: no-preference) {
-  .commits.can-run .commits__grid i { scale: .2; opacity: 0; } .commits.is-run .commits__grid i { scale: 1; opacity: 1; transition: opacity .3s var(--ease) calc(var(--c) * 14ms), scale .45s var(--ease) calc(var(--c) * 14ms); }
-  .commits.is-run.is-pointing .commits__grid i { transition: opacity .18s; } .commits.is-run.is-pointing .commits__grid i:not(.is-on) { opacity: .38; }
-}
+.commits__tip { position: absolute; z-index: 2; inset-inline: auto; padding: 4px 10px; border-radius: 7px; background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.6; inline-size: max-content; max-inline-size: 100%; pointer-events: none; transform: translate(-50%, calc(-100% - 6px)); } .commits__tip[hidden] { display: none; }
 .ship__facts > div { display: flex; align-items: baseline; justify-content: space-between; padding-block: 14px; } .ship__facts dt { color: var(--muted); font-size: 12.5px; } .ship__facts dd { margin: 0; font-size: 15px; font-weight: 500; }
-@media (max-width: 767px) { .commits__grid { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(24, minmax(0, 1fr)); } .commits__axis { display: none; } .commits i { border-radius: 3px; } }
+@media (max-width: 767px) { .commits__grid { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(24, minmax(0, 1fr)); } .commits__axis { display: none; } .commits__key i, .commits__grid i::before { border-radius: 3px; } }
 
 /* ---- Hybrid architecture: the request simulator --------------------------------------------------- */
 .sim { margin: 0 var(--bleed) var(--flush); border-block-start: 1px solid var(--line); background: var(--sunken) url(/assets/patterns/light/grid_dashed.svg) center / 16px; }
