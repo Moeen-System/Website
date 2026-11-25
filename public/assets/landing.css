@@ -562,13 +562,15 @@ h3 { font-size: 15px; line-height: 1.45; font-weight: 500; letter-spacing: -0.00
   .platform-tile__log img { inline-size: 120%; max-inline-size: none; }
 }
 
-/* Compact versions of the app's outline illustrations. */
-@media (prefers-reduced-motion: no-preference) {
-  .tile__art .mn-iso-part { transition: transform .18s var(--ease); }
-  .tile:focus-visible .mn-iso-part { transform: translateY(-5px); }
+/* Compact versions of the app's isometric scenes. */
+.tile__art .mn-iso-part { transition: transform .55s var(--ease); transition-delay: calc(var(--iso-order) * 15ms); }
+.tile:focus-visible .mn-iso-part { transform: translate(calc(var(--iso-x) * .36px), calc(var(--iso-y) * .36px)); }
+@media (hover: hover) {
+  .tile:hover .mn-iso-part { transform: translate(calc(var(--iso-x) * .36px), calc(var(--iso-y) * .36px)); }
 }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .tile:hover .mn-iso-part { transform: translateY(-5px); }
+@media (prefers-reduced-motion: reduce) {
+  .tile .mn-iso-part { transition: none; }
+  .tile:is(:hover, :focus-visible) .mn-iso-part { transform: none; }
 }
 
 /* Principles: a blue band, a staggered heading, numbered cells of white dotted line art. */
