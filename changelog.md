@@ -1,3 +1,9 @@
+## 2026-11-28 - Website pricing and artwork
+
+- Add private group support to Plus, feature requests to Pro and upcoming modules to both plans.
+- Add the $5,000 Lifetime offer and five editable app prices to the savings calculator.
+- Make the delegation screenshot isometric, use image-only changelog cards and rename the Arabic Docs link.
+
 ## 2026-11-22 - Product landing page
 
 - Add a bilingual landing page with current Moeen screenshots, light and dark themes, and feature walkthroughs.
