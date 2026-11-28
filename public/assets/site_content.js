@@ -55,7 +55,7 @@ export const infoPages = {
     path: '/ai/ai-moeen/', label: pair('AI', 'AI'), teaser: pair('من طلب مكتوب إلى إجراء', 'From a written request to an action'),
     title: pair('اكتب طلبك كما تكتبه لزميلك.', 'Ask the way you’d ask a colleague.'),
     lead: pair('ابدأ مع AI، أو أنشئ وكيلًا بتعليمات ومهارات تناسب عملك. يعمل الوكلاء على سجلات الفريق ضمن صلاحياتك.', 'Start with AI, or create an agent with instructions and skills for your work. Agents work on team records within your permissions.'),
-    image: image('ai_scene_response', 790, 402, 'رد تجريبي من AI يتضمّن ملخّصًا ومهمة جديدة', 'A demo AI reply with a summary and a new task'),
+    image: image('ai_scene_response', 790, 352, 'ردّ تجريبي من AI يلخّص ما بقي قبل الإطلاق ويذكر المهمة التي أنشأها', 'A demo AI reply that summarizes what remains before launch and names the task it created'),
     related: ['architecture', 'knowledge_base', 'skills'],
   },
   mcp: {
@@ -178,8 +178,9 @@ export const navigation = [
     featured: 'architecture', bottom: ['integrations', 'workflow'] },
   { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
     upcoming: upcomingUseCases },
-  'changelog', 'roadmap', 'blog', 'pricing',
+  { id: 'resources', label: pair('الموارد', 'Resources'),
+    tiles: [['docs', 'notes'], ['changelog', 'audit'], ['blog', 'mail']] },
+  'roadmap', 'pricing',
   { id: 'company', label: pair('الشركة', 'Company'),
     tiles: [['about', 'teams'], ['affiliate', 'workflow'], ['support', 'chat'], ['join', 'people']] },
-  'docs',
 ];

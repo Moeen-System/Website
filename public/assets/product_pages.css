@@ -19,16 +19,13 @@
 .release-meta h2 a:hover { text-decoration: underline; }
 .release-meta time { display: block; color: var(--muted); font-size: 13px; margin-block-start: 4px; }
 .release-image {
-  display: grid;
-  place-items: center;
-  inline-size: 100%;
-  max-inline-size: 520px;
-  aspect-ratio: 3 / 1;
-  min-block-size: 112px;
+  inline-size: fit-content;
+  max-inline-size: min(100%, 520px);
+  overflow: hidden;
   border-radius: 8px;
   background: var(--panel);
 }
-.release-image img { inline-size: min(38%, 164px); block-size: 116px; object-fit: contain; }
+.release-image img { block-size: auto; }
 .release-changes { margin-block-start: 20px; }
 .release-changes:first-child { margin-block-start: 0; }
 .release-changes h3::after { content: ""; flex: 1; block-size: 1px; background: var(--line); }

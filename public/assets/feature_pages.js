@@ -353,7 +353,7 @@ const pages = {
     const capture = (name, width, height, alt, cls = '') => `<img class="${cls}" data-shot="${name}" src="/assets/shots2/${name}_${locale}_light.png" width="${width}" height="${height}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
     const day = [
       ['09:10', t('لخّص النقاش', 'Sum up the discussion'), t('ذكره خالد في القناة، فكتب ما بقي قبل الإطلاق وأنشأ المهمة الناقصة.', 'Khalid mentioned it in the channel. It wrote what was left and created the missing task.'),
-        `<div class="day__chat">${capture('ai_scene_request', 411, 84, t('خالد يطلب من AI تلخيص ما بقي قبل الإطلاق', 'Khalid asks AI to summarize what is left'))}${capture('ai_scene_response', 395, 201, t('رد AI مع المهمة التي أنشأها', 'The AI reply with the task it created'))}</div>`],
+        `<div class="day__chat">${capture('ai_scene_request', 411, 96, t('خالد يطلب من AI تلخيص ما بقي قبل الإطلاق', 'Khalid asks AI to summarize what is left'))}${capture('ai_scene_response', 395, locale === 'ar' ? 176 : 200, t('رد AI يذكر المهمة التي أنشأها', 'The AI reply names the task it created'))}</div>`],
       ['11:30', t('أنشئ مهمة لغد', 'Create a task for tomorrow'), t('لم يذكر الطلب مسؤولاً، فبقيت المهمة بلا مسؤول. لا يخمّن من يتولّاها.', 'The request named no owner, so the task stayed unassigned. It doesn’t guess.'),
         `<div class="day__crop">${capture('plan', 375, 852, t('طلب إنشاء مهمة وخطوات تنفيذه', 'A request to create a task and the steps it ran'))}</div>`],
       ['14:05', t('شارك خطة الإطلاق', 'Share the launch plan'), t('تغيير المشاركة ينتظر صاحب الطلب. يرى الملف ومن سيطّلع عليه، ثم يقرّر.', 'A sharing change waits for the person who asked. They see the file and who will open it, then decide.'),

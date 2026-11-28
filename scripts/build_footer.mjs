@@ -13,8 +13,8 @@ const more = (href, title) => `<a href="${href}">${label(title)}</a>`;
 const group = (title, items) => `<div class="footer-group">${label(title, 'h3')}${items}</div>`;
 
 export function buildFooter(page = 'home') {
-  const groups = navigation.filter(item => typeof item === 'object');
-  const resources = navigation.filter(item => typeof item === 'string');
+  const groups = navigation.filter(item => typeof item === 'object' && item.id !== 'resources');
+  const resources = ['changelog', 'roadmap', 'blog', 'pricing', 'docs'];
   const menuLinks = (tiles, tail) => [...tiles.map(([id]) => id), ...(tail ? [tail] : [])].map(id => link(id, page)).join('');
   const menuColumn = item => {
     if (item.sections) return item.sections.map((section, index) =>

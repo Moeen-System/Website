@@ -1,7 +1,9 @@
 import { copy, pageLead, pageTitle, renderContent, validFeed } from './product_content.js';
 import { initNavigation } from './navigation.js';
+import { initContributionCalendar, showLatestContributions } from './contribution_calendar.js';
 import { initFeaturePage, mountFeaturePage } from './feature_pages.js';
-import { initCompanyPage } from './company_pages.js';
+import { applyPricingCurrency, initCompanyPage } from './company_pages.js';
+import { CURRENCY_OPTIONS, DEFAULT_CURRENCY, detectPricingCurrency } from './pricing_currency.js';
 import { initArchitecturePage } from './architecture_page.js';
 
 const root = document.documentElement;
@@ -14,6 +16,15 @@ const context = JSON.parse(document.getElementById('product-data').textContent);
 let locale = root.lang === 'en' ? 'en' : 'ar';
 let theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
 let cadence = 'annual';
+const currencyKey = 'moeen.landing.currency';
+let manualCurrency = null;
+if (page === 'pricing') {
+  try {
+    const saved = localStorage.getItem(currencyKey);
+    if (Object.hasOwn(CURRENCY_OPTIONS, saved)) manualCurrency = saved;
+  } catch {}
+}
+let pricingCurrency = manualCurrency ?? DEFAULT_CURRENCY;
 
 function store(key, value) {
   try { localStorage.setItem(key, value); } catch {}
@@ -48,7 +59,11 @@ function openLinkedRelease() {
 function updateContent() {
   content.innerHTML = renderContent(page, locale, context);
   mountFeaturePage(content);
-  if (page === 'pricing') applyCadence();
+  showLatestContributions(content);
+  if (page === 'pricing') {
+    applyCadence();
+    applyPricingCurrency(content, pricingCurrency);
+  }
   applyTheme();
   if (page === 'changelog') openLinkedRelease();
 }
@@ -62,7 +77,11 @@ function applyLanguage(rebuild = true) {
   document.querySelector('meta[name="description"]').content = description;
   for (const node of document.querySelectorAll('[data-page-text]')) node.textContent = text[node.dataset.pageText];
   if (rebuild) updateContent();
-  else applyTheme();
+  else {
+    if (page === 'pricing') applyPricingCurrency(content, pricingCurrency);
+    showLatestContributions(content);
+    applyTheme();
+  }
   root.classList.remove('i18n-pending');
 }
 
@@ -85,9 +104,16 @@ themeButton.addEventListener('click', () => {
 
 if (page === 'pricing') {
   content.addEventListener('change', event => {
-    if (!event.target.matches('input[name="cadence"]')) return;
-    cadence = event.target.value;
-    applyCadence();
+    const control = event.target;
+    if (control.matches('[data-pricing-currency]') && Object.hasOwn(CURRENCY_OPTIONS, control.value)) {
+      manualCurrency = pricingCurrency = control.value;
+      store(currencyKey, pricingCurrency);
+      applyPricingCurrency(content, pricingCurrency);
+    }
+    if (control.matches('input[name="cadence"]')) {
+      cadence = control.value;
+      applyCadence();
+    }
   });
 }
 
@@ -127,6 +153,15 @@ if (page === 'roadmap') {
 
 initFeaturePage(content);
 initCompanyPage(content);
+initContributionCalendar(content);
 initArchitecturePage(content);
 mountFeaturePage(content);
 applyLanguage(locale === 'en');
+
+if (page === 'pricing' && !manualCurrency) {
+  void detectPricingCurrency().then((detected) => {
+    if (manualCurrency || detected === pricingCurrency) return;
+    pricingCurrency = detected;
+    applyPricingCurrency(content, pricingCurrency);
+  });
+}

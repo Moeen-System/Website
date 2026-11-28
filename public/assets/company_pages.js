@@ -2,9 +2,11 @@
 // share picker, a help palette, an open-roles board, a letter and a savings calculator. Nothing
 // on these pages is sent anywhere: copy buttons write to the visitor's own clipboard.
 import { seam } from './frame.js';
+import { contributionCalendar } from './contribution_calendar.js';
 import { ic, kit } from './feature_pages.js';
 import { infoPages, sitePages, upcomingModules } from './site_content.js';
 import { pageStories } from './page_story_content.js';
+import { CURRENCY_OPTIONS, DEFAULT_CURRENCY, formatPrice, wholePrice } from './pricing_currency.js';
 
 export const companyPageIds = ['affiliate', 'support', 'join', 'about'];
 
@@ -144,78 +146,6 @@ const pages = {
   },
 };
 
-// ---- About: every change to the app, one square each -------------------------------------------------
-
-const CHANGES = { one: 'تعديل واحد', two: 'تعديلان', few: 'تعديلات', many: 'تعديلاً', other: 'تعديل' };
-const changeCount = (n, locale) => {
-  if (locale === 'en') return `${n.toLocaleString('en-US')} ${n === 1 ? 'change' : 'changes'}`;
-  const form = new Intl.PluralRules('ar').select(n);
-  return form === 'one' || form === 'two' ? CHANGES[form] : `${n.toLocaleString('en-US')} ${CHANGES[form] ?? CHANGES.other}`;
-};
-const ROWS = 7;
-
-function commitRecord({ commits, releases }, locale, t, h2) {
-  const day = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-u-nu-latn' : 'en', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-  const on = (date) => day.format(new Date(date));
-  const columns = Math.ceil(commits.count / ROWS);
-  let n = 0, lastColumn = -9;
-  const cells = [], axis = [];
-  for (const [date, levels] of commits.days) {
-    const column = Math.floor(n / ROWS), name = on(date);
-    if (column - lastColumn >= (axis.length === 1 ? 5 : 2)) { axis.push(`<span style="--c:${column + 1}">${axis.length ? Number(date.slice(8)) : name}</span>`); lastColumn = column; }
-    for (const level of levels) { cells.push(`<i data-l="${level}" data-day="${date}"></i>`); n += 1; }
-  }
-  const tips = Object.fromEntries(commits.days.map(([date, levels]) => [date, `${on(date)}: ${changeCount(levels.length, locale)}`]));
-  const summary = t(`${changeCount(commits.count, locale)} على شيفرة مُعين من ${on(commits.days[0][0])} إلى ${on(commits.days.at(-1)[0])}`, `${changeCount(commits.count, locale)} to Moeen’s code from ${on(commits.days[0][0])} to ${on(commits.days.at(-1)[0])}`);
-  const facts = [releases && [releases.count, t('الإصدارات المنشورة', 'Published releases')], [commits.merged, t('طلبات الدمج المعتمدة', 'Merged pull requests')], releases && [`<bdi dir="ltr">v${releases.latest}</bdi>`, t('أحدث إصدار', 'Latest release')]].filter(Boolean);
-  return `<section class="ship">${h2(t('من أول سطر حتى الآن', 'From the first line until now'), t('كل مربّع تعديل وصل إلى مُعين.', 'Each square is a change that reached Moeen.'))}
-      <div class="commits" data-commits data-tips="${JSON.stringify(tips).replaceAll('"', '&quot;')}" style="--columns:${columns}">
-        <div class="commits__head"><p>${summary}</p><p class="commits__key" aria-hidden="true">${t('تعديل صغير', 'Small')}<i data-l="1"></i><i data-l="2"></i><i data-l="3"></i><i data-l="4"></i>${t('كبير', 'Large')}</p></div>
-        <div class="commits__grid" role="img" aria-label="${summary}">${cells.join('')}</div>
-        <div class="commits__axis" aria-hidden="true">${axis.join('')}</div>
-        <span class="commits__tip" data-commits-tip aria-hidden="true" hidden></span>
-      </div>
-      <dl class="co-cells co-cells--${facts.length} ship__facts">${facts.map(([value, name]) => `<div><dd>${value}</dd><dt>${name}</dt></div>`).join('')}</dl></section>`;
-}
-
-const commitCharts = new WeakMap();
-
-function showDay(commits, cell) {
-  const day = cell?.dataset.day;
-  let chart = commitCharts.get(commits);
-  if (!chart && day) {
-    const cellsByDay = new Map();
-    for (const square of commits.querySelectorAll('[data-day]')) {
-      const date = square.dataset.day;
-      if (!cellsByDay.has(date)) cellsByDay.set(date, []);
-      cellsByDay.get(date).push(square);
-    }
-    chart = {
-      cellsByDay,
-      labels: JSON.parse(commits.dataset.tips),
-      tip: commits.querySelector('[data-commits-tip]'),
-      day: undefined,
-    };
-    commitCharts.set(commits, chart);
-  }
-  if (!chart || chart.day === day) return;
-
-  const { cellsByDay, labels, tip } = chart;
-  for (const square of cellsByDay.get(chart.day) ?? []) square.classList.remove('is-on');
-  chart.day = day;
-  tip.hidden = !day;
-  if (!day) return;
-
-  // A date can span several columns. Keep its label anchored until the date changes.
-  for (const square of cellsByDay.get(day)) square.classList.add('is-on');
-  tip.textContent = labels[day];
-  const box = commits.getBoundingClientRect();
-  const at = cell.getBoundingClientRect();
-  const half = tip.offsetWidth / 2;
-  tip.style.left = `${Math.min(Math.max(at.left + at.width / 2 - box.left, half), box.width - half)}px`;
-  tip.style.top = `${at.top - box.top}px`;
-}
-
 // ---- About: a letter standing in the meadow, then the record of what shipped ------------------------
 pages.about = (locale, { feed }) => {
   const { t, L, h2 } = kit('about', locale);
@@ -225,7 +155,7 @@ pages.about = (locale, { feed }) => {
     [t('ما نبنيه', 'What we’re building'), t('مُعين مساحة عمل يتشاركها الناس ووكلاء الذكاء الاصطناعي. تجتمع فيها المهام والمحادثات والاجتماعات والبريد والملفات، ويعمل الجميع على السجلات نفسها. ما تنجزه من الواجهة يمكنك أن تفوّضه إلى وكيل ضمن صلاحياتك، وما يحتاج إلى قرار ينتظر موافقة إنسان، ويبقى أثره في سجل التدقيق.', 'Moeen is a workspace shared by people and AI agents. Tasks, chat, meetings, mail and files live together, and everyone works on the same records. What you do from the interface, you can delegate to an agent within your permissions. What needs a decision waits for a person, and its trace stays in the audit log.')],
     [t('لماذا نبدأ بالعربية', 'Why we start with Arabic'), t('لأن الفريق الذي يعمل بالعربية يستحق أداة صُمّمت بلغته من البداية. نكتب كل شاشة بالعربية أولاً، ونبنيها من اليمين، ثم نتيحها بالإنجليزية لمن أرادها. ويعمل الفريق بلغتيه على المهام والمحادثات نفسها.', 'Because a team that works in Arabic deserves a tool designed in its language from the start. We write every screen in Arabic first and build it from the right, then offer it in English to anyone who prefers it. Both languages work on the same tasks and conversations.')],
   ];
-  const record = feed?.commits ? commitRecord(feed, locale, t, h2) : '';
+  const record = feed?.commits ? contributionCalendar(feed, locale) : '';
   return `<div class="fp fp--about">
     <section class="letter"><img class="letter__bg" src="/assets/hero/meadow.webp" alt="" width="1536" height="1024"><div class="letter__fade" aria-hidden="true"></div>
       <header><span class="eyebrow">${L(entry.label)}</span><h1><span>${L(entry.title)}</span></h1></header>
@@ -241,15 +171,15 @@ export function companyPage(page, locale, context) {
 
 // ---- Pricing --------------------------------------------------------------------------------------
 
-const dollars = (cents) => `$${Math.round(cents / 100).toLocaleString('en-US')}`;
-const money = (cents) => `<bdi dir="ltr">${dollars(cents)}</bdi>`;
+const MAX_TOOL_PRICE = 50_000;
+const money = (cents) => `<bdi dir="ltr" data-usd-cents="${cents}">${formatPrice(cents, DEFAULT_CURRENCY)}</bdi>`;
 const SEATS = { ar: { one: 'مقعد واحد', two: 'مقعدان', few: 'مقاعد', many: 'مقعداً', other: 'مقعد' }, en: { one: 'seat', other: 'seats' } };
 function seatCount(count, locale) {
   const form = new Intl.PluralRules(locale).select(count), word = SEATS[locale][form] ?? SEATS[locale].other;
   return locale === 'ar' && (form === 'one' || form === 'two') ? word : `${count} ${word}`;
 }
 
-// Paid per-seat rates with annual billing, in USD. Visitors can edit every rate.
+// Paid per-seat rates with annual billing, in USD cents. Visitors can edit every rate.
 const TOOL_CATEGORIES = {
   chat: ['المحادثات', 'Chat'],
   tasks: ['المهام', 'Tasks'],
@@ -259,22 +189,22 @@ const TOOL_CATEGORIES = {
   ai: ['الذكاء الاصطناعي', 'AI'],
 };
 const TOOLS = [
-  { id: 'slack', name: 'Slack', category: 'chat', price: 7.25, selected: true },
-  { id: 'jira', name: 'Jira', category: 'tasks', price: 7.91, selected: true },
-  { id: 'asana', name: 'Asana Starter', category: 'tasks', price: 10.99 },
-  { id: 'trello', name: 'Trello Standard', category: 'tasks', price: 5 },
-  { id: 'linear', name: 'Linear Basic', category: 'tasks', price: 10 },
-  { id: 'notion', name: 'Notion', category: 'docs', price: 10, selected: true },
-  { id: 'google_workspace', name: 'Google Workspace Starter', category: 'mail', price: 7, logo: 'gmail' },
-  { id: 'zoom', name: 'Zoom', category: 'meetings', price: 13.33 },
-  { id: 'chatgpt', name: 'ChatGPT Business', category: 'ai', price: 20, selected: true },
-  { id: 'claude', name: 'Claude Team', category: 'ai', price: 20 },
+  { id: 'slack', name: 'Slack', category: 'chat', cents: 725, selected: true },
+  { id: 'jira', name: 'Jira', category: 'tasks', cents: 791, selected: true },
+  { id: 'asana', name: 'Asana Starter', category: 'tasks', cents: 1099 },
+  { id: 'trello', name: 'Trello Standard', category: 'tasks', cents: 500 },
+  { id: 'linear', name: 'Linear Basic', category: 'tasks', cents: 1000 },
+  { id: 'notion', name: 'Notion', category: 'docs', cents: 1000, selected: true },
+  { id: 'google_workspace', name: 'Google Workspace Starter', category: 'mail', cents: 700, logo: 'gmail' },
+  { id: 'zoom', name: 'Zoom', category: 'meetings', cents: 1333 },
+  { id: 'chatgpt', name: 'ChatGPT Business', category: 'ai', cents: 2000, selected: true },
+  { id: 'claude', name: 'Claude Team', category: 'ai', cents: 2000 },
 ];
 const AI_TOOLS = new Set(TOOLS.filter(tool => tool.category === 'ai').map(tool => tool.id));
 
 /** Yearly totals in cents. AI needs Pro; more than three seats need Plus; otherwise Free is enough. */
 function savings(tools, seats, rates) {
-  const now = Math.round(tools.reduce((sum, [, price]) => sum + price * 100, 0)) * seats * 12;
+  const now = tools.reduce((sum, [, cents]) => sum + cents, 0) * seats * 12;
   const plan = tools.some(([id]) => AI_TOOLS.has(id)) ? 'pro' : seats > 3 ? 'plus' : 'free';
   const moeen = rates[plan] * seats * 12;
   return { now, plan, moeen, save: Math.max(0, now - moeen), share: now ? Math.min(100, Math.round((moeen / now) * 100)) : 0 };
@@ -316,11 +246,20 @@ export function pricingPage(locale, { plans, lifetimePrice, questions, text, tit
     [t('الدعم', 'Support'), [[privateSupport, plans.map(plan => plan.id === 'free' ? no : yes)], [featureRequest, pro]]],
   ];
   const paid = plans.filter((plan) => plan.monthly);
-  const start = savings(TOOLS.filter(tool => tool.selected).map(({ id, price }) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
+  const start = savings(TOOLS.filter(tool => tool.selected).map(({ id, cents }) => [id, cents]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
   return `<div class="fp fp--pricing">
     <header class="fp-hero fp-hero--center"><span class="eyebrow">${label}</span><h1><span>${title}.</span> <span class="dim">${lead}</span></h1>
-      <fieldset class="pr-cadence" data-plan-cadence><legend class="page-sr">${text.cadence}</legend>
-        ${['annual', 'monthly'].map((id) => `<label><input type="radio" name="cadence" value="${id}"${id === 'annual' ? ' checked' : ''}><span>${text[id]}${id === 'annual' ? `<em>${t('وفّر حتى', 'Save up to')} <bdi dir="ltr">${Math.max(...paid.map(save))}%</bdi></em>` : ''}</span></label>`).join('')}</fieldset></header>
+      <div class="pr-controls">
+        <fieldset class="pr-cadence" data-plan-cadence><legend class="page-sr">${text.cadence}</legend>
+          ${['annual', 'monthly'].map((id) => `<label><input type="radio" name="cadence" value="${id}"${id === 'annual' ? ' checked' : ''}><span>${text[id]}${id === 'annual' ? `<em>${t('وفّر حتى', 'Save up to')} <bdi dir="ltr">${Math.max(...paid.map(save))}%</bdi></em>` : ''}</span></label>`).join('')}
+        </fieldset>
+        <label class="pr-currency">
+          <span class="page-sr">${t('العملة', 'Currency')}</span>
+          <select data-pricing-currency>${Object.entries(CURRENCY_OPTIONS).map(([id, option]) => `<option value="${id}">${option.label}</option>`).join('')}</select>
+          <svg class="i i--xs" aria-hidden="true"><use href="#i-chev"/></svg>
+        </label>
+      </div>
+    </header>
     <section class="pr-plans" aria-label="${t('الخطط', 'Plans')}">${plans.map((plan) => { const [intro, list] = includes[plan.id]; return `<article class="pr-plan pr-plan--${plan.id}">
       <img class="pr-plan__art" alt="" width="96" height="76" src="/assets/iso/light/plan_${plan.id}.svg" data-light="/assets/iso/light/plan_${plan.id}.svg" data-dark="/assets/iso/dark/plan_${plan.id}.svg">
       <header><h2 data-plain>${L(plan.title)}</h2>${plan.id === 'pro' ? '<span class="tile__tag" dir="ltr">AI</span>' : ''}</header>
@@ -342,15 +281,16 @@ export function pricingPage(locale, { plans, lifetimePrice, questions, text, tit
     <p class="pr-terms">${text.priceTerms}</p>
 
     ${seam('hatch')}
-    <section class="calc" data-calc data-plans="${plans.map((plan) => `${plan.id}:${plan.annual}`).join(',')}">
+    <section class="calc" data-calc data-currency="${DEFAULT_CURRENCY}" data-plans="${plans.map((plan) => `${plan.id}:${plan.annual}`).join(',')}">
       <div class="calc__tools"><h2><span>${t('احسب ما توفّره مع مُعين.', 'See what you save with Moeen.')}</span> <span class="dim">${t('ضع علامة على ما تدفعه اليوم.', 'Tick what you pay for today.')}</span></h2>
-        <ul>${TOOLS.map(({ id, name, category, price, selected, logo = id }) => `<li><label><input type="checkbox" data-calc-tool="${id}"${selected ? ' checked' : ''}><img src="/assets/logos/${logo}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b><bdi>${name}</bdi></b><small>${t(...TOOL_CATEGORIES[category])}</small></span></label><span class="calc__price" dir="ltr">$<input type="number" min="0" max="500" step="0.01" value="${price}" data-calc-price="${id}" aria-label="${t(`سعر المقعد شهرياً في ${name}`, `${name} price per seat per month`)}"></span></li>`).join('')}</ul>
+        <ul>${TOOLS.map(({ id, name, category, cents, selected, logo = id }) => `<li><label><input type="checkbox" data-calc-tool="${id}"${selected ? ' checked' : ''}><img src="/assets/logos/${logo}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b><bdi>${name}</bdi></b><small>${t(...TOOL_CATEGORIES[category])}</small></span></label><span class="calc__price" dir="ltr"><span data-calc-unit>$</span><input type="number" inputmode="numeric" min="0" max="${wholePrice(MAX_TOOL_PRICE, DEFAULT_CURRENCY)}" step="1" value="${wholePrice(cents, DEFAULT_CURRENCY)}" data-calc-price="${id}" data-calc-cents="${cents}" aria-label="${t(`سعر المقعد شهريًا في ${name}`, `${name} price per seat per month`)}" aria-describedby="calc-currency"></span></li>`).join('')}</ul>
         <p>${t('أسعار إرشادية لكل مقعد شهرياً مع الفوترة السنوية، راجعناها في نوفمبر 2026. عدّلها إلى ما تدفعه فعلاً، فالخطط تختلف في ميزاتها ولا يغطي مُعين كل ميزة في كل أداة.', 'Guide prices per seat per month, billed yearly, checked in November 2026. Change them to what you actually pay: plans differ, and Moeen doesn’t cover every feature of every tool.')}</p></div>
+      <span id="calc-currency" class="page-sr">${DEFAULT_CURRENCY}</span>
       <div class="calc__result" aria-live="polite">
         <label class="calc__seats"><span>${t('عدد المقاعد', 'Seats')}</span><output data-calc-seats>${seatCount(10, locale)}</output><input type="range" min="1" max="100" value="10" data-calc-range aria-label="${t('عدد المقاعد', 'Seats')}"></label>
-        <p class="calc__save"><small>${t('توفّر تقديراً في السنة', 'Estimated savings a year')}</small><strong data-calc-save dir="ltr">${dollars(start.save)}</strong></p>
-        <div class="calc__bars"><div><p><span>${t('اشتراكاتك اليوم', 'Your subscriptions today')}</span><b data-calc-now dir="ltr">${dollars(start.now)}</b></p><i class="is-now" data-calc-bar-now></i></div>
-          <div><p><span>${t('مُعين', 'Moeen')} <em data-calc-plan>${L(plans.find((plan) => plan.id === start.plan).title)}</em></span><b data-calc-moeen dir="ltr">${dollars(start.moeen)}</b></p><i class="is-moeen" data-calc-bar style="inline-size:${start.share}%"></i></div></div>
+        <p class="calc__save"><small>${t('توفّر تقديراً في السنة', 'Estimated savings a year')}</small><strong data-calc-save dir="ltr">${formatPrice(start.save, DEFAULT_CURRENCY)}</strong></p>
+        <div class="calc__bars"><div><p><span>${t('اشتراكاتك اليوم', 'Your subscriptions today')}</span><b data-calc-now dir="ltr">${formatPrice(start.now, DEFAULT_CURRENCY)}</b></p><i class="is-now" data-calc-bar-now></i></div>
+          <div><p><span>${t('مُعين', 'Moeen')} <em data-calc-plan>${L(plans.find((plan) => plan.id === start.plan).title)}</em></span><b data-calc-moeen dir="ltr">${formatPrice(start.moeen, DEFAULT_CURRENCY)}</b></p><i class="is-moeen" data-calc-bar style="inline-size:${start.share}%"></i></div></div>
         <p class="calc__none" data-calc-none hidden>${t('بهذه الأرقام لا يظهر توفير. أضف أداة أو غيّر السعر.', 'These numbers show no saving. Add a tool or change a price.')}</p>
       </div>
     </section>
@@ -383,18 +323,53 @@ function showTopic(help, id) {
   help.querySelectorAll('[data-help-answer]').forEach((a) => { a.hidden = a.dataset.helpAnswer !== id; });
 }
 
+function updateSavings(calc) {
+  const seats = Number(calc.querySelector('[data-calc-range]').value);
+  const tools = [...calc.querySelectorAll('[data-calc-tool]:checked')].map((box) => {
+    const id = box.dataset.calcTool;
+    const input = calc.querySelector(`[data-calc-price="${id}"]`);
+    return [id, Number(input.dataset.calcCents)];
+  });
+  const rates = Object.fromEntries(calc.dataset.plans.split(',').map((plan) => plan.split(':')).map(([id, rate]) => [id, Number(rate)]));
+  const result = savings(tools, seats, rates);
+  const { currency } = calc.dataset;
+  calc.querySelector('[data-calc-range]').style.setProperty('--at', `${((seats - 1) / 99) * 100}%`);
+  calc.querySelector('[data-calc-seats]').textContent = seatCount(seats, document.documentElement.lang);
+  calc.querySelector('[data-calc-now]').textContent = formatPrice(result.now, currency);
+  calc.querySelector('[data-calc-moeen]').textContent = formatPrice(result.moeen, currency);
+  calc.querySelector('[data-calc-save]').textContent = formatPrice(result.save, currency);
+  calc.querySelector('[data-calc-bar]').style.inlineSize = `${result.share}%`;
+  calc.querySelector('[data-calc-bar-now]').style.inlineSize = result.now ? '100%' : '0';
+  calc.querySelector('[data-calc-none]').hidden = result.save > 0;
+  calc.querySelector('[data-calc-plan]').textContent = document.querySelector(`.pr-plan--${result.plan} h2`).textContent;
+}
+
+export function applyPricingCurrency(content, currency) {
+  content.querySelector('[data-pricing-currency]').value = currency;
+  for (const amount of content.querySelectorAll('[data-usd-cents]')) {
+    amount.textContent = formatPrice(Number(amount.dataset.usdCents), currency);
+  }
+  const calc = content.querySelector('[data-calc]');
+  calc.dataset.currency = currency;
+  calc.querySelector('#calc-currency').textContent = currency;
+  for (const unit of calc.querySelectorAll('[data-calc-unit]')) {
+    unit.textContent = CURRENCY_OPTIONS[currency].unit;
+  }
+  for (const input of calc.querySelectorAll('[data-calc-price]')) {
+    input.max = wholePrice(MAX_TOOL_PRICE, currency);
+    input.value = wholePrice(Number(input.dataset.calcCents), currency);
+  }
+  updateSavings(calc);
+}
+
+function updateEditedPrice(input, currency) {
+  const amount = Math.min(Number(input.max), Math.max(0, Math.round(input.valueAsNumber || 0)));
+  input.dataset.calcCents = amount * 100 / CURRENCY_OPTIONS[currency].rate;
+  return amount;
+}
+
 /** Delegated on the content element, so they survive the re-render after a language change. */
 export function initCompanyPage(content) {
-  content.addEventListener('pointerover', (event) => {
-    if (event.pointerType === 'touch') return;
-    const grid = event.target.closest('.commits__grid');
-    if (grid) showDay(grid.closest('[data-commits]'), event.target.closest('[data-day]'));
-  });
-  content.addEventListener('pointerout', (event) => {
-    if (event.pointerType === 'touch') return;
-    const grid = event.target.closest('.commits__grid');
-    if (grid && !grid.contains(event.relatedTarget)) showDay(grid.closest('[data-commits]'), null);
-  });
   content.addEventListener('click', (event) => {
     const { target } = event;
     const pick = target.closest('[data-share-pick]');
@@ -427,19 +402,14 @@ export function initCompanyPage(content) {
     }
     const calc = target.closest('[data-calc]');
     if (!calc) return;
-    const seats = Number(calc.querySelector('[data-calc-range]').value);
-    const tools = [...calc.querySelectorAll('[data-calc-tool]')].filter((box) => box.checked).map((box) => [box.dataset.calcTool, Math.max(0, Number(calc.querySelector(`[data-calc-price="${box.dataset.calcTool}"]`).value) || 0)]);
-    const rates = Object.fromEntries(calc.dataset.plans.split(',').map((plan) => plan.split(':')).map(([id, rate]) => [id, Number(rate)]));
-    const result = savings(tools, seats, rates), locale = document.documentElement.lang === 'en' ? 'en' : 'ar';
-    calc.querySelector('[data-calc-range]').style.setProperty('--at', `${((seats - 1) / 99) * 100}%`);
-    calc.querySelector('[data-calc-seats]').textContent = seatCount(seats, locale);
-    calc.querySelector('[data-calc-now]').textContent = dollars(result.now);
-    calc.querySelector('[data-calc-moeen]').textContent = dollars(result.moeen);
-    calc.querySelector('[data-calc-save]').textContent = dollars(result.save);
-    calc.querySelector('[data-calc-bar]').style.inlineSize = `${result.share}%`;
-    calc.querySelector('[data-calc-bar-now]').style.inlineSize = result.now ? '100%' : '0';
-    calc.querySelector('[data-calc-none]').hidden = result.save > 0;
-    calc.querySelector('[data-calc-plan]').textContent = document.querySelector(`.pr-plan--${result.plan} h2`).textContent;
+    if (target.matches('[data-calc-price]')) updateEditedPrice(target, calc.dataset.currency);
+    updateSavings(calc);
+  });
+
+  content.addEventListener('change', (event) => {
+    const input = event.target;
+    if (!input.matches('[data-calc-price]')) return;
+    input.value = updateEditedPrice(input, input.closest('[data-calc]').dataset.currency);
   });
 
   // Arrow keys walk the help topics from the search field.

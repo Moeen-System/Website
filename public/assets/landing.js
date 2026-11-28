@@ -105,7 +105,7 @@ const EN = {
   ai_title: "AI starts with your team’s context.",
   ai_library_alt: "Shared launch files in the Moeen library",
   ai_request_alt: "A request in the product channel to summarize what remains before launch and create missing tasks",
-  ai_response_alt: "A demo reply from AI summarizing what remains before launch and attaching a new task",
+  ai_response_alt: "A demo AI reply that summarizes what remains before launch and names the task it created",
   ai_context_title: "Shared knowledge the agent can draw on",
   ai_context_copy: "On Pro, AI can use Moeen documents and conversations that you have permission to see.",
   ai_actions_title: "Turn information into a task",
@@ -186,7 +186,10 @@ function render() {
   root.dataset.theme = theme;
   document.title = PAGE_TITLE[locale];
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0e0e0f' : '#fafafa';
-  document.querySelectorAll('[data-i18n]').forEach((node) => { node.textContent = pick(node.dataset.i18n, AR.text); });
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const text = pick(node.dataset.i18n, AR.text);
+    if (node.textContent !== text) node.textContent = text;
+  });
   document.querySelectorAll('[data-i18n-label]').forEach((node) => { node.setAttribute('aria-label', pick(node.dataset.i18nLabel, AR.label)); });
   if (locale === 'ar') document.querySelectorAll(SWASH).forEach((node) => { node.innerHTML = swash(node.innerHTML); });
   document.querySelectorAll('[data-i18n-alt]').forEach((node) => { node.alt = pick(node.dataset.i18nAlt, AR.alt); });

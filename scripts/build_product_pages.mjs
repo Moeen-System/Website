@@ -1,5 +1,5 @@
 import { buildFooter } from './build_footer.mjs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { copy, escape, hasStory, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
 import { sitePages } from '../public/assets/site_content.js';
 import { buildNavigation } from './build_navigation.mjs';
@@ -15,6 +15,7 @@ function pageDocument(page, context, symbols, fontScript) {
 <html lang="ar" dir="rtl" data-theme="light" data-density="compact" data-product-page="${page}">
 <head>
 <meta charset="utf-8">
+${fontScript}
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${title}</title>
 <meta name="description" content="${description}">
@@ -29,12 +30,12 @@ function pageDocument(page, context, symbols, fontScript) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;family=Noto+Naskh+Arabic:wght@400;500&amp;family=Newsreader:opsz,wght@6..72,400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
 <script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/arabic_font.css">
 <link rel="stylesheet" href="/assets/landing.css">
 <link rel="stylesheet" href="/assets/product_pages.css">
 <link rel="stylesheet" href="/assets/feature_pages.css">
 <link rel="stylesheet" href="/assets/company_pages.css">
 <script type="module" src="/assets/product_pages.js"></script>
-${fontScript}
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true">${symbols}</svg>
@@ -67,22 +68,24 @@ async function getFeed(page, url) {
 }
 
 export async function buildProductPages(root, origin, landing, fontScript) {
-  const [changelog, roadmap, productIcons] = await Promise.all([
+  const [changelog, roadmap, productIcons, captureNames] = await Promise.all([
     getFeed('changelog', origin + '/changelog/releases.json'),
     getFeed('roadmap', origin + '/roadmap.json'),
     readFile(root + 'scripts/product_status_icons.svg', 'utf8'),
+    readdir(root + 'public/assets/changelog_captures/'),
   ]);
   const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev|menu)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
   if (common.length !== 7) throw new Error('Missing product page icons in the landing sprite');
   const symbols = common.join('') + productIcons;
-  // The About page draws the app's real history; Join us lists what the roadmap says is next.
+  // About and Changelog share the App contribution record.
   const releases = changelog && { count: changelog.releases.length, latest: changelog.releases[0].version };
   const commits = JSON.parse(await readFile(root + 'scripts/commit_log.json', 'utf8'));
-  const feeds = { roadmap, changelog, join: roadmap, about: { releases, commits } };
+  const activity = { releases, commits };
+  const feeds = { roadmap, changelog, join: roadmap, about: activity };
   await Promise.all(pages.map(async page => {
     const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });
-    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null }, symbols, fontScript));
+    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null, ...(page === 'changelog' ? { activity, captureNames } : {}) }, symbols, fontScript));
   }));
   console.log(`Built ${pages.length} product, company and resource pages.`);
 }

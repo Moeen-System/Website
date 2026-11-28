@@ -2,6 +2,7 @@ import { buildFooter } from './build_footer.mjs';
 import { buildNavigation } from './build_navigation.mjs';
 import { buildProductPages } from './build_product_pages.mjs';
 import { buildWebfonts } from './build_webfonts.mjs';
+import { swashHeaders } from '../public/assets/swash.js';
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -24,11 +25,16 @@ await cp(root+'public',root+'dist',{
   filter:source=>!production || !source.startsWith(root+'public/assets/fonts/thmanyah'),
 });
 const fontScript = production ? await buildWebfonts(root) : '';
-await writeFile(root+'dist/index.html',publishable.replace('<!-- SITE_NAVIGATION -->',buildNavigation()).replace('<!-- SITE_FOOTER -->',buildFooter()).replace('</head>', fontScript + '\n</head>'));
+const homepage = publishable
+  .replace(/<main\b[\s\S]*?<\/main>/, swashHeaders)
+  .replace('<!-- SITE_NAVIGATION -->', buildNavigation())
+  .replace('<!-- SITE_FOOTER -->', buildFooter())
+  .replace('<!-- THMANYAH_WEBFONT -->', fontScript);
+await writeFile(root + 'dist/index.html', homepage);
 if(production){
-  const styles=await readFile(root+'dist/assets/landing.css','utf8');
+  const styles=await readFile(root+'dist/assets/arabic_font.css','utf8');
   const previewFontFiles=/,\n    url\(\/assets\/fonts\/thmanyahsans-[A-Za-z]+\.woff2\) format\("woff2"\)/g;
-  await writeFile(root+'dist/assets/landing.css',styles.replace(previewFontFiles,''));
+  await writeFile(root+'dist/assets/arabic_font.css',styles.replace(previewFontFiles,''));
 }
 const script=await readFile(root+'public/site.js','utf8');
 if(!script.includes("'__WAITLIST_ENDPOINT__'"))throw Error('Missing endpoint marker.');
@@ -37,6 +43,6 @@ const copy=JSON.parse(script.match(/const COPY = (.+);/)[1]);
 const escape=value=>value.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 let html=await readFile(root+'public/waitlist/index.html','utf8');
 for(const [tag,key]of [['h1','headline'],['p','lead'],['label','label'],['button','button']])html=html.replace(new RegExp(`(<${tag}[^>]*data-text="${key}"[^>]*>)(</${tag}>)`),`$1${escape(copy.ar[key])}$2`);
-await writeFile(root+'dist/waitlist/index.html',html.replace('</head>', fontScript + '\n</head>'));
+await writeFile(root+'dist/waitlist/index.html',html.replace('<!-- THMANYAH_WEBFONT -->', fontScript));
 console.log('Built the Moeen landing page and the waitlist page with the public enrollment action.');
 await buildProductPages(root, endpoint.origin, landing, fontScript);
