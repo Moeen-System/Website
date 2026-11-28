@@ -123,24 +123,35 @@ export function initNavigation() {
   }
 
   const assets = new Map();
-  for (const [index, img] of [...mega.querySelectorAll('img[data-light]')].entries()) {
-    const url = img.dataset.light;
-    if (!assets.has(url)) assets.set(url, fetch(url).then(response => response.ok ? response.text() : ''));
-    assets.get(url).then(markup => {
-      const holder = document.createElement('div');
-      holder.innerHTML = markup
-        .replace(/id="([^"]+)"/g, (_, id) => `id="menu-${index}-${id}"`)
-        .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`)
-        .replace(/href="#([^"]+)"/g, (_, id) => `href="#menu-${index}-${id}"`);
-      const svg = holder.querySelector('svg');
-      if (!svg) return;
-      svg.setAttribute('aria-hidden', 'true');
-      svg.setAttribute('focusable', 'false');
-      img.replaceWith(svg);
-    }).catch(() => {});
+  const art = [...mega.querySelectorAll('img[data-light]')].map(image => ({ image, slot: image.parentElement }));
+  let artTheme;
+
+  function renderMenuArt(theme) {
+    if (theme === artTheme) return;
+    artTheme = theme;
+    for (const [index, { image, slot }] of art.entries()) {
+      const url = image.dataset[theme];
+      image.src = url;
+      if (!assets.has(url)) assets.set(url, fetch(url).then(response => response.ok ? response.text() : '').catch(() => ''));
+      assets.get(url).then(markup => {
+        if (theme !== artTheme) return;
+        const holder = document.createElement('div');
+        holder.innerHTML = markup
+          .replace(/id="([^"]+)"/g, (_, id) => `id="menu-${index}-${id}"`)
+          .replace(/url\(#([^)]+)\)/g, (_, id) => `url(#menu-${index}-${id})`)
+          .replace(/href="#([^"]+)"/g, (_, id) => `href="#menu-${index}-${id}"`);
+        const svg = holder.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('aria-hidden', 'true');
+          svg.setAttribute('focusable', 'false');
+        }
+        slot.replaceChildren(svg ?? image);
+      });
+    }
   }
 
   return (locale, theme) => {
+    renderMenuArt(theme);
     for (const [node, ar] of labels) node.textContent = locale === 'en' ? node.dataset.navEn : ar;
     for (const [node, ar] of ariaLabels) node.setAttribute('aria-label', locale === 'en' ? node.dataset.navEnLabel : ar);
     for (const [node, ar] of localizedLinks) node.href = locale === 'en' ? node.dataset.hrefEn : ar;
