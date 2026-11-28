@@ -194,7 +194,7 @@
 .calc__tools label { flex: 1; display: flex; align-items: center; gap: 11px; padding: 9px 12px; cursor: pointer; }
 .calc__tools label span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; } .calc__tools b { font-size: 13.5px; font-weight: 500; } .calc__tools small { color: var(--muted); font-size: 12px; }
 .calc__tools input[type="checkbox"] { inline-size: 15px; block-size: 15px; margin: 0; accent-color: var(--brand); }
-.calc__tools li:not(:has(:checked)) :is(img, b, .calc__price) { opacity: .42; }
+.calc__tools li:not(:has(:checked)) img { opacity: .65; }
 .calc__price { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font: 12.5px var(--font); }
 .calc__price input { inline-size: 52px; border: 0; background: none; color: var(--ink); font: inherit; text-align: end; appearance: textfield; outline: 0; } .calc__price:focus-within { border-color: var(--brand); }
 .calc__price input::-webkit-inner-spin-button { appearance: none; }
