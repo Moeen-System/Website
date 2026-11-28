@@ -48,14 +48,14 @@ export const infoPages = {
     path: '/product/architecture/', label: pair('بنية مُعين الهجينة', 'Hybrid architecture'), teaser: pair('إجراءات وصلاحيات مشتركة للفريق والوكلاء', 'Shared actions and permissions'),
     title: pair('في مُعين، الإجراءات نفسها للفريق ووكلاء الذكاء الاصطناعي.', 'People and agents work through the same actions.'),
     lead: pair('يعمل الفريق والوكلاء على السجلات نفسها. ويمر كل إجراء بالصلاحيات والموافقات نفسها بحسب من ينفّذه وما يطلبه.', 'People and agents work on the same records. Each action follows the applicable permissions and approvals for the requester and the operation.'),
-    image: image('app', 2080, 1300, 'قائمة المهام في مُعين بجانب طلب أنشأ منه ai-moeen مهمة في مساحة تجريبية', 'Moeen’s task list next to a task created by ai-moeen in a demo workspace'),
+    image: image('app', 2080, 1300, 'قائمة المهام في مُعين بجانب طلب أنشأ منه AI مهمة في مساحة تجريبية', 'Moeen’s task list next to a task created by AI in a demo workspace'),
     related: ['ai_moeen', 'mcp', 'knowledge_base'],
   },
   ai_moeen: {
-    path: '/ai/ai-moeen/', label: pair('ai-moeen', 'ai-moeen'), teaser: pair('من طلب مكتوب إلى إجراء', 'From a written request to an action'),
+    path: '/ai/ai-moeen/', label: pair('AI', 'AI'), teaser: pair('من طلب مكتوب إلى إجراء', 'From a written request to an action'),
     title: pair('اكتب طلبك كما تكتبه لزميلك.', 'Ask the way you’d ask a colleague.'),
-    lead: pair('يقرأ ai-moeen طلبك بالعربية أو الإنجليزية، ويعمل على سجلات فريقك ضمن صلاحياتك.', 'ai-moeen reads your request in Arabic or English and works on your team’s records within your permissions.'),
-    image: image('ai_scene_response', 790, 450, 'رد تجريبي من ai-moeen يتضمّن ملخّصًا ومهمة جديدة', 'A demo ai-moeen reply with a summary and a new task'),
+    lead: pair('ابدأ مع AI، أو أنشئ وكيلًا بتعليمات ومهارات تناسب عملك. يعمل الوكلاء على سجلات الفريق ضمن صلاحياتك.', 'Start with AI, or create an agent with instructions and skills for your work. Agents work on team records within your permissions.'),
+    image: image('ai_scene_response', 790, 402, 'رد تجريبي من AI يتضمّن ملخّصًا ومهمة جديدة', 'A demo AI reply with a summary and a new task'),
     related: ['architecture', 'knowledge_base', 'skills'],
   },
   mcp: {
@@ -67,14 +67,14 @@ export const infoPages = {
   knowledge_base: {
     path: '/ai/knowledge-base/', label: pair('قاعدة المعرفة', 'Knowledge base'), teaser: pair('سياق العمل من مستنداتك', 'Work context from your documents'),
     title: pair('أجب عن الأسئلة من مستندات الفريق.', 'Answer team questions from the source.'),
-    lead: pair('تتيح قاعدة المعرفة في خطة برو لـ ai-moeen البحث في المستندات التي يحق لك الوصول إليها.', 'The Pro knowledge base lets ai-moeen search documents you’re allowed to access.'),
+    lead: pair('تتيح قاعدة المعرفة في خطة برو لـ AI البحث في المستندات التي يحق لك الوصول إليها.', 'The Pro knowledge base lets AI search documents you’re allowed to access.'),
     image: image('ai_scene_library', 1324, 900, 'مستندات الإطلاق في مكتبة مُعين', 'Launch documents in the Moeen library'),
     related: ['data', 'ai_moeen'],
   },
   skills: {
     path: '/ai/skills/', label: pair('المهارات', 'Skills'), teaser: pair('تعليمات تستخدمها في أكثر من طلب', 'Instructions you can reuse'),
     title: pair('اكتب طريقة العمل مرة، واخترها متى احتجت.', 'Write the steps once.'),
-    lead: pair('احفظ خطوات العمل المتكرر في مهارة، واخترها عند إرسال طلب إلى ai-moeen.', 'Save the steps for recurring work as a skill and select it when you send a request to ai-moeen.'),
+    lead: pair('احفظ خطوات العمل المتكرر في مهارة، واخترها عند إرسال طلب إلى AI.', 'Save the steps for recurring work as a skill and select it when you send a request to AI.'),
     related: ['ai_moeen', 'knowledge_base'],
   },
   integrations: {
@@ -117,7 +117,7 @@ export const infoPages = {
     path: '/blog/from-conversation-to-task/', label: pair('من النقاش إلى مهمة واضحة للفريق', 'From a team discussion to a clear task'),
     topic: pair('تنظيم العمل', 'Ways of working'),
     lead: pair('حين يتفق الفريق على خطوة تالية، سجّلها حيث يمكن لأصحابها متابعتها.', 'When the team agrees on a next step, record it where its owners can follow through.'),
-    image: image('mod_chat', 1200, 750, 'محادثة في مُعين يتبعها إنشاء مهمة', 'A Moeen conversation followed by task creation'),
+    image: image('mod_chat', 1200, 750, 'نقاش في قناة المنتج في مُعين', 'A discussion in the Moeen product channel'),
     related: ['chat', 'tasks'],
   },
   approvals_post: {

@@ -6,7 +6,7 @@ Run `node scripts/build_site.mjs`. It uses the public `WAITLIST_API_URL` from th
 
 Production reads the project owner's Thmanyah Sans webfont bundle from the Render secret file `thmanyah_webfonts.json`. Its three keys are `400`, `500` and `600 700`, each containing a base64-encoded WOFF2 face. The build packages the faces in a same-origin script for the homepage, product pages and waitlist. Browsers use IBM Plex Sans Arabic if the supplied faces are unavailable. Keep the bundle out of Git. See the [Thmanyah font license](https://font.thmanyah.com/licenses).
 
-The form calls the public `settings.join_waitlist` action on the existing Moeen API. It omits cookies, validates the address, requires an explicit submission, reports failures truthfully and never creates a workspace or account. The API stores unique normalized addresses and consent metadata. The authenticated Anas-Doleh page is the only management interface. No invitation or marketing email is sent by enrollment.
+The form calls the public `settings.join_waitlist` action on the existing Moeen API. It omits cookies, validates the address, requires an explicit submission, reports failures truthfully and never creates a workspace or account. The API stores unique normalized addresses and consent metadata. Verified product owners manage the waitlist from the Moeen super admin console. No invitation or marketing email is sent by enrollment.
 
 Hosting uses a Render static site. `app.moeen.dev` remains the workspace application. Static hosting and both custom domains are within the current included plan; outbound bandwidth and pipeline quotas still apply.
 
@@ -26,6 +26,8 @@ The app origin comes from `WAITLIST_API_URL`. The existing manually configured R
 ## Website copy
 
 Use Moeen’s Arabic natural writing skill from the App repository at `.agents/skills/arabic_natural_writing/SKILL.md` for Arabic on every website page. Draft from meaning, keep product terms consistent with the glossary, and make sure the English version makes the same claims. Check both reading directions after editing.
+
+The built-in AI is called AI in both languages. Export its black square bot from the App repository with `node scripts/build_brand.mjs` and use `brand/logo/brain/ai_bot.svg` for the website avatar. Use release-matched demo captures for the hero, Chats and AI examples.
 
 Use the rounded glyphs registered in the App repository’s `packages/ui/src/components/icon.tsx` for website controls and feature icons. The static pages embed those shapes as SVG.
 

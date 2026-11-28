@@ -78,7 +78,7 @@ const pages = {
       [t('الوصول والصلاحيات', 'Access and permissions'), 'lock', items(1)],
       [t('المهام', 'Tasks'), 'task', from('tasks', 2)],
       [t('الاجتماعات', 'Meetings'), 'video', from('meetings', 2)],
-      ['ai-moeen', 'spark', from('ai_moeen', 2)],
+      ['AI', 'spark', from('ai_moeen', 2)],
       [t('الاشتراك', 'Billing'), 'file', questions],
     ];
     let n = 0;
@@ -275,13 +275,13 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
   const about = {
     free: t('لفريق صغير يبدأ العمل على مُعين.', 'For a small team getting started.'),
     plus: t('لفريق يحتاج إلى أكثر من ثلاثة مقاعد.', 'For a team that needs more than three seats.'),
-    pro: t('لفريق يفوّض عملاً إلى ai-moeen.', 'For a team that delegates work to ai-moeen.'),
+    pro: t('لفريق يفوّض عملاً إلى AI.', 'For a team that delegates work to AI.'),
   };
   const base = [t('الفرق والمهام', 'Teams and tasks'), t('المحادثات والاجتماعات', 'Chat and meetings'), t('الملفات والبريد', 'Files and email'), t('التكاملات', 'Integrations')];
   const includes = {
     free: [null, [text.freeSeats(3), ...base]],
     plus: [t('كل ما في المجانية، ويضاف إليه:', 'Everything in Free, plus:'), [text.paidSeats]],
-    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['ai-moeen', text.knowledge]],
+    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['AI', text.knowledge]],
   };
   const save = (plan) => Math.round((1 - plan.annual / plan.monthly) * 100);
   const yes = `<span class="pr-yes">${check}</span><span class="page-sr">${t('مشمول', 'Included')}</span>`;
@@ -290,7 +290,7 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
   const table = [
     [t('الفريق', 'Team'), [[t('المقاعد', 'Seats'), plans.map((plan) => (plan.seats ? text.freeSeats(plan.seats) : text.paidSeats))], [t('الفرق', 'Teams'), every]]],
     [t('العمل', 'Work'), [[t('المهام', 'Tasks'), every], [t('المحادثات', 'Chat'), every], [t('الاجتماعات', 'Meetings'), every], [t('البريد', 'Email'), every], [t('الملفات', 'Files'), every], [t('التكاملات', 'Integrations'), every]]],
-    [t('الذكاء الاصطناعي', 'AI'), [['ai-moeen', pro], [text.knowledge, pro]]],
+    [t('الذكاء الاصطناعي', 'AI'), [['AI', pro], [text.knowledge, pro]]],
   ];
   const paid = plans.filter((plan) => plan.monthly);
   const start = savings(TOOLS.filter(([, , , , on]) => on).map(([id, , , price]) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));

@@ -41,10 +41,9 @@ const avatar = (seed, size = '') => `<span class="fp-av fp-av--${seed}${size ? `
 const shot = (name, alt, cls = '', eager = false) => `<img class="fp-shot ${cls}" data-shot="${name}" src="/assets/shots2/${name}_ar_light.png" alt="${esc(alt)}" decoding="async"${eager ? '' : ' loading="lazy"'}>`;
 // The home page headline: an ink sentence, then a grey one. swash.js closes the ink sentence.
 const stop = (text) => (/[.؟?!]$/.test(text) ? text : `${text}.`);
-const keepWhole = (text) => text.replaceAll('ai-moeen', 'ai\u2011moeen');
 const logo = (name, size = 28) => `<img src="/assets/logos/${name}.svg" alt="" width="${size}" height="${size}" loading="lazy">`;
 
-/** What ai-moeen answers once the owner or the date is crossed out of the request. */
+/** What AI answers once the owner or the date is crossed out of the request. */
 const markupReply = (owner, due, t) => {
   if (owner && due) return t('أنشأتُ المهمة وأسندتُها إلى سارة، وموعدها الخميس.', 'I created the task and assigned it to Sara, due Thursday.');
   if (owner) return t('أنشأتُ المهمة وأسندتُها إلى سارة. لم تذكر موعداً، فتركتُها بلا موعد.', 'I created the task and assigned it to Sara. You gave no date, so I left it without one.');
@@ -58,8 +57,8 @@ export function kit(page, locale) {
   const entry = infoPages[page], blocks = pageStories[page]?.blocks ?? [];
   const cta = `<a class="btn btn--solid btn--lg" href="/waitlist/"><span>${t('انضم إلى قائمة الانتظار', 'Join the waitlist')}</span><span class="btn__arrow" aria-hidden="true"><svg class="i i--xs flip"><use href="#i-arrow"/></svg></span></a>`;
   const heading = (tag, lead, rest) => {
-    const ink = keepWhole(stop(lead));
-    return `<${tag}><span>${ink}</span>${rest ? ` <span class="dim">${keepWhole(rest)}</span>` : ''}</${tag}>`;
+    const ink = stop(lead);
+    return `<${tag}><span>${ink}</span>${rest ? ` <span class="dim">${rest}</span>` : ''}</${tag}>`;
   };
   const hero = (rest) => `<span class="eyebrow">${L(entry.label)}</span>${heading('h1', L(entry.title ?? entry.label), rest)}`;
   const h1 = hero(L(entry.lead));
@@ -150,7 +149,7 @@ const pages = {
         <div class="ch-window" aria-hidden="true">
           <header>${ic('hash')}<b>${t('المنتج', 'product')}</b><span>${t('6 أعضاء', '6 members')}</span></header>
           <ol>${thread.map(msg).join('')}
-            <li class="ch-msg ch-msg--ai" style="--i:3"><span class="fp-av fp-av--ai"></span><div><p class="ch-msg__meta"><b>ai-moeen</b><time dir="ltr">09:21</time></p>
+            <li class="ch-msg ch-msg--ai" style="--i:3"><span class="fp-av fp-av--ai"></span><div><p class="ch-msg__meta"><b>AI</b><time dir="ltr">09:21</time></p>
               <p>${t('أنشأت مهمة المراجعة وأسندتها إلى ريم.', 'I created the review task and assigned it to Reem.')}</p>
               <span class="ch-task">${status('todo')}<span dir="ltr">APP-148</span>${t('مراجعة شاشة الترحيب على الهاتف', 'Review the welcome screen on mobile')}</span></div></li>
           </ol>
@@ -171,7 +170,7 @@ const pages = {
       </section>
 
       ${seam('cross')}
-      <section class="fp-scene"><div>${h2(title(0))}<p>${L(blocks[0]?.body)}</p></div>${shot('mod_chat', t('نقاش في قناة وبجانبه المهمة الناتجة عنه', 'A channel discussion next to its follow-up task'))}</section>
+      <section class="fp-scene"><div>${h2(title(0))}<p>${L(blocks[0]?.body)}</p></div>${shot('mod_chat', t('نقاش في قناة المنتج يتضمّن ردًا من AI', 'The product channel with a team discussion and an AI reply'))}</section>
 
       <a class="ch-cta" href="/waitlist/"><span>${t('اكتب أول رسالة لفريقك في مُعين', 'Write your team’s first message in Moeen')}</span><span class="ch-cta__send">${t('انضم إلى قائمة الانتظار', 'Join the waitlist')}${ic('send')}</span></a>
     </div>`;
@@ -245,7 +244,7 @@ const pages = {
       </div>
 
       ${seam('dash')}
-      <section class="ways">${h2(title(1), t('من مجلده، أو من القناة، أو بسؤال ai-moeen.', 'From its folder, its channel, or by asking ai-moeen.'))}<ol>${items(1).map((item, i) => `<li><span class="ways__icon">${ic(ways[i])}</span><h3>${L(item.title)}</h3><p>${L(item.body)}</p></li>`).join('')}</ol></section>
+      <section class="ways">${h2(title(1), t('من مجلده، أو من القناة، أو بسؤال AI.', 'From its folder, its channel, or by asking AI.'))}<ol>${items(1).map((item, i) => `<li><span class="ways__icon">${ic(ways[i])}</span><h3>${L(item.title)}</h3><p>${L(item.body)}</p></li>`).join('')}</ol></section>
 
       ${seam('dots')}
       <section class="handoff">
@@ -342,7 +341,7 @@ const pages = {
     </div>`;
   },
 
-  // ---- ai-moeen: a marked-up request ---------------------------------------------------------------
+  // ---- AI: a marked-up request ---------------------------------------------------------------
   ai_moeen(locale) {
     const { t, L, cta, h1, blocks, h2 } = kit('ai_moeen', locale);
     const mark = (key, text) => (key === 'owner' || key === 'due' ? `<button type="button" class="mk mk--${key}" data-mark="${key}" aria-pressed="true">${text}</button>` : `<span class="mk mk--${key}">${text}</span>`);
@@ -354,7 +353,7 @@ const pages = {
     const capture = (name, width, height, alt, cls = '') => `<img class="${cls}" data-shot="${name}" src="/assets/shots2/${name}_${locale}_light.png" width="${width}" height="${height}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
     const day = [
       ['09:10', t('لخّص النقاش', 'Sum up the discussion'), t('ذكره خالد في القناة، فكتب ما بقي قبل الإطلاق وأنشأ المهمة الناقصة.', 'Khalid mentioned it in the channel. It wrote what was left and created the missing task.'),
-        `<div class="day__chat">${capture('ai_scene_request', 411, 80, t('خالد يطلب من ai-moeen تلخيص ما بقي قبل الإطلاق', 'Khalid asks ai-moeen to summarize what is left'))}${capture('ai_scene_response', 395, 201, t('رد ai-moeen مع المهمة التي أنشأها', 'The ai-moeen reply with the task it created'))}</div>`],
+        `<div class="day__chat">${capture('ai_scene_request', 411, 84, t('خالد يطلب من AI تلخيص ما بقي قبل الإطلاق', 'Khalid asks AI to summarize what is left'))}${capture('ai_scene_response', 395, 201, t('رد AI مع المهمة التي أنشأها', 'The AI reply with the task it created'))}</div>`],
       ['11:30', t('أنشئ مهمة لغد', 'Create a task for tomorrow'), t('لم يذكر الطلب مسؤولاً، فبقيت المهمة بلا مسؤول. لا يخمّن من يتولّاها.', 'The request named no owner, so the task stayed unassigned. It doesn’t guess.'),
         `<div class="day__crop">${capture('plan', 375, 852, t('طلب إنشاء مهمة وخطوات تنفيذه', 'A request to create a task and the steps it ran'))}</div>`],
       ['14:05', t('شارك خطة الإطلاق', 'Share the launch plan'), t('تغيير المشاركة ينتظر صاحب الطلب. يرى الملف ومن سيطّلع عليه، ثم يقرّر.', 'A sharing change waits for the person who asked. They see the file and who will open it, then decide.'),
@@ -368,7 +367,7 @@ const pages = {
       [t('لا يصل إليه في هذا الإصدار', 'Out of reach in this release'), [t('البريد', 'Email'), t('التقاويم والملفات الخارجية', 'External calendars and drives'), t('المكالمات وتسجيلاتها', 'Calls and recordings'), t('كلمات المرور والفوترة', 'Passwords and billing')]],
     ];
     const places = [
-      [t('في قناة', 'In a channel'), t('اذكر ai-moeen ليرى الفريق الطلب والرد. يعتمد الرد على ما يحقّ لأعضاء القناة الاطّلاع عليه.', 'Mention ai-moeen so the team sees the request and the reply. The reply uses what the channel’s members may see.')],
+      [t('في قناة', 'In a channel'), t('اذكر AI ليرى الفريق الطلب والرد. يعتمد الرد على ما يحقّ لأعضاء القناة الاطّلاع عليه.', 'Mention AI so the team sees the request and the reply. The reply uses what the channel’s members may see.')],
       [t('في محادثة خاصة', 'In a private chat'), t('يرجع إلى المستندات والمحادثات المتاحة لك. راجع المصدر قبل أن تنقل الرد إلى قناة.', 'It uses the documents and conversations you can open. Check the source before moving a reply to a channel.')],
       [t('خطة برو', 'The Pro plan'), `${L(blocks[2]?.items?.[1]?.body)} <a href="/pricing/">${t('قارن الخطط', 'Compare plans')}</a>`],
     ];
@@ -377,10 +376,10 @@ const pages = {
       <section class="markup" data-markup aria-label="${t('طلب مكتوب والمهمة التي نتجت عنه', 'A written request and the task it became')}">
         <div class="markup__thread">
           <p class="markup__place">${ic('hash')}${t('المنتج', 'product')}</p>
-          <div class="markup__msg">${avatar('b')}<div><p class="markup__by"><b>${t('عمر الزهراني', 'Omar Al-Zahrani')}</b><time dir="ltr">09:20</time></p><p class="markup__text"><span class="markup__at">${keepWhole('@ai-moeen')}</span> ${ask}</p></div></div>
-          <div class="markup__msg">${avatar('ai')}<div><p class="markup__by"><b>${keepWhole('ai-moeen')}</b><time dir="ltr">09:21</time></p><p class="markup__text" data-markup-reply aria-live="polite">${markupReply(true, true, t)}</p></div></div>
+          <div class="markup__msg">${avatar('b')}<div><p class="markup__by"><b>${t('عمر الزهراني', 'Omar Al-Zahrani')}</b><time dir="ltr">09:20</time></p><p class="markup__text"><span class="markup__at">@AI</span> ${ask}</p></div></div>
+          <div class="markup__msg">${avatar('ai')}<div><p class="markup__by"><b>AI</b><time dir="ltr">09:21</time></p><p class="markup__text" data-markup-reply aria-live="polite">${markupReply(true, true, t)}</p></div></div>
         </div>
-        <div class="markup__slip"><article class="slip"><header><span dir="ltr">APP-148</span><small>${t('أنشأها', 'Created by')} ${keepWhole('ai-moeen')}</small></header><dl>
+        <div class="markup__slip"><article class="slip"><header><span dir="ltr">APP-148</span><small>${t('أنشأها', 'Created by')} AI</small></header><dl>
           ${field('title', t('المهمة', 'Task'), t('مراجعة شاشة الترحيب', 'Review the welcome screen'))}
           ${field('team', t('الفريق', 'Team'), t('إطلاق التطبيق', 'App launch'))}
           ${field('owner', t('المسؤول', 'Owner'), t('سارة العتيبي', 'Sara Al-Otaibi'), t('بلا مسؤول', 'Unassigned'))}
@@ -464,7 +463,7 @@ const pages = {
       <section class="layers">${h2(title(1), t('الفهرسة، ثم الصلاحيات، ثم المشاركة.', 'Indexing, then access, then sharing.'))}<ol>${items(1).map((item, i) => `<li style="--i:${i}"><h3>${L(item.title)}</h3><p>${L(item.body)}</p>${i === 0 ? `<p class="layers__types">${types.map((x) => `<span dir="ltr">${x}</span>`).join('')}</p>` : ''}</li>`).join('')}</ol></section>
 
       ${seam('dots')}
-      <section class="fp-scene fp-scene--wide"><div>${h2(t('إذا لم يجد ai-moeen ما طلبت', 'When a detail cannot be found'))}<p>${t('ابدأ باسم الملف وصلاحية قراءته، ثم تحقّق من حالة الفهرسة. قد يحتاج المستند الممسوح ضوئياً إلى نسخة بنص قابل للاستخراج.', 'Start with the filename and your access, then check indexing. A scanned document may need a version with extractable text.')}</p></div>${shot('ai_scene_library', t('مستندات الإطلاق في مكتبة مُعين', 'Launch documents in the Moeen library'))}</section>
+      <section class="fp-scene fp-scene--wide"><div>${h2(t('إذا لم يجد AI ما طلبت', 'When a detail cannot be found'))}<p>${t('ابدأ باسم الملف وصلاحية قراءته، ثم تحقّق من حالة الفهرسة. قد يحتاج المستند الممسوح ضوئياً إلى نسخة بنص قابل للاستخراج.', 'Start with the filename and your access, then check indexing. A scanned document may need a version with extractable text.')}</p></div>${shot('ai_scene_library', t('مستندات الإطلاق في مكتبة مُعين', 'Launch documents in the Moeen library'))}</section>
     </div>`;
   },
 
@@ -478,7 +477,7 @@ const pages = {
     ];
     return `<div class="fp fp--skills">
       <header class="deck-hero">
-        <div>${hero(t('احفظها في مهارة ترفقها بطلبك إلى ai-moeen.', 'Save them as a skill and attach it to a request.'))}${cta}</div>
+        <div>${hero(t('احفظها في مهارة ترفقها بطلبك إلى AI.', 'Save them as a skill and attach it to a request.'))}${cta}</div>
         <div class="deck" data-deck>${deck.map(([name, body, id], i) => `<button type="button" class="deck__card" data-card="${i}" aria-pressed="${i === 0}" style="--k:${i}"><span class="deck__tag">${ic('book')}${t('مهارة', 'Skill')}</span><b>${name}</b><span class="deck__body">${body}</span><span class="deck__foot" dir="ltr">/${id}</span></button>`).join('')}
           <button type="button" class="deck__next" data-deck-next>${t('المهارة التالية', 'Next skill')}${arrow}</button></div>
       </header>
