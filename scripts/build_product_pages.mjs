@@ -1,5 +1,5 @@
 import { buildFooter } from './build_footer.mjs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { copy, escape, hasStory, pageLead, pages, pageTitle, renderContent, validFeed } from '../public/assets/product_content.js';
 import { sitePages } from '../public/assets/site_content.js';
 import { buildNavigation } from './build_navigation.mjs';
@@ -67,10 +67,11 @@ async function getFeed(page, url) {
 }
 
 export async function buildProductPages(root, origin, landing, fontScript) {
-  const [changelog, roadmap, productIcons] = await Promise.all([
+  const [changelog, roadmap, productIcons, captureNames] = await Promise.all([
     getFeed('changelog', origin + '/changelog/releases.json'),
     getFeed('roadmap', origin + '/roadmap.json'),
     readFile(root + 'scripts/product_status_icons.svg', 'utf8'),
+    readdir(root + 'public/assets/changelog_captures/'),
   ]);
   const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev|menu)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
   if (common.length !== 7) throw new Error('Missing product page icons in the landing sprite');
@@ -83,7 +84,7 @@ export async function buildProductPages(root, origin, landing, fontScript) {
   await Promise.all(pages.map(async page => {
     const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });
-    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null, ...(page === 'changelog' ? { activity } : {}) }, symbols, fontScript));
+    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null, ...(page === 'changelog' ? { activity, captureNames } : {}) }, symbols, fontScript));
   }));
   console.log(`Built ${pages.length} product, company and resource pages.`);
 }

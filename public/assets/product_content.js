@@ -1,5 +1,6 @@
 import { seam } from './frame.js';
 import { contributionCalendar } from './contribution_calendar.js';
+import { captureFilename, releaseCapture } from './release_capture.js';
 import { swashHeaders } from './swash.js';
 import { blogPosts, infoPages, sitePages } from './site_content.js';
 import { pageStories } from './page_story_content.js';
@@ -144,35 +145,33 @@ function roadmap(locale, feed, status) {
     + `<div class="road-end"><a class="link" href="/changelog/">${text.changelog}${icon('arrow', 'i flip')}</a>${feed.source === 'snapshot' || status === 'error' ? `<span>${text.snapshot}</span>` : ''}</div>`;
 }
 
-const releaseIllustrations = {
-  compact_task_create: 'tasks',
-  ai_composer_height: 'ask',
-  claude_workspace_design_refresh: 'teams',
-  workspace_ai_agents: 'ask',
-  personal_recurring_reminders: 'tasks',
-  public_roadmap: 'audit',
-  meeting_platforms: 'meetings',
-  private_product_waitlist: 'people',
-  connected_mail_calendar: 'mail',
-};
+function releaseImage(release, locale, captureFiles) {
+  const capture = releaseCapture(release);
+  const file = captureFilename(release.version);
+  if (capture && captureFiles.has(file)) {
+    const { width, height } = capture.region;
+    return `<figure class="release-image"><img src="/assets/changelog_captures/${file}"
+      width="${width}" height="${height}" loading="lazy" decoding="async" alt="${localized(capture.alt, locale)}"></figure>`;
+  }
+  if (release.changes.some(change => change.id === 'workspace_ai_agents')) {
+    const alt = locale === 'ar' ? 'محادثة مع وكيل في مساحة عمل مُعين' : 'A conversation with an agent in a Moeen workspace';
+    return `<figure class="release-image"><img width="1200" height="750" data-shot="mod_ai"
+      src="/assets/shots2/mod_ai_${locale}_light.png" loading="lazy" decoding="async" alt="${alt}"></figure>`;
+  }
+  return '';
+}
 
-function releaseMarkup(release, locale) {
+function releaseMarkup(release, locale, captureFiles) {
   const text = copy(locale);
-  const artwork = release.artwork;
-  const lead = release.changes.find(change => change.kind === 'feature' && (!artwork?.featureId || change.id === artwork.featureId));
   const version = escape(release.version);
   const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(release.date));
-  const illustration = (lead && Object.hasOwn(releaseIllustrations, lead.id) ? releaseIllustrations[lead.id] : null)
-    ?? (artwork ? 'audit' : null);
-  const artworkSrc = theme => `/assets/iso/${theme}/${illustration}.svg`;
   return `<article class="release page-rows" id="v${version}" aria-labelledby="title-${version}">
     <header class="release-meta">
       <h2 id="title-${version}"><a href="#v${version}" aria-label="${escape(text.release(version))}"><bdi dir="ltr">v${version}</bdi></a></h2>
       <time datetime="${release.date}">${escape(date)}</time>
     </header>
     <div class="release-body">
-      ${illustration ? `<figure class="release-image"><img width="164" height="116" loading="lazy" decoding="async"
-        data-light="${artworkSrc('light')}" data-dark="${artworkSrc('dark')}" src="${artworkSrc('light')}" alt=""></figure>` : ''}
+      ${releaseImage(release, locale, captureFiles)}
       ${Object.entries(categories).map(([kind, symbol]) => {
         const changes = release.changes.filter(change => change.kind === kind);
         if (!changes.length) return '';
@@ -185,7 +184,7 @@ function releaseMarkup(release, locale) {
   </article>`;
 }
 
-function changelog(locale, feed, origin, activity) {
+function changelog(locale, feed, origin, activity, captureNames) {
   const text = copy(locale);
   const calendar = activity ? contributionCalendar(activity, locale) : '';
   const head = pageHead('changelog', locale) + (calendar ? seam('hatch') + calendar : '') + seam('hatch');
@@ -203,8 +202,9 @@ function changelog(locale, feed, origin, activity) {
       <ul role="list">${feed.releases.map(release => `<li><a href="#v${escape(release.version)}"><bdi dir="ltr">v${escape(release.version)}</bdi></a></li>`).join('')}</ul>
     </details>
   </div>`;
-  const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale)).join('');
-  const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale)).join('');
+  const captureFiles = new Set(captureNames);
+  const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale, captureFiles)).join('');
+  const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale, captureFiles)).join('');
   return head + index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
 }
 
@@ -294,10 +294,10 @@ function information(page, locale, feed) {
     </aside>` : ''}`;
 }
 
-export function renderContent(page, locale, { feed, origin, status, activity } = {}) {
+export function renderContent(page, locale, { feed, origin, status, activity, captureNames } = {}) {
   const html = page === 'pricing' ? pricing(locale)
     : page === 'roadmap' ? roadmap(locale, feed, status)
-    : page === 'changelog' ? changelog(locale, feed, origin, activity)
+    : page === 'changelog' ? changelog(locale, feed, origin, activity, captureNames)
     : information(page, locale, feed);
   return locale === 'ar' ? swashHeaders(html) : html;
 }
