@@ -17,11 +17,17 @@ The landing page and public product pages use the same navigation. Edit the rout
 
 Feature, company and article copy lives in `public/assets/page_story_content.js`. Their compositions are rendered in `public/assets/product_content.js` and styled in `public/assets/product_pages.css`. Match the section order to how people work with the feature. Use demo workspace captures with Arabic and English light and dark variants when a screenshot illustrates the workflow. Use the shared 1px media outline for screenshot frames. In transparent illustrations, apply the same edge to the panels during capture so the empty canvas stays transparent. Use the App repository's capability docs to verify product claims before publishing.
 
-- **Pricing** mirrors the public Free, Plus and Pro plan definitions in the App repository's `packages/core/src/billing.ts`. When prices or entitlements change, update `public/assets/product_content.js` with the app's approved values. The page links to enrollment during the beta.
+- **Pricing** mirrors the Free, Plus and Pro seat rates from [App billing](https://github.com/Moeen-System/App/blob/main/docs/billing.md) in `public/assets/product_content.js`. Plus offers private group support via WhatsApp, Slack and Moeen seven days a week. Pro includes Plus and links to the team email for feature requests. Both plans list the website's upcoming use cases and the App roadmap's standalone editors, CRM, Engineering and Automations with a Soon label. [App roadmap](https://github.com/Moeen-System/App/blob/main/docs/roadmap.md)
+- **Lifetime** is a one-time $5,000 website offer with lifetime updates and support. Its button opens a plan inquiry to the Moeen team. The recurring plan buttons link to enrollment, and the annual calculator uses the seat-based rates.
+- **Calculator rates** use reference USD prices per seat per month with annual billing. Asana Starter is $10.99, Trello Standard is $5, Linear Basic is $10, Google Workspace Starter is $7, and Claude Team Standard is $20. Visitors select the apps they pay for and can edit every rate. A selected AI app uses the Pro rate. [Asana](https://asana.com/pricing), [Trello](https://trello.com/pricing), [Linear](https://linear.app/pricing), [Google Workspace](https://workspace.google.com/pricing.html), [Claude](https://claude.com/pricing)
 - **Roadmap** uses `/roadmap.json` on the app origin. It renders an initial copy at build time and fetches the feed on load, every minute while visible, and when the page becomes visible again. The feed identifies saved data when GitHub sync is unavailable.
-- **Changelog** reads `/changelog/releases.json` on the app origin at build time and links to published lead-feature artwork. The app's current cross-origin policy restricts browser JSON reads, so rebuild the site to import a new release. App release notes remain the editable source.
+- **Changelog** reads `/changelog/releases.json` on the app origin at build time. The website pairs release highlights with local light and dark illustrations in image-only cards. Add new feature-to-illustration mappings in `public/assets/product_content.js`; releases that declare artwork can fall back to the audit illustration. Rebuild the website to import new release notes from the App.
 
-The app origin comes from `WAITLIST_API_URL`. The existing manually configured Render Content Security Policy needs `https://app.moeen.dev` in `img-src` for release artwork. The checked-in `render.yaml` includes that source.
+The app origin comes from `WAITLIST_API_URL`.
+
+### Brain update
+
+The 28 November 2026 website changes document the Plus support channels and schedule, Pro feature requests, upcoming modules and the one-time Lifetime offer above. The connected Brain exposes only the Operations workspace and provides no source-write operation. Reconciliation of these proposed website facts into the canonical Moeen Brain remains pending an authorized writable destination.
 
 ## Website copy
 

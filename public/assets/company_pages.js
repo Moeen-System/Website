@@ -3,7 +3,7 @@
 // on these pages is sent anywhere: copy buttons write to the visitor's own clipboard.
 import { seam } from './frame.js';
 import { ic, kit } from './feature_pages.js';
-import { infoPages, sitePages } from './site_content.js';
+import { infoPages, sitePages, upcomingModules } from './site_content.js';
 import { pageStories } from './page_story_content.js';
 
 export const companyPageIds = ['affiliate', 'support', 'join', 'about'];
@@ -13,7 +13,7 @@ const EMAIL = 'team@moeen.dev';
 const iso = (name) => `<img class="co-iso" alt="" src="/assets/iso/light/${name}.svg" data-light="/assets/iso/light/${name}.svg" data-dark="/assets/iso/dark/${name}.svg">`;
 const arrow = '<svg class="i i--sm flip" aria-hidden="true"><use href="#i-arrow"/></svg>';
 const check = '<svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>';
-const mark = '<img src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="" width="26" height="20">';
+const mark = (alt = '') => `<img src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="${alt}" width="26" height="20">`;
 
 const pages = {
   // ---- Affiliate: choose the page that answers the team's problem ---------------------------------
@@ -101,7 +101,7 @@ const pages = {
       ${seam('hatch')}
       <section class="mailto"><div class="mailto__copy">${h2(t('راسل فريق مُعين', 'Write to the Moeen team'), t('إن لم تجد جوابك هنا.', 'If your answer isn’t here.'))}
           <p class="mailto__subjects">${subjects.map((name) => `<a href="mailto:${EMAIL}?subject=${encodeURIComponent(name)}">${name}</a>`).join('')}</p></div>
-        <div class="mailto__card"><span class="mailto__stamp" aria-hidden="true">${mark}</span><small>${t('إلى', 'To')}</small><a href="mailto:${EMAIL}" dir="ltr">${EMAIL}</a><i aria-hidden="true"></i><i aria-hidden="true"></i>
+        <div class="mailto__card"><span class="mailto__stamp" aria-hidden="true">${mark()}</span><small>${t('إلى', 'To')}</small><a href="mailto:${EMAIL}" dir="ltr">${EMAIL}</a><i aria-hidden="true"></i><i aria-hidden="true"></i>
           <div><button type="button" class="btn btn--solid" data-copy="${EMAIL}" data-copied="${t('نُسخ العنوان', 'Address copied')}">${t('انسخ العنوان', 'Copy the address')}</button><a class="btn btn--ghost" href="mailto:${EMAIL}">${t('اكتب رسالة', 'Write an email')}</a></div></div>
       </section>
     </div>`;
@@ -249,26 +249,38 @@ function seatCount(count, locale) {
   return locale === 'ar' && (form === 'one' || form === 'two') ? word : `${count} ${word}`;
 }
 
-// What a team might pay for elsewhere: id, product, the need it meets, list price per seat per
-// month billed yearly (USD, checked November 2026, lowest published figure), and whether it starts
-// ticked. Visitors edit the prices.
+// Paid per-seat rates with annual billing, in USD. Visitors can edit every rate.
+const TOOL_CATEGORIES = {
+  chat: ['المحادثات', 'Chat'],
+  tasks: ['المهام', 'Tasks'],
+  docs: ['الملفات والمستندات', 'Files and documents'],
+  meetings: ['المكالمات والاجتماعات', 'Calls and meetings'],
+  mail: ['البريد والتقويم', 'Email and calendar'],
+  ai: ['الذكاء الاصطناعي', 'AI'],
+};
 const TOOLS = [
-  ['slack', 'Slack', ['المحادثات', 'Chat'], 7.25, true],
-  ['jira', 'Jira', ['المهام', 'Tasks'], 7.91, true],
-  ['notion', 'Notion', ['الملفات والمستندات', 'Files and documents'], 10, true],
-  ['zoom', 'Zoom', ['المكالمات والاجتماعات', 'Calls and meetings'], 13.33, false],
-  ['chatgpt', 'ChatGPT Business', ['الذكاء الاصطناعي', 'AI'], 20, true],
+  { id: 'slack', name: 'Slack', category: 'chat', price: 7.25, selected: true },
+  { id: 'jira', name: 'Jira', category: 'tasks', price: 7.91, selected: true },
+  { id: 'asana', name: 'Asana Starter', category: 'tasks', price: 10.99 },
+  { id: 'trello', name: 'Trello Standard', category: 'tasks', price: 5 },
+  { id: 'linear', name: 'Linear Basic', category: 'tasks', price: 10 },
+  { id: 'notion', name: 'Notion', category: 'docs', price: 10, selected: true },
+  { id: 'google_workspace', name: 'Google Workspace Starter', category: 'mail', price: 7, logo: 'gmail' },
+  { id: 'zoom', name: 'Zoom', category: 'meetings', price: 13.33 },
+  { id: 'chatgpt', name: 'ChatGPT Business', category: 'ai', price: 20, selected: true },
+  { id: 'claude', name: 'Claude Team', category: 'ai', price: 20 },
 ];
+const AI_TOOLS = new Set(TOOLS.filter(tool => tool.category === 'ai').map(tool => tool.id));
 
 /** Yearly totals in cents. AI needs Pro; more than three seats need Plus; otherwise Free is enough. */
 function savings(tools, seats, rates) {
   const now = Math.round(tools.reduce((sum, [, price]) => sum + price * 100, 0)) * seats * 12;
-  const plan = tools.some(([id]) => id === 'chatgpt') ? 'pro' : seats > 3 ? 'plus' : 'free';
+  const plan = tools.some(([id]) => AI_TOOLS.has(id)) ? 'pro' : seats > 3 ? 'plus' : 'free';
   const moeen = rates[plan] * seats * 12;
   return { now, plan, moeen, save: Math.max(0, now - moeen), share: now ? Math.min(100, Math.round((moeen / now) * 100)) : 0 };
 }
 
-export function pricingPage(locale, { plans, questions, text, title, lead, label }) {
+export function pricingPage(locale, { plans, lifetimePrice, questions, text, title, lead, label }) {
   const t = (ar, en) => (locale === 'ar' ? ar : en);
   const L = (pair) => pair[locale];
   const cta = `<a class="btn pr-btn" href="/waitlist/">${text.waitlist}</a>`;
@@ -278,10 +290,20 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     pro: t('لفريق يفوّض عملاً إلى AI.', 'For a team that delegates work to AI.'),
   };
   const base = [t('الفرق والمهام', 'Teams and tasks'), t('المحادثات والاجتماعات', 'Chat and meetings'), t('الملفات والبريد', 'Files and email'), t('التكاملات', 'Integrations')];
+  const privateSupport = t('دعم في مجموعة خاصة 7 أيام في الأسبوع', 'Private group support 7 days a week');
+  const featureRequest = t('اطلب أي ميزة تحتاجها', 'Request any feature you’d like');
+  const featureRequestLink = `<a href="mailto:${EMAIL}?subject=${encodeURIComponent(t('اقتراح ميزة لمُعين', 'Moeen feature request'))}">${featureRequest}</a>`;
+  const supportChannels = `<span class="pr-plan__channels">
+    <img src="/assets/logos/whatsapp.svg" alt="WhatsApp" width="16" height="16">
+    <img src="/assets/logos/slack.svg" alt="Slack" width="16" height="16">
+    ${mark(text.brand)}
+  </span>`;
+  const modules = `<div class="pr-plan__modules"><h3 data-plain>${t('الوحدات القادمة', 'Upcoming modules')}</h3>
+    <ul class="upcoming-list">${upcomingModules.map(name => `<li><span>${L(name)}</span><small>${t('قريبًا', 'Soon')}</small></li>`).join('')}</ul></div>`;
   const includes = {
     free: [null, [text.freeSeats(3), ...base]],
-    plus: [t('كل ما في المجانية، ويضاف إليه:', 'Everything in Free, plus:'), [text.paidSeats]],
-    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['AI', text.knowledge]],
+    plus: [t('كل ما في المجانية، ويضاف إليه:', 'Everything in Free, plus:'), [text.paidSeats, `${privateSupport}${supportChannels}`]],
+    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['AI', text.knowledge, featureRequestLink]],
   };
   const save = (plan) => Math.round((1 - plan.annual / plan.monthly) * 100);
   const yes = `<span class="pr-yes">${check}</span><span class="page-sr">${t('مشمول', 'Included')}</span>`;
@@ -291,9 +313,10 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     [t('الفريق', 'Team'), [[t('المقاعد', 'Seats'), plans.map((plan) => (plan.seats ? text.freeSeats(plan.seats) : text.paidSeats))], [t('الفرق', 'Teams'), every]]],
     [t('العمل', 'Work'), [[t('المهام', 'Tasks'), every], [t('المحادثات', 'Chat'), every], [t('الاجتماعات', 'Meetings'), every], [t('البريد', 'Email'), every], [t('الملفات', 'Files'), every], [t('التكاملات', 'Integrations'), every]]],
     [t('الذكاء الاصطناعي', 'AI'), [['AI', pro], [text.knowledge, pro]]],
+    [t('الدعم', 'Support'), [[privateSupport, plans.map(plan => plan.id === 'free' ? no : yes)], [featureRequest, pro]]],
   ];
   const paid = plans.filter((plan) => plan.monthly);
-  const start = savings(TOOLS.filter(([, , , , on]) => on).map(([id, , , price]) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
+  const start = savings(TOOLS.filter(tool => tool.selected).map(({ id, price }) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
   return `<div class="fp fp--pricing">
     <header class="fp-hero fp-hero--center"><span class="eyebrow">${label}</span><h1><span>${title}.</span> <span class="dim">${lead}</span></h1>
       <fieldset class="pr-cadence" data-plan-cadence><legend class="page-sr">${text.cadence}</legend>
@@ -305,13 +328,23 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
       <div class="pr-plan__cost">${['annual', 'monthly'].map((id) => `<div data-rate="${id}"${id === 'monthly' ? ' hidden' : ''}><p><strong>${money(plan[id])}</strong><span>${plan.monthly ? text.perSeat : ''}</span></p><small>${plan.monthly ? (id === 'annual' ? text.annualNote(money(plan.annual * 12)) : text.monthlyNote) : text.freeNote}</small></div>`).join('')}</div>
       ${cta}
       <div class="pr-plan__list">${intro ? `<p>${intro}</p>` : ''}<ul>${list.map((item) => `<li>${check}<span>${item}</span></li>`).join('')}</ul></div>
-    </article>`; }).join('')}</section>
-    <p class="pr-terms">${text.priceTerms} ${text.payment}</p>
+      ${plan.monthly ? modules : ''}
+    </article>`; }).join('')}
+      <article class="pr-plan pr-plan--lifetime">
+        <header>
+          <h2 data-plain>${t('مدى الحياة', 'Lifetime')}</h2>
+          <p class="pr-plan__for">${t('تحديثات ودعم مدى الحياة.', 'Lifetime updates and support.')}</p>
+        </header>
+        <div class="pr-plan__cost"><p><strong>${money(lifetimePrice)}</strong><span>${t('دفعة واحدة', 'one-time payment')}</span></p></div>
+        <a class="btn pr-btn" href="mailto:${EMAIL}?subject=${encodeURIComponent(t('خطة مُعين مدى الحياة', 'Moeen Lifetime plan'))}">${t('استفسر عن الخطة', 'Ask about Lifetime')}</a>
+      </article>
+    </section>
+    <p class="pr-terms">${text.priceTerms}</p>
 
     ${seam('hatch')}
     <section class="calc" data-calc data-plans="${plans.map((plan) => `${plan.id}:${plan.annual}`).join(',')}">
       <div class="calc__tools"><h2><span>${t('احسب ما توفّره مع مُعين.', 'See what you save with Moeen.')}</span> <span class="dim">${t('ضع علامة على ما تدفعه اليوم.', 'Tick what you pay for today.')}</span></h2>
-        <ul>${TOOLS.map(([id, name, need, price, on]) => `<li><label><input type="checkbox" data-calc-tool="${id}"${on ? ' checked' : ''}><img src="/assets/logos/${id}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b>${t(...need)}</b><small>${t(`مثل ${name}`, `such as ${name}`)}</small></span></label><span class="calc__price" dir="ltr">$<input type="number" min="0" max="500" step="0.01" value="${price}" data-calc-price="${id}" aria-label="${t(`سعر المقعد شهرياً في ${name}`, `${name} price per seat per month`)}"></span></li>`).join('')}</ul>
+        <ul>${TOOLS.map(({ id, name, category, price, selected, logo = id }) => `<li><label><input type="checkbox" data-calc-tool="${id}"${selected ? ' checked' : ''}><img src="/assets/logos/${logo}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b><bdi>${name}</bdi></b><small>${t(...TOOL_CATEGORIES[category])}</small></span></label><span class="calc__price" dir="ltr">$<input type="number" min="0" max="500" step="0.01" value="${price}" data-calc-price="${id}" aria-label="${t(`سعر المقعد شهرياً في ${name}`, `${name} price per seat per month`)}"></span></li>`).join('')}</ul>
         <p>${t('أسعار إرشادية لكل مقعد شهرياً مع الفوترة السنوية، راجعناها في نوفمبر 2026. عدّلها إلى ما تدفعه فعلاً، فالخطط تختلف في ميزاتها ولا يغطي مُعين كل ميزة في كل أداة.', 'Guide prices per seat per month, billed yearly, checked in November 2026. Change them to what you actually pay: plans differ, and Moeen doesn’t cover every feature of every tool.')}</p></div>
       <div class="calc__result" aria-live="polite">
         <label class="calc__seats"><span>${t('عدد المقاعد', 'Seats')}</span><output data-calc-seats>${seatCount(10, locale)}</output><input type="range" min="1" max="100" value="10" data-calc-range aria-label="${t('عدد المقاعد', 'Seats')}"></label>
@@ -323,7 +356,7 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     </section>
 
     ${seam('dots')}
-    <section class="pr-table"><table><caption><span>${t('قارن ما تشمله الاشتراكات.', 'Compare what’s included.')}</span></caption>
+    <section class="pr-table"><table><caption><span>${t('قارن الخطط حسب المقعد.', 'Compare seat-based plans.')}</span></caption>
       <thead><tr><td></td>${plans.map((plan) => `<th scope="col"><b>${L(plan.title)}</b>${['annual', 'monthly'].map((id) => `<small data-rate="${id}"${id === 'monthly' ? ' hidden' : ''}>${money(plan[id])}${plan.monthly ? ` ${text.perSeat}` : ''}</small>`).join('')}</th>`).join('')}</tr></thead>
       ${table.map(([name, rows]) => `<tbody><tr><th colspan="4" scope="rowgroup">${name}</th></tr>${rows.map(([row, cells]) => `<tr><th scope="row">${row}</th>${cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>`).join('')}
     </table></section>

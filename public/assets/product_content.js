@@ -10,14 +10,14 @@ const strings = {
   ar: {
     brand: 'مُعين',
     waitlist: 'انضم إلى قائمة الانتظار', login: 'تسجيل الدخول', copyright: '© 2026 مُعين',
-    pricing: 'الأسعار', pricingLead: 'قارن الخطط واختر ما يناسب فريقك. يُحسب الاشتراك لكل مساحة عمل على حدة.',
+    pricing: 'الأسعار', pricingLead: 'قارن الخطط واختر ما يناسب فريقك.',
     roadmap: 'خريطة الطريق', roadmapLead: 'تابع ما نعمل عليه وما نخطط له وما اكتمل في مُعين.',
     changelog: 'سجل التحديثات', changelogLead: 'تابع الميزات الجديدة والتحسينات والإصلاحات في كل إصدار من مُعين.',
     cadence: 'دورة الفوترة', annual: 'سنوي', monthly: 'شهري', perSeat: 'لكل مقعد شهريًا',
     monthlyNote: 'فوترة شهرية', annualNote: amount => `${amount} لكل مقعد سنويًا`,
     freeNote: 'مجانية لكل مساحة عمل', freeSeats: count => `حتى ${count} مقاعد`, paidSeats: 'المقاعد حسب الاشتراك',
     workspace: 'الفرق والمهام والمحادثات', tools: 'الملفات والبريد والاجتماعات والتكاملات', knowledge: 'قاعدة المعرفة للذكاء الاصطناعي',
-    priceTerms: 'الأسعار بالدولار الأمريكي قبل الضريبة.', payment: 'الاشتراكات المدفوعة لم تُفعّل بعد. التسجيل في قائمة الانتظار لا يتطلّب دفعًا.',
+    priceTerms: 'الأسعار بالدولار الأمريكي قبل الضريبة.',
     feature: 'جديد', improvement: 'تحسينات', fix: 'إصلاحات', archive: 'الإصدارات السابقة',
     release: (version) => `الإصدار ${version}`,
     in_progress: 'نعمل عليها الآن', planned: 'التالي', later: 'ما بعد ذلك', done: 'اكتملت',
@@ -28,14 +28,14 @@ const strings = {
   en: {
     brand: 'Moeen',
     waitlist: 'Join the waitlist', login: 'Sign in', copyright: '© 2026 Moeen',
-    pricing: 'Pricing', pricingLead: 'Compare plans and choose what fits your team. Each workspace has its own subscription.',
+    pricing: 'Pricing', pricingLead: 'Compare plans and choose what fits your team.',
     roadmap: 'Roadmap', roadmapLead: 'See what we’re building, what’s planned, and what’s done in Moeen.',
     changelog: 'Changelog', changelogLead: 'Follow new features, improvements, and fixes in each Moeen release.',
     cadence: 'Billing period', annual: 'Yearly', monthly: 'Monthly', perSeat: 'per seat/month',
     monthlyNote: 'Billed monthly', annualNote: amount => `${amount} per seat, billed yearly`,
     freeNote: 'Free per workspace', freeSeats: count => `Up to ${count} seats`, paidSeats: 'Seats based on subscription',
     workspace: 'Teams, tasks, and chat', tools: 'Files, email, meetings, and integrations', knowledge: 'AI knowledge base',
-    priceTerms: 'Prices are in USD before tax.', payment: 'Paid subscriptions are pending. Joining the waitlist is free.',
+    priceTerms: 'Prices are in USD before tax.',
     feature: 'New', improvement: 'Improved', fix: 'Fixed', archive: 'Earlier releases',
     release: (version) => `Release ${version}`,
     in_progress: 'In progress', planned: 'Planned', later: 'Later', done: 'Done',
@@ -99,16 +99,12 @@ const pricingQuestions = {
       title: bilingual('هل أحتاج إلى خطة برو للاحتفاظ بالملفات؟', 'Do I need Pro to store files?'),
       body: bilingual('رفع الملفات وتنظيمها متاح في الخطط الثلاث. تحتاج إلى برو عند استخدام AI أو فهرسة المحتوى والبحث فيه بقاعدة المعرفة.', 'You can upload and organize files on all three plans. Pro adds AI and knowledge base indexing and retrieval.'),
     },
-    {
-      title: bilingual('هل أستطيع شراء اشتراك الآن؟', 'Can I purchase a subscription now?'),
-      body: bilingual('لم يُفعّل الدفع بعد. يمكنك الانضمام إلى قائمة الانتظار مجانًا.', 'Checkout is pending. You can join the waitlist for free.'),
-    },
   ],
 };
 
 function pricing(locale) {
   const text = copy(locale);
-  return pricingPage(locale, { plans, questions: pricingQuestions, text, title: pageTitle('pricing', locale), lead: text.pricingLead, label: text.pricing });
+  return pricingPage(locale, { plans, lifetimePrice: 500_000, questions: pricingQuestions, text, title: pageTitle('pricing', locale), lead: text.pricingLead, label: text.pricing });
 }
 
 // Changelog and roadmap open with the home page's two-tone headline.
@@ -147,22 +143,35 @@ function roadmap(locale, feed, status) {
     + `<div class="road-end"><a class="link" href="/changelog/">${text.changelog}${icon('arrow', 'i flip')}</a>${feed.source === 'snapshot' || status === 'error' ? `<span>${text.snapshot}</span>` : ''}</div>`;
 }
 
-function releaseMarkup(release, locale, origin) {
+const releaseIllustrations = {
+  compact_task_create: 'tasks',
+  ai_composer_height: 'ask',
+  claude_workspace_design_refresh: 'teams',
+  workspace_ai_agents: 'ask',
+  personal_recurring_reminders: 'tasks',
+  public_roadmap: 'audit',
+  meeting_platforms: 'meetings',
+  private_product_waitlist: 'people',
+  connected_mail_calendar: 'mail',
+};
+
+function releaseMarkup(release, locale) {
   const text = copy(locale);
   const artwork = release.artwork;
   const lead = release.changes.find(change => change.kind === 'feature' && (!artwork?.featureId || change.id === artwork.featureId));
   const version = escape(release.version);
   const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(release.date));
-  const artworkSrc = theme => `${escape(origin)}/changelog/artwork/${release.version.replaceAll(/[.+-]/g, '_')}_${locale}_${theme}.png`;
+  const illustration = (lead && Object.hasOwn(releaseIllustrations, lead.id) ? releaseIllustrations[lead.id] : null)
+    ?? (artwork ? 'audit' : null);
+  const artworkSrc = theme => `/assets/iso/${theme}/${illustration}.svg`;
   return `<article class="release page-rows" id="v${version}" aria-labelledby="title-${version}">
     <header class="release-meta">
       <h2 id="title-${version}"><a href="#v${version}" aria-label="${escape(text.release(version))}"><bdi dir="ltr">v${version}</bdi></a></h2>
       <time datetime="${release.date}">${escape(date)}</time>
     </header>
     <div class="release-body">
-      ${lead ? `<img class="release-image" width="1440" height="720" loading="lazy" decoding="async"
-        data-light="${artworkSrc('light')}" data-dark="${artworkSrc('dark')}" src="${artworkSrc('light')}"
-        alt="${localized(artwork?.title ?? lead.title, locale)}">` : ''}
+      ${illustration ? `<figure class="release-image"><img width="164" height="116" loading="lazy" decoding="async"
+        data-light="${artworkSrc('light')}" data-dark="${artworkSrc('dark')}" src="${artworkSrc('light')}" alt=""></figure>` : ''}
       ${Object.entries(categories).map(([kind, symbol]) => {
         const changes = release.changes.filter(change => change.kind === kind);
         if (!changes.length) return '';
@@ -191,8 +200,8 @@ function changelog(locale, feed, origin) {
       <ul role="list">${feed.releases.map(release => `<li><a href="#v${escape(release.version)}"><bdi dir="ltr">v${escape(release.version)}</bdi></a></li>`).join('')}</ul>
     </details>
   </div>`;
-  const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale, origin)).join('');
-  const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale, origin)).join('');
+  const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale)).join('');
+  const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale)).join('');
   return pageHead('changelog', locale) + seam('hatch') + index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
 }
 
