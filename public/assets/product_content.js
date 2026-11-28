@@ -155,8 +155,8 @@ function releaseImage(release, locale, captureFiles) {
   }
   if (release.changes.some(change => change.id === 'workspace_ai_agents')) {
     const alt = locale === 'ar' ? 'محادثة مع وكيل في مساحة عمل مُعين' : 'A conversation with an agent in a Moeen workspace';
-    return `<figure class="release-image"><img width="1200" height="750" data-shot="mod_ai"
-      src="/assets/shots2/mod_ai_${locale}_light.png" loading="lazy" decoding="async" alt="${alt}"></figure>`;
+    return `<figure class="release-image"><img width="1200" height="750" data-shot="workspace_agents_release"
+      src="/assets/shots2/workspace_agents_release_${locale}_light.png" loading="lazy" decoding="async" alt="${alt}"></figure>`;
   }
   return '';
 }

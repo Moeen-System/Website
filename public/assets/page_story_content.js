@@ -9,12 +9,12 @@ const images = {
   task: shot('mod_tasks', 1200, 750, 'مهمة تظهر في مراحل مختلفة على لوحة مُعين', 'A task shown at different stages of the Moeen board'),
   chat: shot('mod_chat', 1200, 750, 'نقاش في قناة المنتج يتضمّن ردًا من AI', 'The product channel with a team discussion and an AI reply'),
   team: shot('setup_teams', 1424, 720, 'صفحة فريق تجريبي في مُعين', 'A demo team page in Moeen'),
-  data: shot('workspace_data', 930, 968, 'مجلد الملفات الخاصة ومجلد ملفات مساحة العمل في مُعين', 'The private and workspace file folders in Moeen'),
+  data: shot('workspace_data', 930, 670, 'مجلد الملفات الخاصة ومجلد ملفات مساحة العمل في مُعين', 'The private and workspace file folders in Moeen'),
   meeting: shot('workspace_meetings', 1338, 968, 'قائمة الاجتماعات المقبلة في مساحة عمل تجريبية', 'Upcoming meetings in a demo workspace'),
   mail: shot('mod_mail', 1200, 750, 'رسالة بريدية وبجانبها مهمة لمتابعتها', 'An email alongside its follow-up task'),
   audit: shot('audit', 1520, 960, 'سجل التدقيق في مساحة عمل تجريبية', 'The audit log in a demo workspace'),
   skills: shot('workspace_skills', 1788, 878, 'قائمة المهارات المفعّلة وغير المفعّلة في مساحة تجريبية', 'Enabled and disabled skills in a demo workspace'),
-  workspace: shot('setup_company', 1000, 544, 'إعداد مساحة عمل تجريبية في مُعين', 'A demo workspace setup in Moeen'),
+  workspace: shot('setup_company', 1000, 716, 'إعداد مساحة عمل تجريبية في مُعين', 'A demo workspace setup in Moeen'),
 };
 
 export const pageStories = {

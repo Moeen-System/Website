@@ -320,9 +320,9 @@ button.mk[aria-pressed="false"] { background-size: 0 100%; color: var(--dim); te
 .day__copy p { grid-column: 1 / -1; max-inline-size: 400px; font-size: 13px; line-height: 1.7; } .day__copy time { color: var(--dim); font: 12px/22px var(--mono); }
 .day__art { overflow: hidden; display: grid; place-items: center; block-size: 290px; padding: 0 var(--pad); border-block-start: 1px solid var(--line); background: var(--sunken); }
 .day__chat { display: grid; justify-items: start; gap: 8px; inline-size: min(100%, 370px); }
-.day__chat img { max-inline-size: 92%; border-radius: 10px; } .day__chat img + img { justify-self: end; }
-.day__crop { overflow: hidden; inline-size: min(100%, 290px); block-size: 258px; border-radius: 10px; background: var(--panel); }
-.day__crop img { inline-size: 100%; margin-block-start: -42px; } :lang(en) .day__crop { inline-size: min(100%, 260px); block-size: 252px; }
+.day__chat img { max-inline-size: 92%; padding: 6px; border-radius: 10px; background: var(--panel); } .day__chat img + img { justify-self: end; }
+.day__crop { overflow: hidden; inline-size: min(100%, 224px); block-size: 274px; border-radius: 10px; background: var(--panel); }
+.day__crop img { inline-size: 100%; margin-block-start: -5px; }
 .day__wide { overflow: hidden; inline-size: calc(100% + var(--pad)); block-size: 264px; place-self: end start; border-start-start-radius: 10px; background: var(--panel); }
 .day__wide img { inline-size: 640px; max-inline-size: none; margin-block-start: -25px; }
 .permit { inline-size: min(100%, 375px); overflow: hidden; border: 1px solid var(--media-edge); border-radius: 12px; background: var(--panel); font-size: 13.5px; }
