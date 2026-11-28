@@ -26,7 +26,7 @@
 .fp-av--b { background: linear-gradient(135deg, #fbbf24, #22c55e); } .fp-av--c { background: linear-gradient(135deg, #22d3ee, #6366f1); }
 .fp-av--d { background: linear-gradient(135deg, #f472b6, #f59e0b); } .fp-av--e { background: linear-gradient(135deg, #a78bfa, #34d399); }
 .fp-av--f { background: linear-gradient(135deg, #38bdf8, #a3e635); }
-.fp-av--ai { background: #0a0a0a url(/assets/brand/mark_white.svg) center / 64% no-repeat; }
+.fp-av--ai { background: url(/assets/brand/ai_bot.svg) center / 100% no-repeat; }
 .fp-status { color: var(--muted); }
 .fp-status--todo { color: #8b5cf6; } .fp-status--progress { color: #ea580c; } .fp-status--done { color: #16a34a; }
 
@@ -278,7 +278,7 @@
 .postmarks__n { justify-self: start; margin-block-end: 12px; padding: 4px 10px; border: 1px solid var(--line-2); border-radius: 999px; font: 12px var(--mono); }
 .postmarks p { font-size: 14px; }
 
-/* ---- ai-moeen: a marked-up request -------------------------------------------------------------- */
+/* ---- AI: a marked-up request -------------------------------------------------------------- */
 /* Marker pens: the same colour marks the words in the request and the field they became. */
 .mk { --pen: #fde68a; margin-inline: -.06em; padding: .06em .2em .1em; border: 0; border-radius: .5em .2em .45em .25em; background: linear-gradient(to inline-end, var(--pen), var(--pen)) 0 0 / 100% 100% no-repeat; color: inherit; font: inherit; line-height: inherit; text-align: start; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .mk { background-image: linear-gradient(var(--pen), var(--pen)); background-position: 0 0; } [dir="rtl"] .mk { background-position: 100% 0; }
@@ -287,7 +287,6 @@
 button.mk { line-height: 1.5; cursor: pointer; transition: background-size .3s var(--ease), color .2s; }
 button.mk[aria-pressed="false"] { background-size: 0 100%; color: var(--dim); text-decoration: line-through; text-decoration-thickness: 1.5px; }
 .mk-end { white-space: nowrap; }
-[data-theme="dark"] .fp--ai .fp-av--ai { background-color: #2c2c2c; }
 .markup { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); margin-inline: var(--bleed); margin-block-end: var(--flush); border-block-start: 1px solid var(--line); }
 .markup__thread { display: grid; align-content: start; gap: 22px; padding: 26px var(--pad) 34px; border-inline-end: 1px solid var(--line); }
 .markup__place { display: flex; align-items: center; gap: 4px; color: var(--ink) !important; font-size: 13px !important; font-weight: 500; }

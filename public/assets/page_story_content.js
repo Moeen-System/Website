@@ -7,7 +7,7 @@ const example = (title, ar, en, note) => ({ kind: 'example', title, quote: pair(
 
 const images = {
   task: shot('mod_tasks', 1200, 750, 'مهمة تظهر في مراحل مختلفة على لوحة مُعين', 'A task shown at different stages of the Moeen board'),
-  chat: shot('mod_chat', 1200, 750, 'نقاش في قناة وبجانبه المهمة الناتجة عنه', 'A channel discussion next to its follow-up task'),
+  chat: shot('mod_chat', 1200, 750, 'نقاش في قناة المنتج يتضمّن ردًا من AI', 'The product channel with a team discussion and an AI reply'),
   team: shot('setup_teams', 1424, 720, 'صفحة فريق تجريبي في مُعين', 'A demo team page in Moeen'),
   data: shot('workspace_data', 930, 968, 'مجلد الملفات الخاصة ومجلد ملفات مساحة العمل في مُعين', 'The private and workspace file folders in Moeen'),
   meeting: shot('workspace_meetings', 1338, 968, 'قائمة الاجتماعات المقبلة في مساحة عمل تجريبية', 'Upcoming meetings in a demo workspace'),
@@ -34,7 +34,7 @@ export const pageStories = {
   },
   chat: {
     blocks: [
-      scene(point('من رسالة إلى مهمة يتابعها الفريق', 'From a channel message to a task', 'إذا اتفق الفريق على مراجعة صفحة قبل النشر، سجّل ما اتفقتم عليه في مهمة، أو اذكر ai-moeen في القناة ووضّح ما تريد متابعته. راجع إسناد المهمة وموعدها بعد إنشائها.', 'When the team agrees to review a page before publication, record what you agreed on as a task, or mention ai-moeen in the channel with the details. Check the owner and due date once the task is created.'), images.chat),
+      scene(point('من رسالة إلى مهمة يتابعها الفريق', 'From a channel message to a task', 'إذا اتفق الفريق على مراجعة صفحة قبل النشر، سجّل ما اتفقتم عليه في مهمة، أو اذكر AI في القناة ووضّح ما تريد متابعته. راجع إسناد المهمة وموعدها بعد إنشائها.', 'When the team agrees to review a page before publication, record what you agreed on as a task, or mention AI in the channel with the details. Check the owner and due date once the task is created.'), images.chat),
       block('rows', pair('اختر المكان المناسب للنقاش', 'Choose where to talk'), [
         point('القناة', 'Channel', 'شارك التحديثات التي يحتاج الفريق إلى قراءتها. ثبّت قرارًا أو رابطًا يعود إليه الأعضاء لاحقًا.', 'Share updates the team needs to see. Pin a decision or link that members will need again.'),
         point('الرسائل المباشرة', 'Direct messages', 'اسأل زميلًا عن تفصيل أو راجع معه عملًا قبل عرضه على الفريق.', 'Ask a teammate about a detail or review something together before sharing it with the team.'),
@@ -59,7 +59,7 @@ export const pageStories = {
       block('rows', pair('كيف تجد الملف مرة أخرى؟', 'How do you find a file again?'), [
         point('من المجلد', 'From a folder', 'استعرض المجلدات في «المستكشف»، أو اختر القائمة لمراجعة أسماء الملفات، أو الشبكة لمعاينة ما تبحث عنه.', 'Browse folders in Explorer, scan filenames in List view, or use Grid view to recognize what you’re looking for.'),
         point('من القناة أو الفريق', 'From a channel or team', 'تظهر مرفقات القناة في مجلد باسمها في «البيانات»، وتظهر أيضًا في تبويب «البيانات» للفريق المرتبط بها. يظل الملف خاضعًا لصلاحيات القناة.', 'Channel attachments appear in a folder named for the channel and in the linked team’s Data tab. The channel’s permissions still control access.'),
-        point('من سؤال إلى ai-moeen', 'From a question to ai-moeen', 'عند تفعيل قاعدة المعرفة في خطة برو، يمكنك طلب تفصيل من ملف مفهرس تملك صلاحية قراءته.', 'With the Pro knowledge base enabled, you can ask about details in an indexed file you’re allowed to read.'),
+        point('من سؤال إلى AI', 'From a question to AI', 'عند تفعيل قاعدة المعرفة في خطة برو، يمكنك طلب تفصيل من ملف مفهرس تملك صلاحية قراءته.', 'With the Pro knowledge base enabled, you can ask about details in an indexed file you’re allowed to read.'),
       ]),
     ],
   },
@@ -92,12 +92,12 @@ export const pageStories = {
     image: null,
     blocks: [
       block('pipeline', pair('كيف ينتقل الطلب من النية إلى التنفيذ في مُعين؟', 'What happens between the request and the result?'), [
-        point('طلب من الواجهة أو الوكيل', 'Request from a person or agent', 'مثل إنشاء مهمة من اللوحة أو تفويضها إلى ai-moeen.', 'For example, create a task from the board or delegate it to ai-moeen.'),
+        point('طلب من الواجهة أو الوكيل', 'Request from a person or agent', 'مثل إنشاء مهمة من اللوحة أو تفويضها إلى AI.', 'For example, create a task from the board or delegate it to AI.'),
         point('إجراء مشترك', 'Shared action', 'يحدّد مُعين الإجراء ويتحقّق من وصول من طلبه إلى السجل.', 'Moeen resolves the action and checks the requester’s access to the record.'),
         point('موافقة عند الحاجة', 'Approval where required', 'يعرض مُعين تفاصيل الإجراءات التي تنتظر قرار شخص قبل التنفيذ.', 'Moeen shows the details of actions that need a person’s decision before they run.'),
         point('نتيجة وسجل تدقيق', 'Result and audit record', 'تظهر النتيجة على السجل، ويمكن معرفة من طلب الإجراء ومن نفّذه.', 'The result appears on the record, with attribution for who requested and performed it.'),
       ]),
-      scene(point('ما الذي يرجع إليه وكيلك؟', 'Where does the agent get its context?', 'إذا طلبت إنشاء مهمة من نقاش، يمكن أن يستفيد الوكيل من سياق المحادثة المتاح له. وتضيف قاعدة المعرفة في خطة برو البحث في المستندات المسموح بقراءتها.', 'When you ask for a task from a discussion, the agent can use the conversation context available to it. The Pro knowledge base adds search across documents you’re allowed to read.'), shot('app', 2080, 1300, 'قائمة مهام بجانب طلب أنشأ منه ai-moeen مهمة في مساحة تجريبية', 'A task list next to a task created by ai-moeen in a demo workspace')),
+      scene(point('ما الذي يرجع إليه وكيلك؟', 'Where does the agent get its context?', 'إذا طلبت إنشاء مهمة من نقاش، يمكن أن يستفيد الوكيل من سياق المحادثة المتاح له. وتضيف قاعدة المعرفة في خطة برو البحث في المستندات المسموح بقراءتها.', 'When you ask for a task from a discussion, the agent can use the conversation context available to it. The Pro knowledge base adds search across documents you’re allowed to read.'), shot('app', 2080, 1300, 'قائمة مهام بجانب طلب أنشأ منه AI مهمة في مساحة تجريبية', 'A task list next to a task created by AI in a demo workspace')),
       scene(point('يمكنك مراجعة ما حدث', 'Review what happened', 'يعرف المسؤول من نفّذ الإجراء بالرجوع إلى سجل التدقيق. وتبقى الموافقات نافذة عند استخدام واجهة مختلفة أو اتصال MCP ضمن نطاقه.', 'An administrator can check who performed an action in the audit log. Approval requirements continue to apply across surfaces, including scoped MCP connections.'), images.audit),
     ],
   },
@@ -111,7 +111,7 @@ export const pageStories = {
       ]),
       block('faq', pair('التوفّر والصلاحيات', 'Access and availability'), [
         point('متى أراجع الإجراء قبل تنفيذه؟', 'When do I review an action before it runs?', 'يعرض مُعين الإجراءات التي تحتاج إلى موافقة، مثل الحذف أو تغيير صلاحية المشاركة، حتى تراجع طلبك أولًا.', 'Moeen shows actions that need your approval, such as deletion or a change to sharing access, so you can review your request first.'),
-        point('كيف يتوفّر ai-moeen؟', 'How do I get access to ai-moeen?', 'تحتاج مساحة العمل إلى خطة برو مفعّلة وإعداد مزوّد الذكاء الاصطناعي.', 'The workspace needs an active Pro plan and a configured AI provider.'),
+        point('كيف يتوفّر AI؟', 'How do I get access to AI?', 'تحتاج مساحة العمل إلى خطة برو مفعّلة وإعداد مزوّد الذكاء الاصطناعي.', 'The workspace needs an active Pro plan and a configured AI provider.'),
       ]),
     ],
   },
@@ -140,7 +140,7 @@ export const pageStories = {
       example(pair('اطلب تفصيلًا من مستند تعرفه', 'Ask for a detail from a document you know'), 'ما شروط قبول التصدير في ملف متطلبات الشحن؟', 'What are the export acceptance criteria in the shipment requirements file?', pair('ذكر اسم الملف يحصر البحث في المستندات المطابقة التي يمكنك قراءتها.', 'Naming the file narrows retrieval to matching documents you can access.')),
       block('rows', pair('من رفع الملف إلى إجابة للفريق', 'From upload to an answer you can share'), [
         point('تُفهرس الملفات المدعومة', 'Supported files are indexed', 'تبحث قاعدة المعرفة في ملفات PDF وDOCX وXLSX وCSV وملفات النص وJSON وMarkdown المدعومة بعد فهرستها. تحتاج ملفات PDF الممسوحة إلى نص قابل للاستخراج.', 'The knowledge base can search supported PDF, DOCX, XLSX, CSV, text, JSON, and Markdown files after indexing. Scanned PDFs need extractable text.'),
-        point('يراعي البحث صلاحياتك', 'Retrieval checks your access', 'يبحث ai-moeen في المحادثة الخاصة ضمن المستندات والمحادثات التي يمكنك الرجوع إليها. إذا تعذّر الوصول إلى ملف سمّيته، يبقى البحث محصورًا في الملف المطلوب.', 'In private chat, ai-moeen searches documents and conversations you can access. If a named file is unavailable, the search stays scoped to that file.'),
+        point('يراعي البحث صلاحياتك', 'Retrieval checks your access', 'يبحث AI في المحادثة الخاصة ضمن المستندات والمحادثات التي يمكنك الرجوع إليها. إذا تعذّر الوصول إلى ملف سمّيته، يبقى البحث محصورًا في الملف المطلوب.', 'In private chat, AI searches documents and conversations you can access. If a named file is unavailable, the search stays scoped to that file.'),
         point('يراعي النشر أعضاء القناة', 'Sharing checks the channel audience', 'يتحقّق مُعين من صلاحيات من سيرى الرد. مشاركة رابط ملف خاص لا تمنح أعضاء القناة حق قراءته.', 'Moeen checks access for the people who will see the reply. Sharing a private file link does not give channel members access to it.'),
       ]),
     ],
@@ -148,7 +148,7 @@ export const pageStories = {
   skills: {
     blocks: [
       example(pair('مثال على مهارة لتلخيص اجتماع', 'Example skill for a meeting recap'), 'ابدأ بالقرارات. ثم اذكر بنود العمل ومسؤول كل بند وموعده إن اتفقنا عليه. اختم بالأسئلة التي بقيت مفتوحة.', 'Start with the decisions. Then list the action items, each owner, and the due date if one was agreed. End with the questions still open.', pair('احفظ تعليمات العمل المتكرر باسم يسهل تذكّره، مثل «ملخّص الاجتماع».', 'Save recurring instructions under a recognizable name, such as “Meeting recap.”')),
-      scene(point('اختر التعليمات مع كل طلب', 'Choose instructions for each request', 'يمكنك بدء طلب من قائمة المهارات، أو اختيار أكثر من مهارة في محرّر ai-moeen. اكتب بعدها ما تريد إنجازه في هذه المرّة.', 'Start a request from the skills list or select multiple skills in the ai-moeen composer. Then describe what you want to get done this time.'), images.skills),
+      scene(point('اختر التعليمات مع كل طلب', 'Choose instructions for each request', 'يمكنك بدء طلب من قائمة المهارات، أو اختيار أكثر من مهارة في محرّر AI. اكتب بعدها ما تريد إنجازه في هذه المرّة.', 'Start a request from the skills list or select multiple skills in the AI composer. Then describe what you want to get done this time.'), images.skills),
       block('rows', pair('متى تستخدم المهارات؟', 'When is a skill useful?'), [
         point('عند تكرار الصيغة', 'For a recurring format', 'استخدم مهارة حين تريد الصيغة نفسها في ملخّص الاجتماع أو مراجعة المهام الأسبوعية.', 'Use a skill when a meeting recap or weekly task review needs the same format each time.'),
         point('عند تغيّر طريقة العمل', 'When the workflow changes', 'حدّث التعليمات أو عطّل المهارة إذا لم تعد مناسبة. تظل الإجراءات خاضعة للصلاحيات والموافقات المعتادة.', 'Update the instructions or disable the skill if it’s no longer useful. Actions still follow the usual permissions and approvals.'),

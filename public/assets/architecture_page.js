@@ -9,7 +9,7 @@ const ACTORS = ['person', 'ai', 'mcp'];
 const ACTIONS = [['tasks.update', 'write'], ['tasks.delete', 'destructive'], ['data.share_items', 'sharing']];
 
 const copy = (t) => ({
-  actor: { person: t('سارة', 'Sara'), ai: 'ai-moeen', mcp: t('عميل MCP', 'MCP client') },
+  actor: { person: t('سارة', 'Sara'), ai: 'AI', mcp: t('عميل MCP', 'MCP client') },
   from: { person: t('من الواجهة', 'From the interface'), ai: t('باسم سارة', 'On behalf of Sara'), mcp: t('من اتصال خارجي', 'From an external connection') },
   action: { 'tasks.update': t('تعديل مهمة', 'Edit a task'), 'tasks.delete': t('حذف مهمة', 'Delete a task'), 'data.share_items': t('مشاركة ملف', 'Share a file') },
   risk: { write: t('تعديل', 'Write'), destructive: t('حذف', 'Destructive'), sharing: t('تغيير وصول', 'Access change') },
@@ -76,7 +76,7 @@ export function architecturePage(locale) {
         <article><div class="doors__ui"><div class="kb-card"><div class="kb-card__top"><span dir="ltr">APP-148</span><span class="fp-av fp-av--sm fp-av--b"></span></div><h3>${t('مراجعة شاشة الترحيب', 'Review the welcome screen')}</h3><span class="fp-tag fp-tag--blue">${t('المسؤول: عمر', 'Owner: Omar')}</span></div></div>
           <h3>${t('من اللوحة', 'From the board')}</h3><p>${t('تفتح المهمة وتختار المسؤول، ويُنفَّذ التغيير باسمك.', 'You open the task, choose the owner, and the change runs as you.')}</p></article>
         <article><div class="doors__ui"><div class="doors__msg"><span class="fp-av fp-av--sm fp-av--a"></span><p>${t('أسنِد مراجعة شاشة الترحيب إلى عمر.', 'Assign the welcome screen review to Omar.')}</p></div><div class="doors__msg doors__msg--ai"><span class="fp-av fp-av--sm fp-av--ai"></span><p>${t('أسندتُ المهمة إلى عمر.', 'I assigned the task to Omar.')}</p></div></div>
-          <h3>${t('من المحادثة', 'From the conversation')}</h3><p>${t('تطلب من ai-moeen، فينفّذ الإجراء نفسه ضمن صلاحياتك ويظهر باسمه.', 'You ask ai-moeen. It runs the same action within your permissions, labeled as its own.')}</p></article>
+          <h3>${t('من المحادثة', 'From the conversation')}</h3><p>${t('تطلب من AI، فينفّذ الإجراء نفسه ضمن صلاحياتك ويظهر باسمه.', 'You ask AI. It runs the same action within your permissions, labeled as its own.')}</p></article>
       </div></section>
 
     ${seam('dots')}

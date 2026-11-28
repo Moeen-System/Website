@@ -97,7 +97,7 @@ const pricingQuestions = {
     },
     {
       title: bilingual('هل أحتاج إلى خطة برو للاحتفاظ بالملفات؟', 'Do I need Pro to store files?'),
-      body: bilingual('رفع الملفات وتنظيمها متاح في الخطط الثلاث. تحتاج إلى برو عند استخدام ai-moeen أو فهرسة المحتوى والبحث فيه بقاعدة المعرفة.', 'You can upload and organize files on all three plans. Pro adds ai-moeen and knowledge base indexing and retrieval.'),
+      body: bilingual('رفع الملفات وتنظيمها متاح في الخطط الثلاث. تحتاج إلى برو عند استخدام AI أو فهرسة المحتوى والبحث فيه بقاعدة المعرفة.', 'You can upload and organize files on all three plans. Pro adds AI and knowledge base indexing and retrieval.'),
     },
     {
       title: bilingual('هل أستطيع شراء اشتراك الآن؟', 'Can I purchase a subscription now?'),
