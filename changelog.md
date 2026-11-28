@@ -1,3 +1,9 @@
+## 2026-11-28 - Localized pricing and website refresh
+
+- Select SAR, JD or USD by visitor country and let visitors choose a display currency. Round displayed prices and calculator totals to whole units.
+- Group Docs, Changelog and Blog under Resources. Show one contribution square per day and use original screenshots in the changelog cards.
+- Refresh the public product screenshots from App Beta 0.40.3 and load Thmanyah Sans earlier to prevent late text shifts.
+
 ## 2026-11-28 - Website pricing and artwork
 
 - Add private group support to Plus, feature requests to Pro and upcoming modules to both plans.

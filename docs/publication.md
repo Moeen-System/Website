@@ -29,7 +29,7 @@ The app origin comes from `WAITLIST_API_URL`.
 
 ### Brain update
 
-The 28 November 2026 website changes document the Plus support channels and schedule, Pro feature requests, upcoming modules and the one-time Lifetime offer above. The connected Brain exposes only the Operations workspace and provides no source-write operation. Reconciliation of these proposed website facts into the canonical Moeen Brain remains pending an authorized writable destination.
+The 28 November 2026 website changes document the Plus support channels and schedule, Pro feature requests, upcoming modules and the one-time Lifetime offer above. The follow-up release documents display currencies and rounding, the Resources menu, daily contribution counts, and the current App screenshots and font loading. The connected Brain exposes only the Operations workspace and returned no matching source for the website. Reconciliation into the canonical Moeen Brain remains pending an authorized writable destination.
 
 ## Website copy
 
