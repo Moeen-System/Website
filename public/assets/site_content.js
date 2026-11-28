@@ -178,8 +178,9 @@ export const navigation = [
     featured: 'architecture', bottom: ['integrations', 'workflow'] },
   { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
     upcoming: upcomingUseCases },
-  'changelog', 'roadmap', 'blog', 'pricing',
+  { id: 'resources', label: pair('الموارد', 'Resources'),
+    tiles: [['docs', 'notes'], ['changelog', 'audit'], ['blog', 'mail']] },
+  'roadmap', 'pricing',
   { id: 'company', label: pair('الشركة', 'Company'),
     tiles: [['about', 'teams'], ['affiliate', 'workflow'], ['support', 'chat'], ['join', 'people']] },
-  'docs',
 ];
