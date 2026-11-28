@@ -132,7 +132,22 @@
 .vision p { margin-block-start: 6px; font-size: 13.5px; }
 
 /* ---- Pricing ----------------------------------------------------------------------------------- */
-.pr-cadence { display: inline-flex; margin: 8px 0 0; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--sunken); }
+.pr-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-block-start: 8px; }
+.pr-currency { display: inline-grid; align-items: center; position: relative; }
+.pr-currency select {
+  appearance: none;
+  min-block-size: 34px;
+  padding-inline: 12px 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.pr-currency .i { position: absolute; inset-inline-end: 11px; color: var(--muted); pointer-events: none; }
+.pr-cadence { display: inline-flex; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--sunken); }
 .pr-cadence label { position: relative; cursor: pointer; }
 .pr-cadence input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .pr-cadence label > span { display: flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px; color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s, background-color .2s; }
@@ -197,6 +212,7 @@
 .calc__tools li:not(:has(:checked)) img { opacity: .65; }
 .calc__price { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font: 12.5px var(--font); }
 .calc__price input { inline-size: 52px; border: 0; background: none; color: var(--ink); font: inherit; text-align: end; appearance: textfield; outline: 0; } .calc__price:focus-within { border-color: var(--brand); }
+.calc:not([data-currency="USD"]) [data-calc-unit] { order: 1; margin-inline-start: 3px; }
 .calc__price input::-webkit-inner-spin-button { appearance: none; }
 .calc__result { display: grid; align-content: start; gap: 22px; border-inline-start: 1px solid var(--line); background: linear-gradient(180deg, transparent, var(--brand-soft)); }
 .calc__seats { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: baseline; color: var(--muted); font-size: 13px; }
