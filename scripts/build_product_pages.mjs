@@ -15,6 +15,7 @@ function pageDocument(page, context, symbols, fontScript) {
 <html lang="ar" dir="rtl" data-theme="light" data-density="compact" data-product-page="${page}">
 <head>
 <meta charset="utf-8">
+${fontScript}
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${title}</title>
 <meta name="description" content="${description}">
@@ -29,12 +30,12 @@ function pageDocument(page, context, symbols, fontScript) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;family=Noto+Naskh+Arabic:wght@400;500&amp;family=Newsreader:opsz,wght@6..72,400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
 <script src="/assets/prefs.js"></script>
+<link rel="stylesheet" href="/assets/arabic_font.css">
 <link rel="stylesheet" href="/assets/landing.css">
 <link rel="stylesheet" href="/assets/product_pages.css">
 <link rel="stylesheet" href="/assets/feature_pages.css">
 <link rel="stylesheet" href="/assets/company_pages.css">
 <script type="module" src="/assets/product_pages.js"></script>
-${fontScript}
 </head>
 <body>
 <svg width="0" height="0" class="sprite" aria-hidden="true">${symbols}</svg>

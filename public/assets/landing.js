@@ -186,7 +186,10 @@ function render() {
   root.dataset.theme = theme;
   document.title = PAGE_TITLE[locale];
   document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0e0e0f' : '#fafafa';
-  document.querySelectorAll('[data-i18n]').forEach((node) => { node.textContent = pick(node.dataset.i18n, AR.text); });
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const text = pick(node.dataset.i18n, AR.text);
+    if (node.textContent !== text) node.textContent = text;
+  });
   document.querySelectorAll('[data-i18n-label]').forEach((node) => { node.setAttribute('aria-label', pick(node.dataset.i18nLabel, AR.label)); });
   if (locale === 'ar') document.querySelectorAll(SWASH).forEach((node) => { node.innerHTML = swash(node.innerHTML); });
   document.querySelectorAll('[data-i18n-alt]').forEach((node) => { node.alt = pick(node.dataset.i18nAlt, AR.alt); });
