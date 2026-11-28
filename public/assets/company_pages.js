@@ -249,21 +249,33 @@ function seatCount(count, locale) {
   return locale === 'ar' && (form === 'one' || form === 'two') ? word : `${count} ${word}`;
 }
 
-// What a team might pay for elsewhere: id, product, the need it meets, list price per seat per
-// month billed yearly (USD, checked November 2026, lowest published figure), and whether it starts
-// ticked. Visitors edit the prices.
+// Paid per-seat rates with annual billing, in USD. Visitors can edit every rate.
+const TOOL_CATEGORIES = {
+  chat: ['المحادثات', 'Chat'],
+  tasks: ['المهام', 'Tasks'],
+  docs: ['الملفات والمستندات', 'Files and documents'],
+  meetings: ['المكالمات والاجتماعات', 'Calls and meetings'],
+  mail: ['البريد والتقويم', 'Email and calendar'],
+  ai: ['الذكاء الاصطناعي', 'AI'],
+};
 const TOOLS = [
-  ['slack', 'Slack', ['المحادثات', 'Chat'], 7.25, true],
-  ['jira', 'Jira', ['المهام', 'Tasks'], 7.91, true],
-  ['notion', 'Notion', ['الملفات والمستندات', 'Files and documents'], 10, true],
-  ['zoom', 'Zoom', ['المكالمات والاجتماعات', 'Calls and meetings'], 13.33, false],
-  ['chatgpt', 'ChatGPT Business', ['الذكاء الاصطناعي', 'AI'], 20, true],
+  { id: 'slack', name: 'Slack', category: 'chat', price: 7.25, selected: true },
+  { id: 'jira', name: 'Jira', category: 'tasks', price: 7.91, selected: true },
+  { id: 'asana', name: 'Asana Starter', category: 'tasks', price: 10.99 },
+  { id: 'trello', name: 'Trello Standard', category: 'tasks', price: 5 },
+  { id: 'linear', name: 'Linear Basic', category: 'tasks', price: 10 },
+  { id: 'notion', name: 'Notion', category: 'docs', price: 10, selected: true },
+  { id: 'google_workspace', name: 'Google Workspace Starter', category: 'mail', price: 7, logo: 'gmail' },
+  { id: 'zoom', name: 'Zoom', category: 'meetings', price: 13.33 },
+  { id: 'chatgpt', name: 'ChatGPT Business', category: 'ai', price: 20, selected: true },
+  { id: 'claude', name: 'Claude Team', category: 'ai', price: 20 },
 ];
+const AI_TOOLS = new Set(TOOLS.filter(tool => tool.category === 'ai').map(tool => tool.id));
 
 /** Yearly totals in cents. AI needs Pro; more than three seats need Plus; otherwise Free is enough. */
 function savings(tools, seats, rates) {
   const now = Math.round(tools.reduce((sum, [, price]) => sum + price * 100, 0)) * seats * 12;
-  const plan = tools.some(([id]) => id === 'chatgpt') ? 'pro' : seats > 3 ? 'plus' : 'free';
+  const plan = tools.some(([id]) => AI_TOOLS.has(id)) ? 'pro' : seats > 3 ? 'plus' : 'free';
   const moeen = rates[plan] * seats * 12;
   return { now, plan, moeen, save: Math.max(0, now - moeen), share: now ? Math.min(100, Math.round((moeen / now) * 100)) : 0 };
 }
@@ -304,7 +316,7 @@ export function pricingPage(locale, { plans, lifetimePrice, questions, text, tit
     [t('الدعم', 'Support'), [[privateSupport, plans.map(plan => plan.id === 'free' ? no : yes)], [featureRequest, pro]]],
   ];
   const paid = plans.filter((plan) => plan.monthly);
-  const start = savings(TOOLS.filter(([, , , , on]) => on).map(([id, , , price]) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
+  const start = savings(TOOLS.filter(tool => tool.selected).map(({ id, price }) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
   return `<div class="fp fp--pricing">
     <header class="fp-hero fp-hero--center"><span class="eyebrow">${label}</span><h1><span>${title}.</span> <span class="dim">${lead}</span></h1>
       <fieldset class="pr-cadence" data-plan-cadence><legend class="page-sr">${text.cadence}</legend>
@@ -332,7 +344,7 @@ export function pricingPage(locale, { plans, lifetimePrice, questions, text, tit
     ${seam('hatch')}
     <section class="calc" data-calc data-plans="${plans.map((plan) => `${plan.id}:${plan.annual}`).join(',')}">
       <div class="calc__tools"><h2><span>${t('احسب ما توفّره مع مُعين.', 'See what you save with Moeen.')}</span> <span class="dim">${t('ضع علامة على ما تدفعه اليوم.', 'Tick what you pay for today.')}</span></h2>
-        <ul>${TOOLS.map(([id, name, need, price, on]) => `<li><label><input type="checkbox" data-calc-tool="${id}"${on ? ' checked' : ''}><img src="/assets/logos/${id}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b>${t(...need)}</b><small>${t(`مثل ${name}`, `such as ${name}`)}</small></span></label><span class="calc__price" dir="ltr">$<input type="number" min="0" max="500" step="0.01" value="${price}" data-calc-price="${id}" aria-label="${t(`سعر المقعد شهرياً في ${name}`, `${name} price per seat per month`)}"></span></li>`).join('')}</ul>
+        <ul>${TOOLS.map(({ id, name, category, price, selected, logo = id }) => `<li><label><input type="checkbox" data-calc-tool="${id}"${selected ? ' checked' : ''}><img src="/assets/logos/${logo}.svg" alt="" width="18" height="18"${id === 'chatgpt' ? ' data-mono="chatgpt"' : ''}><span><b><bdi>${name}</bdi></b><small>${t(...TOOL_CATEGORIES[category])}</small></span></label><span class="calc__price" dir="ltr">$<input type="number" min="0" max="500" step="0.01" value="${price}" data-calc-price="${id}" aria-label="${t(`سعر المقعد شهرياً في ${name}`, `${name} price per seat per month`)}"></span></li>`).join('')}</ul>
         <p>${t('أسعار إرشادية لكل مقعد شهرياً مع الفوترة السنوية، راجعناها في نوفمبر 2026. عدّلها إلى ما تدفعه فعلاً، فالخطط تختلف في ميزاتها ولا يغطي مُعين كل ميزة في كل أداة.', 'Guide prices per seat per month, billed yearly, checked in November 2026. Change them to what you actually pay: plans differ, and Moeen doesn’t cover every feature of every tool.')}</p></div>
       <div class="calc__result" aria-live="polite">
         <label class="calc__seats"><span>${t('عدد المقاعد', 'Seats')}</span><output data-calc-seats>${seatCount(10, locale)}</output><input type="range" min="1" max="100" value="10" data-calc-range aria-label="${t('عدد المقاعد', 'Seats')}"></label>
