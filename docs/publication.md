@@ -29,6 +29,8 @@ Use Moeen’s Arabic natural writing skill from the App repository at `.agents/s
 
 The built-in AI is called AI in both languages. Export its black square bot from the App repository with `node scripts/build_brand.mjs` and use `brand/logo/brain/ai_bot.svg` for the website avatar. Use release-matched demo captures for the hero, Chats and AI examples.
 
+Use the App design-system illustrations for the navigation, company cards and pricing plans. From the App checkout, run `node scripts/build_brand.mjs --navigation-dir=<website-checkout>/public/assets/iso`. Then run `node scripts/build_iso.mjs <app-checkout>` from the website checkout to copy the Records, Projects and Workflow scenes for the Free, Plus and Pro cards. Commit the light and dark exports together.
+
 Use the rounded glyphs registered in the App repository’s `packages/ui/src/components/icon.tsx` for website controls and feature icons. The static pages embed those shapes as SVG.
 
 
