@@ -146,6 +146,27 @@ const primaryPages = {
 
 export const sitePages = { ...primaryPages, ...infoPages };
 
+const upcomingUseCases = [
+  [pair('الموارد البشرية', 'Human resources'), 'people'],
+  [pair('المالية', 'Finance'), 'audit'],
+  [pair('العمليات', 'Operations'), 'workflow'],
+  [pair('المبيعات', 'Sales'), 'meetings'],
+  [pair('التسويق', 'Marketing'), 'mail'],
+  [pair('خدمة العملاء', 'Customer support'), 'chat'],
+  [pair('تطوير المنتجات', 'Product development'), 'tasks'],
+  [pair('المشتريات', 'Procurement'), 'approvals'],
+];
+
+export const upcomingModules = [
+  ...upcomingUseCases.map(([name]) => name),
+  pair('المستندات', 'Documents'),
+  pair('الجداول', 'Spreadsheets'),
+  pair('العروض', 'Presentations'),
+  pair('العملاء', 'CRM'),
+  pair('الهندسة', 'Engineering'),
+  pair('الأتمتة', 'Automations'),
+];
+
 export const navigation = [
   { id: 'product', label: pair('المنتج', 'Product'),
     sections: [
@@ -156,16 +177,7 @@ export const navigation = [
     ],
     featured: 'architecture', bottom: ['integrations', 'workflow'] },
   { id: 'use_cases', label: pair('حالات الاستخدام', 'Use cases'),
-    upcoming: [
-      [pair('الموارد البشرية', 'Human resources'), 'people'],
-      [pair('المالية', 'Finance'), 'audit'],
-      [pair('العمليات', 'Operations'), 'workflow'],
-      [pair('المبيعات', 'Sales'), 'meetings'],
-      [pair('التسويق', 'Marketing'), 'mail'],
-      [pair('خدمة العملاء', 'Customer support'), 'chat'],
-      [pair('تطوير المنتجات', 'Product development'), 'tasks'],
-      [pair('المشتريات', 'Procurement'), 'approvals'],
-    ] },
+    upcoming: upcomingUseCases },
   'changelog', 'roadmap', 'blog', 'pricing',
   { id: 'company', label: pair('الشركة', 'Company'),
     tiles: [['about', 'teams'], ['affiliate', 'workflow'], ['support', 'chat'], ['join', 'people']] },

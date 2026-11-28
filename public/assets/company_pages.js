@@ -3,7 +3,7 @@
 // on these pages is sent anywhere: copy buttons write to the visitor's own clipboard.
 import { seam } from './frame.js';
 import { ic, kit } from './feature_pages.js';
-import { infoPages, sitePages } from './site_content.js';
+import { infoPages, sitePages, upcomingModules } from './site_content.js';
 import { pageStories } from './page_story_content.js';
 
 export const companyPageIds = ['affiliate', 'support', 'join', 'about'];
@@ -13,7 +13,7 @@ const EMAIL = 'team@moeen.dev';
 const iso = (name) => `<img class="co-iso" alt="" src="/assets/iso/light/${name}.svg" data-light="/assets/iso/light/${name}.svg" data-dark="/assets/iso/dark/${name}.svg">`;
 const arrow = '<svg class="i i--sm flip" aria-hidden="true"><use href="#i-arrow"/></svg>';
 const check = '<svg class="i i--sm" aria-hidden="true"><use href="#i-check"/></svg>';
-const mark = '<img src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="" width="26" height="20">';
+const mark = (alt = '') => `<img src="/assets/brand/mark_black.svg" data-light="/assets/brand/mark_black.svg" data-dark="/assets/brand/mark_white.svg" alt="${alt}" width="26" height="20">`;
 
 const pages = {
   // ---- Affiliate: choose the page that answers the team's problem ---------------------------------
@@ -101,7 +101,7 @@ const pages = {
       ${seam('hatch')}
       <section class="mailto"><div class="mailto__copy">${h2(t('راسل فريق مُعين', 'Write to the Moeen team'), t('إن لم تجد جوابك هنا.', 'If your answer isn’t here.'))}
           <p class="mailto__subjects">${subjects.map((name) => `<a href="mailto:${EMAIL}?subject=${encodeURIComponent(name)}">${name}</a>`).join('')}</p></div>
-        <div class="mailto__card"><span class="mailto__stamp" aria-hidden="true">${mark}</span><small>${t('إلى', 'To')}</small><a href="mailto:${EMAIL}" dir="ltr">${EMAIL}</a><i aria-hidden="true"></i><i aria-hidden="true"></i>
+        <div class="mailto__card"><span class="mailto__stamp" aria-hidden="true">${mark()}</span><small>${t('إلى', 'To')}</small><a href="mailto:${EMAIL}" dir="ltr">${EMAIL}</a><i aria-hidden="true"></i><i aria-hidden="true"></i>
           <div><button type="button" class="btn btn--solid" data-copy="${EMAIL}" data-copied="${t('نُسخ العنوان', 'Address copied')}">${t('انسخ العنوان', 'Copy the address')}</button><a class="btn btn--ghost" href="mailto:${EMAIL}">${t('اكتب رسالة', 'Write an email')}</a></div></div>
       </section>
     </div>`;
@@ -268,7 +268,7 @@ function savings(tools, seats, rates) {
   return { now, plan, moeen, save: Math.max(0, now - moeen), share: now ? Math.min(100, Math.round((moeen / now) * 100)) : 0 };
 }
 
-export function pricingPage(locale, { plans, questions, text, title, lead, label }) {
+export function pricingPage(locale, { plans, lifetimePrice, questions, text, title, lead, label }) {
   const t = (ar, en) => (locale === 'ar' ? ar : en);
   const L = (pair) => pair[locale];
   const cta = `<a class="btn pr-btn" href="/waitlist/">${text.waitlist}</a>`;
@@ -278,10 +278,20 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     pro: t('لفريق يفوّض عملاً إلى AI.', 'For a team that delegates work to AI.'),
   };
   const base = [t('الفرق والمهام', 'Teams and tasks'), t('المحادثات والاجتماعات', 'Chat and meetings'), t('الملفات والبريد', 'Files and email'), t('التكاملات', 'Integrations')];
+  const privateSupport = t('دعم في مجموعة خاصة 7 أيام في الأسبوع', 'Private group support 7 days a week');
+  const featureRequest = t('اطلب أي ميزة تحتاجها', 'Request any feature you’d like');
+  const featureRequestLink = `<a href="mailto:${EMAIL}?subject=${encodeURIComponent(t('اقتراح ميزة لمُعين', 'Moeen feature request'))}">${featureRequest}</a>`;
+  const supportChannels = `<span class="pr-plan__channels">
+    <img src="/assets/logos/whatsapp.svg" alt="WhatsApp" width="16" height="16">
+    <img src="/assets/logos/slack.svg" alt="Slack" width="16" height="16">
+    ${mark(text.brand)}
+  </span>`;
+  const modules = `<div class="pr-plan__modules"><h3 data-plain>${t('الوحدات القادمة', 'Upcoming modules')}</h3>
+    <ul class="upcoming-list">${upcomingModules.map(name => `<li><span>${L(name)}</span><small>${t('قريبًا', 'Soon')}</small></li>`).join('')}</ul></div>`;
   const includes = {
     free: [null, [text.freeSeats(3), ...base]],
-    plus: [t('كل ما في المجانية، ويضاف إليه:', 'Everything in Free, plus:'), [text.paidSeats]],
-    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['AI', text.knowledge]],
+    plus: [t('كل ما في المجانية، ويضاف إليه:', 'Everything in Free, plus:'), [text.paidSeats, `${privateSupport}${supportChannels}`]],
+    pro: [t('كل ما في بلس، ويضاف إليه:', 'Everything in Plus, plus:'), ['AI', text.knowledge, featureRequestLink]],
   };
   const save = (plan) => Math.round((1 - plan.annual / plan.monthly) * 100);
   const yes = `<span class="pr-yes">${check}</span><span class="page-sr">${t('مشمول', 'Included')}</span>`;
@@ -291,6 +301,7 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     [t('الفريق', 'Team'), [[t('المقاعد', 'Seats'), plans.map((plan) => (plan.seats ? text.freeSeats(plan.seats) : text.paidSeats))], [t('الفرق', 'Teams'), every]]],
     [t('العمل', 'Work'), [[t('المهام', 'Tasks'), every], [t('المحادثات', 'Chat'), every], [t('الاجتماعات', 'Meetings'), every], [t('البريد', 'Email'), every], [t('الملفات', 'Files'), every], [t('التكاملات', 'Integrations'), every]]],
     [t('الذكاء الاصطناعي', 'AI'), [['AI', pro], [text.knowledge, pro]]],
+    [t('الدعم', 'Support'), [[privateSupport, plans.map(plan => plan.id === 'free' ? no : yes)], [featureRequest, pro]]],
   ];
   const paid = plans.filter((plan) => plan.monthly);
   const start = savings(TOOLS.filter(([, , , , on]) => on).map(([id, , , price]) => [id, price]), 10, Object.fromEntries(plans.map((plan) => [plan.id, plan.annual])));
@@ -305,8 +316,18 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
       <div class="pr-plan__cost">${['annual', 'monthly'].map((id) => `<div data-rate="${id}"${id === 'monthly' ? ' hidden' : ''}><p><strong>${money(plan[id])}</strong><span>${plan.monthly ? text.perSeat : ''}</span></p><small>${plan.monthly ? (id === 'annual' ? text.annualNote(money(plan.annual * 12)) : text.monthlyNote) : text.freeNote}</small></div>`).join('')}</div>
       ${cta}
       <div class="pr-plan__list">${intro ? `<p>${intro}</p>` : ''}<ul>${list.map((item) => `<li>${check}<span>${item}</span></li>`).join('')}</ul></div>
-    </article>`; }).join('')}</section>
-    <p class="pr-terms">${text.priceTerms} ${text.payment}</p>
+      ${plan.monthly ? modules : ''}
+    </article>`; }).join('')}
+      <article class="pr-plan pr-plan--lifetime">
+        <header>
+          <h2 data-plain>${t('مدى الحياة', 'Lifetime')}</h2>
+          <p class="pr-plan__for">${t('تحديثات ودعم مدى الحياة.', 'Lifetime updates and support.')}</p>
+        </header>
+        <div class="pr-plan__cost"><p><strong>${money(lifetimePrice)}</strong><span>${t('دفعة واحدة', 'one-time payment')}</span></p></div>
+        <a class="btn pr-btn" href="mailto:${EMAIL}?subject=${encodeURIComponent(t('خطة مُعين مدى الحياة', 'Moeen Lifetime plan'))}">${t('استفسر عن الخطة', 'Ask about Lifetime')}</a>
+      </article>
+    </section>
+    <p class="pr-terms">${text.priceTerms}</p>
 
     ${seam('hatch')}
     <section class="calc" data-calc data-plans="${plans.map((plan) => `${plan.id}:${plan.annual}`).join(',')}">
@@ -323,7 +344,7 @@ export function pricingPage(locale, { plans, questions, text, title, lead, label
     </section>
 
     ${seam('dots')}
-    <section class="pr-table"><table><caption><span>${t('قارن ما تشمله الاشتراكات.', 'Compare what’s included.')}</span></caption>
+    <section class="pr-table"><table><caption><span>${t('قارن الخطط حسب المقعد.', 'Compare seat-based plans.')}</span></caption>
       <thead><tr><td></td>${plans.map((plan) => `<th scope="col"><b>${L(plan.title)}</b>${['annual', 'monthly'].map((id) => `<small data-rate="${id}"${id === 'monthly' ? ' hidden' : ''}>${money(plan[id])}${plan.monthly ? ` ${text.perSeat}` : ''}</small>`).join('')}</th>`).join('')}</tr></thead>
       ${table.map(([name, rows]) => `<tbody><tr><th colspan="4" scope="rowgroup">${name}</th></tr>${rows.map(([row, cells]) => `<tr><th scope="row">${row}</th>${cells.map((cell) => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>`).join('')}
     </table></section>

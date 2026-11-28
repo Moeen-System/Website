@@ -162,6 +162,26 @@
 .pr-plan__list > p { margin-block-end: 8px; color: var(--ink); font-size: 13px; font-weight: 500; }
 .pr-plan__list ul { display: grid; gap: 7px; font-size: 13px; color: var(--ink-2); }
 .pr-plan__list li { display: flex; align-items: center; gap: 8px; } .pr-plan__list .i { color: var(--tint, var(--muted)); }
+.pr-plan__channels { display: flex; align-items: center; gap: 8px; margin-block-start: 8px; }
+.pr-plan__channels img { inline-size: 16px; block-size: 16px; object-fit: contain; }
+.pr-plan__modules { margin-block-start: 16px; padding-block-start: 12px; border-block-start: 1px solid var(--line); }
+.pr-plan__modules h3 { margin-block-end: 8px; }
+.pr-plan__modules ul { display: grid; gap: 5px; }
+.pr-plan__modules li { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--ink-2); font-size: 13px; }
+.pr-plan--lifetime {
+  grid-column: 1 / -1;
+  grid-template: auto / minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px 28px;
+  border-block-start: 1px solid var(--line);
+}
+.pr-plan + .pr-plan--lifetime { border-inline-start: 0; }
+.pr-plan--lifetime > header { display: block; }
+.pr-plan--lifetime .pr-plan__cost { margin: 0; }
+.pr-plan--lifetime .pr-btn { inline-size: auto; justify-self: start; }
+@media (max-width: 639px) {
+  .pr-plan--lifetime { grid-template-columns: minmax(0, 1fr); }
+}
 .pr-terms { margin-block: var(--flush); margin-block-start: 0; padding-block: 16px; font-size: 13px; text-align: center; }
 .fp--pricing .pr-plans { margin-block-end: calc(-1 * var(--fp-gap)); }
 
