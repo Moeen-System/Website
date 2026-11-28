@@ -134,7 +134,7 @@ export const infoPages = {
     image: image('mod_meetings', 1200, 750, 'اجتماع تجريبي مع مهام متابعة', 'A demo meeting with follow-up tasks'),
     related: ['meetings', 'tasks'],
   },
-  docs: { path: '/docs/', label: pair('التوثيق', 'Docs') },
+  docs: { path: '/docs/', label: pair('الدليل', 'Docs') },
 };
 
 export const blogPosts = ['conversations_post', 'approvals_post', 'meetings_post'];
