@@ -24,6 +24,8 @@ Feature, company and article copy lives in `public/assets/page_story_content.js`
 - **Roadmap** uses `/roadmap.json` on the app origin. It renders an initial copy at build time and fetches the feed on load, every minute while visible, and when the page becomes visible again. The feed identifies saved data when GitHub sync is unavailable.
 - **Changelog** reads `/changelog/releases.json` on the app origin at build time. The website pairs release highlights with local light and dark illustrations in image-only cards. Add new feature-to-illustration mappings in `public/assets/product_content.js`; releases that declare artwork can fall back to the audit illustration. Rebuild the website to import new release notes from the App.
 
+- **Contribution calendar** on About and Changelog shows the 365 days ending on the latest recorded App commit. Each square is one calendar day and its shade reflects the number of commits. Refresh the shared daily counts from the App checkout with `node scripts/build_commit_log.mjs ../Moeen`.
+
 The app origin comes from `WAITLIST_API_URL`.
 
 ### Brain update

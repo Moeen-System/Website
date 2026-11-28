@@ -1,4 +1,5 @@
 import { seam } from './frame.js';
+import { contributionCalendar } from './contribution_calendar.js';
 import { swashHeaders } from './swash.js';
 import { blogPosts, infoPages, sitePages } from './site_content.js';
 import { pageStories } from './page_story_content.js';
@@ -184,9 +185,11 @@ function releaseMarkup(release, locale) {
   </article>`;
 }
 
-function changelog(locale, feed, origin) {
+function changelog(locale, feed, origin, activity) {
   const text = copy(locale);
-  if (!feed) return `<p class="page-status">${text.releaseError}</p><a class="link" href="${escape(origin)}/settings/changelog">${text.openReleases}</a>`;
+  const calendar = activity ? contributionCalendar(activity, locale) : '';
+  const head = pageHead('changelog', locale) + (calendar ? seam('hatch') + calendar : '') + seam('hatch');
+  if (!feed) return head + `<p class="page-status">${text.releaseError}</p><a class="link" href="${escape(origin)}/settings/changelog">${text.openReleases}</a>`;
   const latest = feed.releases[0];
   const highlight = latest.changes.find(change => change.id === latest.artwork?.featureId) ?? latest.changes[0];
   const index = `<div class="changelog-index">
@@ -202,7 +205,7 @@ function changelog(locale, feed, origin) {
   </div>`;
   const recent = feed.releases.slice(0, 6).map(release => releaseMarkup(release, locale)).join('');
   const archive = feed.releases.slice(6).map(release => releaseMarkup(release, locale)).join('');
-  return pageHead('changelog', locale) + seam('hatch') + index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
+  return head + index + recent + (archive ? `<details class="release-archive"><summary>${text.archive}${icon('chev')}</summary>${archive}</details>` : '');
 }
 
 export const hasStory = page => Object.hasOwn(pageStories, page) || page === 'blog';
@@ -291,10 +294,10 @@ function information(page, locale, feed) {
     </aside>` : ''}`;
 }
 
-export function renderContent(page, locale, { feed, origin, status } = {}) {
+export function renderContent(page, locale, { feed, origin, status, activity } = {}) {
   const html = page === 'pricing' ? pricing(locale)
     : page === 'roadmap' ? roadmap(locale, feed, status)
-    : page === 'changelog' ? changelog(locale, feed, origin)
+    : page === 'changelog' ? changelog(locale, feed, origin, activity)
     : information(page, locale, feed);
   return locale === 'ar' ? swashHeaders(html) : html;
 }

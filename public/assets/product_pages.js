@@ -1,5 +1,6 @@
 import { copy, pageLead, pageTitle, renderContent, validFeed } from './product_content.js';
 import { initNavigation } from './navigation.js';
+import { initContributionCalendar, showLatestContributions } from './contribution_calendar.js';
 import { initFeaturePage, mountFeaturePage } from './feature_pages.js';
 import { applyPricingCurrency, initCompanyPage } from './company_pages.js';
 import { CURRENCY_OPTIONS, DEFAULT_CURRENCY, detectPricingCurrency } from './pricing_currency.js';
@@ -58,6 +59,7 @@ function openLinkedRelease() {
 function updateContent() {
   content.innerHTML = renderContent(page, locale, context);
   mountFeaturePage(content);
+  showLatestContributions(content);
   if (page === 'pricing') {
     applyCadence();
     applyPricingCurrency(content, pricingCurrency);
@@ -77,6 +79,7 @@ function applyLanguage(rebuild = true) {
   if (rebuild) updateContent();
   else {
     if (page === 'pricing') applyPricingCurrency(content, pricingCurrency);
+    showLatestContributions(content);
     applyTheme();
   }
   root.classList.remove('i18n-pending');
@@ -150,6 +153,7 @@ if (page === 'roadmap') {
 
 initFeaturePage(content);
 initCompanyPage(content);
+initContributionCalendar(content);
 initArchitecturePage(content);
 mountFeaturePage(content);
 applyLanguage(locale === 'en');

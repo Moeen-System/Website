@@ -75,14 +75,15 @@ export async function buildProductPages(root, origin, landing, fontScript) {
   const common = [...landing.matchAll(/<symbol id="i-(?:moon|sun|arrow|check|plus|chev|menu)"[\s\S]*?<\/symbol>/g)].map(([symbol]) => symbol);
   if (common.length !== 7) throw new Error('Missing product page icons in the landing sprite');
   const symbols = common.join('') + productIcons;
-  // The About page draws the app's real history; Join us lists what the roadmap says is next.
+  // About and Changelog share the App contribution record.
   const releases = changelog && { count: changelog.releases.length, latest: changelog.releases[0].version };
   const commits = JSON.parse(await readFile(root + 'scripts/commit_log.json', 'utf8'));
-  const feeds = { roadmap, changelog, join: roadmap, about: { releases, commits } };
+  const activity = { releases, commits };
+  const feeds = { roadmap, changelog, join: roadmap, about: activity };
   await Promise.all(pages.map(async page => {
     const folder = root + 'dist' + sitePages[page].path;
     await mkdir(folder, { recursive: true });
-    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null }, symbols, fontScript));
+    await writeFile(folder + 'index.html', pageDocument(page, { origin, feed: feeds[page] ?? null, ...(page === 'changelog' ? { activity } : {}) }, symbols, fontScript));
   }));
   console.log(`Built ${pages.length} product, company and resource pages.`);
 }
